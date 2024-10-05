@@ -9,7 +9,7 @@ package frc.robot;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  public static final Mode currentMode = Mode.SIM;
+  public static final Mode kCurrentMode = Mode.SIM;
 
   public static enum Mode {
     /** Running on a real robot. */
@@ -20,5 +20,72 @@ public final class Constants {
 
     /** Replaying from a log file. */
     REPLAY
+  }
+
+  public static final class ControllerConstants {
+    public static final int kDriverControllerPort = 0;
+  }
+
+  public static final class DriveConstants {
+    public static final double kTrackWidthInches = 28.0;
+    public static final double kTrackLengthInches = 28.0;
+    public static final double kWheelDiameterInches = 4.0;
+    public static final double kSdrive = 0.0;
+    public static final double kVdrive = 0.0;
+    public static final double kPdrive = 1.0;
+    public static final double kIdrive = 0.0;
+    public static final double kDdrive = 0.0;
+    public static final double kPturn = 1.0;
+    public static final double kIturn = 0.0;
+    public static final double kDturn = 0.0;
+    public static final double kMaxSpeedMetersPerSecond = 4.5;
+    public static final double kMaxAccelerationMetersPerSecondSquared = 3.0;
+  }
+
+  public static enum ModuleLocation {
+    FRONT_LEFT,
+    FRONT_RIGHT,
+    BACK_LEFT,
+    BACK_RIGHT
+  }
+
+  public static final class SwerveModuleConstants {
+    public static final int kFrontLeftDriveMotorPort = 0;
+    public static final int kFrontLeftTurningMotorPort = 1;
+    public static final int kFrontLeftEncoderPort = 0;
+    public static final double kFrontLeftEncoderOffset = 0.0;
+
+    public static final int kFrontRightDriveMotorPort = 2;
+    public static final int kFrontRightTurningMotorPort = 3;
+    public static final int kFrontRightEncoderPort = 1;
+    public static final double kFrontRightEncoderOffset = 0.0;
+
+    public static final int kBackLeftDriveMotorPort = 4;
+    public static final int kBackLeftTurningMotorPort = 5;
+    public static final int kBackLeftEncoderPort = 2;
+    public static final double kBackLeftEncoderOffset = 0.0;
+
+    public static final int kBackRightDriveMotorPort = 6;
+    public static final int kBackRightTurningMotorPort = 7;
+    public static final int kBackRightEncoderPort = 3;
+    public static final double kBackRightEncoderOffset = 0.0;
+
+    // Gear ratios for SDS MK4i L2, adjust as necessary
+    public static final double kDriveGearRatio = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0);
+    public static final double kTurnGearRatio = 150.0 / 7.0;
+
+    public static final int kDriveCurrentLimit = 40;
+    public static final int kTurnCurrentLimit = 30;
+
+  }
+
+
+  public static final class FlywheelConstants {
+    public static final double kP = 0.0;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0;
+    public static final double kF = 0.0;
+    public static final double kMaxSpeed = 0.0;
+    public static final double defaultSpeed = 1500.0;
   }
 }

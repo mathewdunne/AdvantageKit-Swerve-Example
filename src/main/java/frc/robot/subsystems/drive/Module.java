@@ -1,16 +1,3 @@
-// Copyright 2021-2024 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
 package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.controller.PIDController;
@@ -20,10 +7,12 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
+import frc.robot.Constants.*;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
-  private static final double WHEEL_RADIUS = Units.inchesToMeters(2.0);
+  private static final double WHEEL_RADIUS =
+      Units.inchesToMeters(DriveConstants.kWheelDiameterInches / 2.0);
 
   private final ModuleIO io;
   private final ModuleIOInputsAutoLogged inputs = new ModuleIOInputsAutoLogged();
@@ -36,14 +25,22 @@ public class Module {
   private Double speedSetpoint = null; // Setpoint for closed loop control, null for open loop
   private Rotation2d turnRelativeOffset = null; // Relative + Offset = Absolute
 
-  public Module(ModuleIO io, int index) {
+  public Module(ModuleIO io, ModuleLocation location) {
     this.io = io;
-    this.index = index;
+    this.index = location.ordinal();
 
     // Switch constants based on mode (the physics simulator is treated as a
     // separate robot with different tuning)
-    switch (Constants.currentMode) {
+    switch (Constants.kCurrentMode) {
       case REAL:
+        driveFeedforward =
+            new SimpleMotorFeedforward(DriveConstants.kSdrive, DriveConstants.kVdrive);
+        driveFeedback =
+            new PIDController(
+                DriveConstants.kPdrive, DriveConstants.kIdrive, DriveConstants.kDdrive);
+        turnFeedback =
+            new PIDController(DriveConstants.kPturn, DriveConstants.kIturn, DriveConstants.kDturn);
+        break;
       case REPLAY:
         driveFeedforward = new SimpleMotorFeedforward(0.1, 0.13);
         driveFeedback = new PIDController(0.05, 0.0, 0.0);

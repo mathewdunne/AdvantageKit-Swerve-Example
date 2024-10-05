@@ -1,16 +1,3 @@
-// Copyright 2021-2024 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -23,6 +10,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.*;
 import frc.robot.commands.DriveCommands;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.drive.GyroIO;
@@ -49,25 +37,25 @@ public class RobotContainer {
   private final Flywheel flywheel;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(0);
+  private final CommandXboxController controller = new CommandXboxController(ControllerConstants.kDriverControllerPort);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
   private final LoggedDashboardNumber flywheelSpeedInput =
-      new LoggedDashboardNumber("Flywheel Speed", 1500.0);
+      new LoggedDashboardNumber("Flywheel Speed", FlywheelConstants.defaultSpeed);
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-    switch (Constants.currentMode) {
+    switch (Constants.kCurrentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
         drive =
             new Drive(
                 new GyroIONavX(),
-                new ModuleIOSparkMax(0),
-                new ModuleIOSparkMax(1),
-                new ModuleIOSparkMax(2),
-                new ModuleIOSparkMax(3));
+                new ModuleIOSparkMax(ModuleLocation.FRONT_LEFT),
+                new ModuleIOSparkMax(ModuleLocation.FRONT_RIGHT),
+                new ModuleIOSparkMax(ModuleLocation.BACK_LEFT),
+                new ModuleIOSparkMax(ModuleLocation.BACK_RIGHT));
         flywheel = new Flywheel(new FlywheelIOSparkMax());
         break;
 
