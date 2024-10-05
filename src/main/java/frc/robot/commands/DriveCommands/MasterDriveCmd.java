@@ -9,6 +9,7 @@ import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.BaseDriveMode;
 import frc.robot.subsystems.drive.SwerveDrive;
 import java.util.function.DoubleSupplier;
+import org.littletonrobotics.junction.AutoLogOutput;
 
 public class MasterDriveCmd extends Command {
 
@@ -17,8 +18,12 @@ public class MasterDriveCmd extends Command {
   private final DoubleSupplier m_ySupplier;
   private final DoubleSupplier m_omegaSupplier;
 
+  @AutoLogOutput(key = "Drive/BaseMode")
   private BaseDriveMode m_baseDriveMode;
+
+  @AutoLogOutput(key = "Drive/AimMode")
   private AimDriveMode m_aimDriveMode;
+
   private Command currentCommand;
 
   /** Creates a new MasterDriveCommand. */
