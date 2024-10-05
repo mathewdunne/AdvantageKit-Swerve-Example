@@ -22,7 +22,7 @@ import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSparkMax;
-import frc.robot.subsystems.drive.SwerveDrive;
+import frc.robot.subsystems.drive.SwerveSubsystem;
 import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.FlywheelIO;
 import frc.robot.subsystems.flywheel.FlywheelIOSim;
@@ -38,7 +38,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
  */
 public class RobotContainer {
   // Subsystems
-  private final SwerveDrive drive;
+  private final SwerveSubsystem drive;
   private final Flywheel flywheel;
 
   // Controller
@@ -59,7 +59,7 @@ public class RobotContainer {
       case REAL:
         // Real robot, instantiate hardware IO implementations
         drive =
-            new SwerveDrive(
+            new SwerveSubsystem(
                 new GyroIONavX(),
                 new ModuleIOSparkMax(ModuleLocation.FRONT_LEFT),
                 new ModuleIOSparkMax(ModuleLocation.FRONT_RIGHT),
@@ -71,7 +71,7 @@ public class RobotContainer {
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         drive =
-            new SwerveDrive(
+            new SwerveSubsystem(
                 new GyroIO() {},
                 new ModuleIOSim(),
                 new ModuleIOSim(),
@@ -83,7 +83,7 @@ public class RobotContainer {
       default:
         // Replayed robot, disable IO implementations
         drive =
-            new SwerveDrive(
+            new SwerveSubsystem(
                 new GyroIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},

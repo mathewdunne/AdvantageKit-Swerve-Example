@@ -7,13 +7,13 @@ package frc.robot.commands.DriveCommands;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.BaseDriveMode;
-import frc.robot.subsystems.drive.SwerveDrive;
+import frc.robot.subsystems.drive.SwerveSubsystem;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 public class MasterDriveCmd extends Command {
 
-  private final SwerveDrive m_swerveSubsystem;
+  private final SwerveSubsystem m_swerveSubsystem;
   private final DoubleSupplier m_xSupplier;
   private final DoubleSupplier m_ySupplier;
   private final DoubleSupplier m_omegaSupplier;
@@ -28,7 +28,7 @@ public class MasterDriveCmd extends Command {
 
   /** Creates a new MasterDriveCommand. */
   public MasterDriveCmd(
-      SwerveDrive swerveSubsystem,
+      SwerveSubsystem swerveSubsystem,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier) {

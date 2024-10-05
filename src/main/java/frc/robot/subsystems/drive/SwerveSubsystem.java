@@ -32,7 +32,7 @@ import frc.robot.util.LocalADStarAK;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class SwerveDrive extends SubsystemBase {
+public class SwerveSubsystem extends SubsystemBase {
   private static final double MAX_LINEAR_SPEED = DriveConstants.kMaxSpeedMetersPerSecond;
   private static final double TRACK_WIDTH_X =
       Units.inchesToMeters(DriveConstants.kTrackLengthInches);
@@ -59,7 +59,7 @@ public class SwerveDrive extends SubsystemBase {
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, new Pose2d());
 
-  public SwerveDrive(
+  public SwerveSubsystem(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
       ModuleIO frModuleIO,

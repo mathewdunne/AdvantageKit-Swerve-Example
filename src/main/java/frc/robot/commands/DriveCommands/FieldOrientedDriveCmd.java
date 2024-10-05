@@ -14,12 +14,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ControllerConstants;
-import frc.robot.subsystems.drive.SwerveDrive;
+import frc.robot.subsystems.drive.SwerveSubsystem;
 import java.util.function.DoubleSupplier;
 
 public class FieldOrientedDriveCmd extends Command {
 
-  private final SwerveDrive m_swerveSubsystem;
+  private final SwerveSubsystem m_swerveSubsystem;
   private final DoubleSupplier m_xSupplier;
   private final DoubleSupplier m_ySupplier;
   private final DoubleSupplier m_omegaSupplier;
@@ -28,7 +28,7 @@ public class FieldOrientedDriveCmd extends Command {
 
   /** Creates a new SwerveJoystickCommand. */
   public FieldOrientedDriveCmd(
-      SwerveDrive swerveSubsystem,
+      SwerveSubsystem swerveSubsystem,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier) {
