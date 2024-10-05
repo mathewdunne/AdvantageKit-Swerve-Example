@@ -14,8 +14,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.*;
-import frc.robot.commands.DriveCommands;
+import frc.robot.Constants.ControllerConstants;
+import frc.robot.Constants.FlywheelConstants;
+import frc.robot.Constants.ModuleLocation;
+import frc.robot.commands.DriveCommands.RobotOrientedDriveCommand;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -131,11 +133,12 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     drive.setDefaultCommand(
-        DriveCommands.joystickDrive(
+        new RobotOrientedDriveCommand(
             drive,
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
             () -> -controller.getRightX()));
+
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
     controller
         .b()

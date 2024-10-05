@@ -42,7 +42,6 @@ public final class Constants {
     public static final double kIturn = 0.0;
     public static final double kDturn = 0.0;
     public static final double kMaxSpeedMetersPerSecond = 4.5;
-    public static final double kMaxAccelerationMetersPerSecondSquared = 3.0;
   }
 
   public static enum ModuleLocation {
