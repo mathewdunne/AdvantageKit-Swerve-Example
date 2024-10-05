@@ -94,4 +94,20 @@ public final class Constants {
     public static final int kFollowerMotorPort = 11;
     public static final int kCurrentLimit = 30;
   }
+
+  public static enum BaseDriveMode {
+    FIELD_ORIENTED,
+    ROBOT_ORIENTED,
+  }
+
+  public static enum AimDriveMode {
+    NONE,
+    AIM_SPEAKER,
+    AIM_NOTE,
+    FACE_FORWARD,
+    FACE_BACKWARD,
+    FACE_AMP,
+    FACE_SOURCE,
+    PASS
+  }
 }

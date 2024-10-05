@@ -10,34 +10,34 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.subsystems.drive.SwerveDrive;
-
 import java.util.function.DoubleSupplier;
 
-public class RobotOrientedDriveCommand extends Command {
+public class FieldOrientedDriveCmd extends Command {
 
   private final SwerveDrive m_swerveSubsystem;
   private final DoubleSupplier m_xSupplier;
   private final DoubleSupplier m_ySupplier;
   private final DoubleSupplier m_omegaSupplier;
-  private final double DEADBAND;
+
+  private static final double DEADBAND = ControllerConstants.kDriverControllerDeadband;
 
   /** Creates a new SwerveJoystickCommand. */
-  public RobotOrientedDriveCommand(
+  public FieldOrientedDriveCmd(
       SwerveDrive swerveSubsystem,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier) {
-    // Use addRequirements() here to declare subsystem dependencies.
     m_swerveSubsystem = swerveSubsystem;
     m_xSupplier = xSupplier;
     m_ySupplier = ySupplier;
     m_omegaSupplier = omegaSupplier;
-    DEADBAND = ControllerConstants.kDriverControllerDeadband;
 
-    addRequirements(m_swerveSubsystem);
+    // Don't call addReqirements here because the master command will do that
   }
 
   // Called when the command is initially scheduled.
@@ -65,12 +65,18 @@ public class RobotOrientedDriveCommand extends Command {
             .transformBy(new Transform2d(linearMagnitude, 0.0, new Rotation2d()))
             .getTranslation();
 
-    // Send command
+    // Convert to field relative speeds & send command
+    boolean isFlipped =
+        DriverStation.getAlliance().isPresent()
+            && DriverStation.getAlliance().get() == Alliance.Red;
     m_swerveSubsystem.runVelocity(
-        new ChassisSpeeds(
+        ChassisSpeeds.fromFieldRelativeSpeeds(
             linearVelocity.getX() * m_swerveSubsystem.getMaxLinearSpeedMetersPerSec(),
             linearVelocity.getY() * m_swerveSubsystem.getMaxLinearSpeedMetersPerSec(),
-            omega * m_swerveSubsystem.getMaxAngularSpeedRadPerSec()));
+            omega * m_swerveSubsystem.getMaxAngularSpeedRadPerSec(),
+            isFlipped
+                ? m_swerveSubsystem.getRotation().plus(new Rotation2d(Math.PI))
+                : m_swerveSubsystem.getRotation()));
   }
 
   // Called once the command ends or is interrupted.

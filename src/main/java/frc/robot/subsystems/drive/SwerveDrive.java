@@ -243,6 +243,11 @@ public class SwerveDrive extends SubsystemBase {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
   }
 
+  /** Resets the current odometry pose (0, 0) */
+  public void resetOdometry() {
+    setPose(new Pose2d());
+  }
+
   /**
    * Adds a vision measurement to the pose estimator.
    *
