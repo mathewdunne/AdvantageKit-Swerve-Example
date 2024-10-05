@@ -76,16 +76,20 @@ public final class Constants {
 
     public static final int kDriveCurrentLimit = 40;
     public static final int kTurnCurrentLimit = 30;
-
   }
 
-
   public static final class FlywheelConstants {
-    public static final double kP = 0.0;
+    public static final double kS = 0.0;
+    public static final double kV = 0.0;
+    public static final double kP = 1.0;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
-    public static final double kF = 0.0;
-    public static final double kMaxSpeed = 0.0;
     public static final double defaultSpeed = 1500.0;
+
+    public static final double kGearRatio = 1.5;
+
+    public static final int kLeaderMotorPort = 10;
+    public static final int kFollowerMotorPort = 11;
+    public static final int kCurrentLimit = 30;
   }
 }

@@ -1,19 +1,6 @@
-// Copyright 2021-2024 FRC 6328
-// http://github.com/Mechanical-Advantage
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// version 3 as published by the Free Software Foundation or
-// available in the root directory of this project.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-// GNU General Public License for more details.
-
 package frc.robot.subsystems.flywheel;
 
-import static edu.wpi.first.units.Units.*;
+import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.util.Units;
@@ -21,6 +8,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.Constants.FlywheelConstants;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -38,6 +26,9 @@ public class Flywheel extends SubsystemBase {
     // separate robot with different tuning)
     switch (Constants.kCurrentMode) {
       case REAL:
+        ffModel = new SimpleMotorFeedforward(FlywheelConstants.kS, FlywheelConstants.kV);
+        io.configurePID(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
+        break;
       case REPLAY:
         ffModel = new SimpleMotorFeedforward(0.1, 0.05);
         io.configurePID(1.0, 0.0, 0.0);

@@ -7,7 +7,8 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
-import frc.robot.Constants.*;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.ModuleLocation;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {

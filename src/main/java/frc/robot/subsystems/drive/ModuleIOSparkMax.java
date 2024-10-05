@@ -8,7 +8,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.RobotController;
-import frc.robot.Constants.*;
+import frc.robot.Constants.ModuleLocation;
+import frc.robot.Constants.SwerveModuleConstants;
 
 /**
  * Module IO implementation for SparkMax drive motor controller, SparkMax turn motor controller (NEO
@@ -41,8 +42,7 @@ public class ModuleIOSparkMax implements ModuleIO {
         turnSparkMax =
             new CANSparkMax(SwerveModuleConstants.kFrontLeftTurningMotorPort, MotorType.kBrushless);
         turnAbsoluteEncoder = new AnalogInput(SwerveModuleConstants.kFrontLeftEncoderPort);
-        absoluteEncoderOffset =
-            new Rotation2d(SwerveModuleConstants.kFrontLeftEncoderOffset);
+        absoluteEncoderOffset = new Rotation2d(SwerveModuleConstants.kFrontLeftEncoderOffset);
         break;
       case FRONT_RIGHT:
         driveSparkMax =
@@ -51,8 +51,7 @@ public class ModuleIOSparkMax implements ModuleIO {
             new CANSparkMax(
                 SwerveModuleConstants.kFrontRightTurningMotorPort, MotorType.kBrushless);
         turnAbsoluteEncoder = new AnalogInput(SwerveModuleConstants.kFrontRightEncoderPort);
-        absoluteEncoderOffset =
-            new Rotation2d(SwerveModuleConstants.kFrontRightEncoderOffset);
+        absoluteEncoderOffset = new Rotation2d(SwerveModuleConstants.kFrontRightEncoderOffset);
         break;
       case BACK_LEFT:
         driveSparkMax =
@@ -60,8 +59,7 @@ public class ModuleIOSparkMax implements ModuleIO {
         turnSparkMax =
             new CANSparkMax(SwerveModuleConstants.kBackLeftTurningMotorPort, MotorType.kBrushless);
         turnAbsoluteEncoder = new AnalogInput(SwerveModuleConstants.kBackLeftEncoderPort);
-        absoluteEncoderOffset =
-            new Rotation2d(SwerveModuleConstants.kBackLeftEncoderOffset);
+        absoluteEncoderOffset = new Rotation2d(SwerveModuleConstants.kBackLeftEncoderOffset);
         break;
       case BACK_RIGHT:
         driveSparkMax =
@@ -69,8 +67,7 @@ public class ModuleIOSparkMax implements ModuleIO {
         turnSparkMax =
             new CANSparkMax(SwerveModuleConstants.kBackRightTurningMotorPort, MotorType.kBrushless);
         turnAbsoluteEncoder = new AnalogInput(SwerveModuleConstants.kBackRightEncoderPort);
-        absoluteEncoderOffset =
-            new Rotation2d(SwerveModuleConstants.kBackRightEncoderOffset);
+        absoluteEncoderOffset = new Rotation2d(SwerveModuleConstants.kBackRightEncoderOffset);
         break;
       default:
         throw new RuntimeException("Invalid module index");

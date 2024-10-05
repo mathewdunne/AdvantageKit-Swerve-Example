@@ -37,7 +37,8 @@ public class RobotContainer {
   private final Flywheel flywheel;
 
   // Controller
-  private final CommandXboxController controller = new CommandXboxController(ControllerConstants.kDriverControllerPort);
+  private final CommandXboxController controller =
+      new CommandXboxController(ControllerConstants.kDriverControllerPort);
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> autoChooser;
