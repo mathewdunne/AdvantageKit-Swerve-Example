@@ -1,3 +1,7 @@
+// Copyright (c) FIRST and other WPILib contributors.
+// Open Source Software; you can modify and/or share it under the terms of
+// the WPILib BSD license file in the root directory of this project.
+
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
@@ -12,7 +16,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.*;
 import frc.robot.commands.DriveCommands;
-import frc.robot.subsystems.drive.Drive;
+import frc.robot.subsystems.drive.SwerveDrive;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -33,7 +37,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
  */
 public class RobotContainer {
   // Subsystems
-  private final Drive drive;
+  private final SwerveDrive drive;
   private final Flywheel flywheel;
 
   // Controller
@@ -51,7 +55,7 @@ public class RobotContainer {
       case REAL:
         // Real robot, instantiate hardware IO implementations
         drive =
-            new Drive(
+            new SwerveDrive(
                 new GyroIONavX(),
                 new ModuleIOSparkMax(ModuleLocation.FRONT_LEFT),
                 new ModuleIOSparkMax(ModuleLocation.FRONT_RIGHT),
@@ -63,7 +67,7 @@ public class RobotContainer {
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         drive =
-            new Drive(
+            new SwerveDrive(
                 new GyroIO() {},
                 new ModuleIOSim(),
                 new ModuleIOSim(),
@@ -75,7 +79,7 @@ public class RobotContainer {
       default:
         // Replayed robot, disable IO implementations
         drive =
-            new Drive(
+            new SwerveDrive(
                 new GyroIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
