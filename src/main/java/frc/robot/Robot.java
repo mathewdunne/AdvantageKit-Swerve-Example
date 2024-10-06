@@ -29,8 +29,8 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
  * project.
  */
 public class Robot extends LoggedRobot {
-  private Command autonomousCommand;
-  private RobotContainer robotContainer;
+  private Command m_autonomousCommand;
+  private RobotContainer m_robotContainer;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -86,7 +86,7 @@ public class Robot extends LoggedRobot {
 
     // Instantiate our RobotContainer. This will perform all our button bindings,
     // and put our autonomous chooser on the dashboard.
-    robotContainer = new RobotContainer();
+    m_robotContainer = new RobotContainer();
   }
 
   /** This function is called periodically during all modes. */
@@ -111,11 +111,11 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
-    autonomousCommand = robotContainer.getAutonomousCommand();
+    m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
-    if (autonomousCommand != null) {
-      autonomousCommand.schedule();
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.schedule();
     }
   }
 
@@ -130,8 +130,8 @@ public class Robot extends LoggedRobot {
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
     // this line or comment it out.
-    if (autonomousCommand != null) {
-      autonomousCommand.cancel();
+    if (m_autonomousCommand != null) {
+      m_autonomousCommand.cancel();
     }
   }
 

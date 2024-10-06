@@ -24,7 +24,7 @@ public class MasterDriveCmd extends Command {
   @AutoLogOutput(key = "Drive/AimMode")
   private AimDriveMode m_aimDriveMode;
 
-  private Command currentCommand;
+  private Command m_currentCommand;
 
   /** Creates a new MasterDriveCommand. */
   public MasterDriveCmd(
@@ -53,16 +53,16 @@ public class MasterDriveCmd extends Command {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (currentCommand != null) {
-      currentCommand.schedule();
+    if (m_currentCommand != null) {
+      m_currentCommand.schedule();
     }
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    if (currentCommand != null) {
-      currentCommand.end(interrupted);
+    if (m_currentCommand != null) {
+      m_currentCommand.end(interrupted);
     }
   }
 
@@ -75,10 +75,10 @@ public class MasterDriveCmd extends Command {
   private void setDriveCommand() {
     if (m_aimDriveMode == AimDriveMode.NONE) {
       if (m_baseDriveMode == BaseDriveMode.FIELD_ORIENTED) {
-        currentCommand =
+        m_currentCommand =
             new FieldOrientedDriveCmd(m_swerveSubsystem, m_xSupplier, m_ySupplier, m_omegaSupplier);
       } else {
-        currentCommand =
+        m_currentCommand =
             new RobotOrientedDriveCmd(m_swerveSubsystem, m_xSupplier, m_ySupplier, m_omegaSupplier);
       }
     } else {

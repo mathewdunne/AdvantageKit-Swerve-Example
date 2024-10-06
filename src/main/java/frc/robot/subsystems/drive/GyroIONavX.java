@@ -11,17 +11,17 @@ import edu.wpi.first.wpilibj.SPI;
 
 /** IO implementation for Pigeon2 */
 public class GyroIONavX implements GyroIO {
-  private final AHRS navx;
+  private final AHRS m_navx;
 
   public GyroIONavX() {
-    navx = new AHRS(SPI.Port.kMXP);
-    navx.reset();
+    m_navx = new AHRS(SPI.Port.kMXP);
+    m_navx.reset();
   }
 
   @Override
   public void updateInputs(GyroIOInputs inputs) {
-    inputs.connected = navx.isConnected();
-    inputs.yawPosition = Rotation2d.fromDegrees(navx.getYaw());
-    inputs.yawVelocityRadPerSec = Units.degreesToRadians(navx.getRate());
+    inputs.connected = m_navx.isConnected();
+    inputs.yawPosition = Rotation2d.fromDegrees(m_navx.getYaw());
+    inputs.yawVelocityRadPerSec = Units.degreesToRadians(m_navx.getRate());
   }
 }

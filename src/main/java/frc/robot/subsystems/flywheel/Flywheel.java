@@ -17,37 +17,37 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends SubsystemBase {
-  private final FlywheelIO io;
-  private final FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged();
-  private final SimpleMotorFeedforward ffModel;
-  private final SysIdRoutine sysId;
+  private final FlywheelIO m_io;
+  private final FlywheelIOInputsAutoLogged m_inputs = new FlywheelIOInputsAutoLogged();
+  private final SimpleMotorFeedforward m_ffModel;
+  private final SysIdRoutine m_sysId;
 
   /** Creates a new Flywheel. */
   public Flywheel(FlywheelIO io) {
-    this.io = io;
+    m_io = io;
 
     // Switch constants based on mode (the physics simulator is treated as a
     // separate robot with different tuning)
     switch (Constants.kCurrentMode) {
       case REAL:
-        ffModel = new SimpleMotorFeedforward(FlywheelConstants.kS, FlywheelConstants.kV);
+        m_ffModel = new SimpleMotorFeedforward(FlywheelConstants.kS, FlywheelConstants.kV);
         io.configurePID(FlywheelConstants.kP, FlywheelConstants.kI, FlywheelConstants.kD);
         break;
       case REPLAY:
-        ffModel = new SimpleMotorFeedforward(0.1, 0.05);
+        m_ffModel = new SimpleMotorFeedforward(0.1, 0.05);
         io.configurePID(1.0, 0.0, 0.0);
         break;
       case SIM:
-        ffModel = new SimpleMotorFeedforward(0.0, 0.03);
+        m_ffModel = new SimpleMotorFeedforward(0.0, 0.03);
         io.configurePID(0.5, 0.0, 0.0);
         break;
       default:
-        ffModel = new SimpleMotorFeedforward(0.0, 0.0);
+        m_ffModel = new SimpleMotorFeedforward(0.0, 0.0);
         break;
     }
 
     // Configure SysId
-    sysId =
+    m_sysId =
         new SysIdRoutine(
             new SysIdRoutine.Config(
                 null,
@@ -59,19 +59,19 @@ public class Flywheel extends SubsystemBase {
 
   @Override
   public void periodic() {
-    io.updateInputs(inputs);
-    Logger.processInputs("Flywheel", inputs);
+    m_io.updateInputs(m_inputs);
+    Logger.processInputs("Flywheel", m_inputs);
   }
 
   /** Run open loop at the specified voltage. */
   public void runVolts(double volts) {
-    io.setVoltage(volts);
+    m_io.setVoltage(volts);
   }
 
   /** Run closed loop at the specified velocity. */
   public void runVelocity(double velocityRPM) {
     var velocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(velocityRPM);
-    io.setVelocity(velocityRadPerSec, ffModel.calculate(velocityRadPerSec));
+    m_io.setVelocity(velocityRadPerSec, m_ffModel.calculate(velocityRadPerSec));
 
     // Log flywheel setpoint
     Logger.recordOutput("Flywheel/SetpointRPM", velocityRPM);
@@ -79,27 +79,27 @@ public class Flywheel extends SubsystemBase {
 
   /** Stops the flywheel. */
   public void stop() {
-    io.stop();
+    m_io.stop();
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */
   public Command sysIdQuasistatic(SysIdRoutine.Direction direction) {
-    return sysId.quasistatic(direction);
+    return m_sysId.quasistatic(direction);
   }
 
   /** Returns a command to run a dynamic test in the specified direction. */
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
-    return sysId.dynamic(direction);
+    return m_sysId.dynamic(direction);
   }
 
   /** Returns the current velocity in RPM. */
   @AutoLogOutput
   public double getVelocityRPM() {
-    return Units.radiansPerSecondToRotationsPerMinute(inputs.velocityRadPerSec);
+    return Units.radiansPerSecondToRotationsPerMinute(m_inputs.velocityRadPerSec);
   }
 
   /** Returns the current velocity in radians per second. */
   public double getCharacterizationVelocity() {
-    return inputs.velocityRadPerSec;
+    return m_inputs.velocityRadPerSec;
   }
 }

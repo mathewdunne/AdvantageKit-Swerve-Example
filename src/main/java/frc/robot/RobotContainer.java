@@ -38,58 +38,58 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
  */
 public class RobotContainer {
   // Subsystems
-  private final SwerveSubsystem drive;
-  private final Flywheel flywheel;
+  private final SwerveSubsystem m_swerveDrive;
+  private final Flywheel m_flywheel;
 
   // Controller
-  private final CommandXboxController controller =
+  private final CommandXboxController m_driverController =
       new CommandXboxController(ControllerConstants.kDriverControllerPort);
 
   // Dashboard inputs
-  private final LoggedDashboardChooser<Command> autoChooser;
-  private final LoggedDashboardNumber flywheelSpeedInput =
+  private final LoggedDashboardChooser<Command> m_autoChooser;
+  private final LoggedDashboardNumber m_flywheelSpeedInput =
       new LoggedDashboardNumber("Flywheel Speed", FlywheelConstants.defaultSpeed);
 
   // Commands
-  private MasterDriveCmd masterDriveCmd;
+  private final MasterDriveCmd m_masterDriveCmd;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     switch (Constants.kCurrentMode) {
       case REAL:
         // Real robot, instantiate hardware IO implementations
-        drive =
+        m_swerveDrive =
             new SwerveSubsystem(
                 new GyroIONavX(),
                 new ModuleIOSparkMax(ModuleLocation.FRONT_LEFT),
                 new ModuleIOSparkMax(ModuleLocation.FRONT_RIGHT),
                 new ModuleIOSparkMax(ModuleLocation.BACK_LEFT),
                 new ModuleIOSparkMax(ModuleLocation.BACK_RIGHT));
-        flywheel = new Flywheel(new FlywheelIOSparkMax());
+        m_flywheel = new Flywheel(new FlywheelIOSparkMax());
         break;
 
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
-        drive =
+        m_swerveDrive =
             new SwerveSubsystem(
                 new GyroIO() {},
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new ModuleIOSim());
-        flywheel = new Flywheel(new FlywheelIOSim());
+        m_flywheel = new Flywheel(new FlywheelIOSim());
         break;
 
       default:
         // Replayed robot, disable IO implementations
-        drive =
+        m_swerveDrive =
             new SwerveSubsystem(
                 new GyroIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        flywheel = new Flywheel(new FlywheelIO() {});
+        m_flywheel = new Flywheel(new FlywheelIO() {});
         break;
     }
 
@@ -97,39 +97,45 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "Run Flywheel",
         Commands.startEnd(
-                () -> flywheel.runVelocity(flywheelSpeedInput.get()), flywheel::stop, flywheel)
+                () -> m_flywheel.runVelocity(m_flywheelSpeedInput.get()),
+                m_flywheel::stop,
+                m_flywheel)
             .withTimeout(5.0));
-    autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+    m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
-    autoChooser.addOption(
+    m_autoChooser.addOption(
         "Drive SysId (Quasistatic Forward)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
+        m_swerveDrive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    m_autoChooser.addOption(
         "Drive SysId (Quasistatic Reverse)",
-        drive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
+        m_swerveDrive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    m_autoChooser.addOption(
+        "Drive SysId (Dynamic Forward)",
+        m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    m_autoChooser.addOption(
+        "Drive SysId (Dynamic Reverse)",
+        m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    m_autoChooser.addOption(
         "Flywheel SysId (Quasistatic Forward)",
-        flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
+        m_flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    m_autoChooser.addOption(
         "Flywheel SysId (Quasistatic Reverse)",
-        flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    autoChooser.addOption(
-        "Flywheel SysId (Dynamic Forward)", flywheel.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    autoChooser.addOption(
-        "Flywheel SysId (Dynamic Reverse)", flywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        m_flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    m_autoChooser.addOption(
+        "Flywheel SysId (Dynamic Forward)",
+        m_flywheel.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    m_autoChooser.addOption(
+        "Flywheel SysId (Dynamic Reverse)",
+        m_flywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse));
 
     // Create master drive command
-    masterDriveCmd =
+    m_masterDriveCmd =
         new MasterDriveCmd(
-            drive,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX(),
-            () -> -controller.getRightX());
+            m_swerveDrive,
+            () -> -m_driverController.getLeftY(),
+            () -> -m_driverController.getLeftX(),
+            () -> -m_driverController.getRightX());
 
     // Configure the button bindings
     configureButtonBindings();
@@ -142,12 +148,14 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    drive.setDefaultCommand(masterDriveCmd);
+    m_swerveDrive.setDefaultCommand(m_masterDriveCmd);
 
-    controller.leftStick().onTrue(new InstantCommand(() -> masterDriveCmd.toggleBaseDriveMode()));
-    controller
+    m_driverController
+        .leftStick()
+        .onTrue(new InstantCommand(() -> m_masterDriveCmd.toggleBaseDriveMode()));
+    m_driverController
         .rightStick()
-        .onTrue(new InstantCommand(() -> drive.resetOdometry()).ignoringDisable(true));
+        .onTrue(new InstantCommand(() -> m_swerveDrive.resetOdometry()).ignoringDisable(true));
   }
 
   /**
@@ -156,6 +164,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.get();
+    return m_autoChooser.get();
   }
 }

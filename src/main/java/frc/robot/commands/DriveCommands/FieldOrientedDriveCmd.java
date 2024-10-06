@@ -24,8 +24,6 @@ public class FieldOrientedDriveCmd extends Command {
   private final DoubleSupplier m_ySupplier;
   private final DoubleSupplier m_omegaSupplier;
 
-  private static final double DEADBAND = ControllerConstants.kDriverControllerDeadband;
-
   /** Creates a new SwerveJoystickCommand. */
   public FieldOrientedDriveCmd(
       SwerveSubsystem swerveSubsystem,
@@ -50,10 +48,13 @@ public class FieldOrientedDriveCmd extends Command {
     // Apply deadband
     double linearMagnitude =
         MathUtil.applyDeadband(
-            Math.hypot(m_xSupplier.getAsDouble(), m_ySupplier.getAsDouble()), DEADBAND);
+            Math.hypot(m_xSupplier.getAsDouble(), m_ySupplier.getAsDouble()),
+            ControllerConstants.kDriverControllerDeadband);
     Rotation2d linearDirection =
         new Rotation2d(m_xSupplier.getAsDouble(), m_ySupplier.getAsDouble());
-    double omega = MathUtil.applyDeadband(m_omegaSupplier.getAsDouble(), DEADBAND);
+    double omega =
+        MathUtil.applyDeadband(
+            m_omegaSupplier.getAsDouble(), ControllerConstants.kDriverControllerDeadband);
 
     // Square values
     linearMagnitude = linearMagnitude * linearMagnitude;
