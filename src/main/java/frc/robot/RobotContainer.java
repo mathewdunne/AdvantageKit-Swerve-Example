@@ -6,6 +6,9 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,6 +32,8 @@ import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.flywheel.FlywheelIOSparkMax;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
+
+import java.util.Random;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -156,6 +161,20 @@ public class RobotContainer {
     m_driverController
         .rightStick()
         .onTrue(new InstantCommand(() -> m_swerveDrive.resetOdometry()).ignoringDisable(true));
+
+    // Apply a random offset to pose estimator to test vision correction
+    m_driverController
+        .y()
+        .onTrue(
+            new InstantCommand(
+                () -> {
+                  Random rand = new Random();
+                  Transform2d randomOffset =
+                      new Transform2d(
+                          new Translation2d(rand.nextDouble() * 4 - 2, rand.nextDouble() * 4 - 2),
+                          new Rotation2d(rand.nextDouble() * 2 * Math.PI));
+                  m_swerveDrive.setPose(m_swerveDrive.getPose().plus(randomOffset));
+                }));
   }
 
   /**
