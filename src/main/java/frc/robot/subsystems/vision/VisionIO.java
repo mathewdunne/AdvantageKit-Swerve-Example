@@ -4,16 +4,26 @@
 
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.math.geometry.Rotation2d;
-import org.littletonrobotics.junction.AutoLog;
+import edu.wpi.first.math.geometry.Pose2d;
+import org.littletonrobotics.junction.LogTable;
+import org.littletonrobotics.junction.inputs.LoggableInputs;
 
 public interface VisionIO {
-  @AutoLog
-  public static class VisionIOInputs {
-    public boolean connected = false;
-    public Rotation2d yawPosition = new Rotation2d();
-    public double yawVelocityRadPerSec = 0.0;
-  }
+
+  public static class VisionIOInputs implements LoggableInputs {
+    public double captureTimestamp = 0.0;
+    public Pose2d estimatedPose = new Pose2d();
+
+    public void toLog(LogTable table) {
+        table.put("CaptureTimestamp", captureTimestamp);
+        table.put("EstimatedPose", estimatedPose);
+    }
+
+    public void fromLog(LogTable table) {
+        captureTimestamp = table.get("CaptureTimestamp", captureTimestamp);
+        estimatedPose = table.get("EstimatedPose", estimatedPose);
+    }
+}
 
   public default void updateInputs(VisionIOInputs inputs) {}
 }
