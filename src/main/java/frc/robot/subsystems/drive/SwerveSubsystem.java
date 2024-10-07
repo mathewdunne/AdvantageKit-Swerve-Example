@@ -26,6 +26,7 @@ import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleLocation;
 import frc.robot.util.LocalADStarAK;
@@ -46,6 +47,10 @@ public class SwerveSubsystem extends SubsystemBase {
   private final GyroIOInputsAutoLogged m_gyroInputs = new GyroIOInputsAutoLogged();
   private final Module[] m_modules = new Module[4]; // FL, FR, BL, BR
   private final SysIdRoutine m_sysId;
+
+  // noiseless "actual" pose of the robot on the field (for vision simulation)
+  @AutoLogOutput(key = "Odometry/SimRobotTrue")
+  private Pose2d m_simTruePose;
 
   private SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(getModuleTranslations());
   private Rotation2d m_rawGyroRotation = new Rotation2d();
@@ -111,6 +116,11 @@ public class SwerveSubsystem extends SubsystemBase {
                 },
                 null,
                 this));
+
+    // True pose for vision sim
+    if (Constants.kCurrentMode == Constants.Mode.SIM) {
+      m_simTruePose = new Pose2d();
+    }
   }
 
   public void periodic() {
@@ -156,6 +166,10 @@ public class SwerveSubsystem extends SubsystemBase {
 
     // Apply odometry update
     m_poseEstimator.update(m_rawGyroRotation, modulePositions);
+
+    if (Constants.kCurrentMode == Constants.Mode.SIM) {
+      m_simTruePose = m_simTruePose.exp(m_kinematics.toTwist2d(moduleDeltas));
+    }
   }
 
   /**
@@ -242,6 +256,11 @@ public class SwerveSubsystem extends SubsystemBase {
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
     m_poseEstimator.resetPosition(m_rawGyroRotation, getModulePositions(), pose);
+
+    // Reset true pose for vision sim
+    if (Constants.kCurrentMode == Constants.Mode.SIM) {
+      m_simTruePose = pose;
+    }
   }
 
   /** Resets the current odometry pose (0, 0) */
