@@ -299,4 +299,9 @@ public class SwerveSubsystem extends SubsystemBase {
       new Translation2d(-m_trackWidthX / 2.0, -m_trackWidthY / 2.0)
     };
   }
+
+  /** Returns the true pose of the robot on the field (for vision simulation). */
+  public Pose2d getSimTruePose() {
+    return m_simTruePose;
+  }
 }

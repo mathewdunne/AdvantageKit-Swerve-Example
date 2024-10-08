@@ -41,9 +41,11 @@ public interface VisionIO {
     }
 
     /** Method to unpack a byte array into a PhotonPipelineResult */
-    public static PhotonPipelineResult deserializePipelineResult(byte[] data) {
+    public static PhotonPipelineResult deserializePipelineResult(byte[] data, double timestamp) {
       Packet packet = new Packet(data);
-      return serde.unpack(packet);
+      PhotonPipelineResult result = serde.unpack(packet);
+      result.setTimestampSeconds(timestamp);
+      return result;
     }
   }
 
@@ -56,11 +58,13 @@ public interface VisionIO {
   // ONLY NEEDED FOR SIMULATION
   /** Updates the simulation with the true robot pose. Must be called from a subsystem */
   public default void simulationPeriodic(Pose2d simTruePose) {
-    throw new UnsupportedOperationException("simulationPeriodic is not supported outside of simulation");
+    throw new UnsupportedOperationException(
+        "simulationPeriodic is not supported outside of simulation");
   }
 
   /** A Field2d for visualizing our robot and objects on the field. */
   public default Field2d getSimDebugField() {
-    throw new UnsupportedOperationException("getSimDebugField is not supported outside of simulation");
+    throw new UnsupportedOperationException(
+        "getSimDebugField is not supported outside of simulation");
   }
 }

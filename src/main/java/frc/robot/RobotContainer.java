@@ -30,10 +30,11 @@ import frc.robot.subsystems.flywheel.Flywheel;
 import frc.robot.subsystems.flywheel.FlywheelIO;
 import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.flywheel.FlywheelIOSparkMax;
+import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIOPhotonSim;
+import java.util.Random;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
-
-import java.util.Random;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -45,6 +46,7 @@ public class RobotContainer {
   // Subsystems
   private final SwerveSubsystem m_swerveDrive;
   private final Flywheel m_flywheel;
+  private final Vision m_vision;
 
   // Controller
   private final CommandXboxController m_driverController =
@@ -71,6 +73,7 @@ public class RobotContainer {
                 new ModuleIOSparkMax(ModuleLocation.BACK_LEFT),
                 new ModuleIOSparkMax(ModuleLocation.BACK_RIGHT));
         m_flywheel = new Flywheel(new FlywheelIOSparkMax());
+        m_vision = null; // TO DO
         break;
 
       case SIM:
@@ -83,6 +86,11 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim());
         m_flywheel = new Flywheel(new FlywheelIOSim());
+        m_vision =
+            new Vision(
+                new VisionIOPhotonSim() {},
+                m_swerveDrive::addVisionMeasurement,
+                m_swerveDrive::getSimTruePose);
         break;
 
       default:
@@ -95,6 +103,7 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {});
         m_flywheel = new Flywheel(new FlywheelIO() {});
+        m_vision = null; // TO DO
         break;
     }
 

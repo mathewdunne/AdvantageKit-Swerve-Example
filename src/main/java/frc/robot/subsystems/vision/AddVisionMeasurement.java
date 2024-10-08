@@ -9,5 +9,5 @@ import edu.wpi.first.math.numbers.N3;
 // so that the vision subsystem can add measurements to the pose estimator in the SwerveSubsystem
 @FunctionalInterface
 public interface AddVisionMeasurement {
-    void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> covariance);
+  void addVisionMeasurement(Pose2d pose, double timestamp, Matrix<N3, N1> covariance);
 }

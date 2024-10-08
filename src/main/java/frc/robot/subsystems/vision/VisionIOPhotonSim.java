@@ -7,8 +7,8 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import frc.robot.Robot;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.Robot;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
@@ -39,6 +39,8 @@ public class VisionIOPhotonSim implements VisionIO {
     // Add the simulated camera to view the targets on this simulated field.
     m_visionSim.addCamera(m_cameraSim, VisionConstants.kRobotToCam);
 
+    m_cameraSim.enableRawStream(true);
+    m_cameraSim.enableProcessedStream(true);
     m_cameraSim.enableDrawWireframe(true);
   }
 
