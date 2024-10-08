@@ -4,15 +4,14 @@
 
 package frc.robot.subsystems.vision;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
-import org.photonvision.EstimatedRobotPose;
-import org.photonvision.PhotonPoseEstimator;
+import org.photonvision.PhotonCamera;
 import org.photonvision.common.dataflow.structures.Packet;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonPipelineResult.APacketSerde;
-
-import java.util.Optional;
 
 public interface VisionIO {
 
@@ -34,7 +33,7 @@ public interface VisionIO {
       pipelineResult = table.get("PipelineResult", pipelineResult);
     }
 
-    /**  Method to pack a PhotonPipelineResult into a byte array */
+    /** Method to pack a PhotonPipelineResult into a byte array */
     public static byte[] serializePipelineResult(PhotonPipelineResult result) {
       Packet packet = new Packet(result.getPacketSize());
       serde.pack(packet, result);
@@ -51,11 +50,17 @@ public interface VisionIO {
   /** Updates the set of loggable inputs. */
   public default void updateInputs(VisionIOInputs inputs) {}
 
-  /** Returns the latest PhotonPipelineResult */
-  public PhotonPipelineResult getLatestResult();
+  /** Gets the PhotonCamera object. Must be implemented in both simulation and real robot classes */
+  public PhotonCamera getCamera();
 
-  /** Returns the latest estimated robot pose from vision data */
-  public Optional<EstimatedRobotPose> getEstimatedGlobalPose(PhotonPoseEstimator estimator);
+  // ONLY NEEDED FOR SIMULATION
+  /** Updates the simulation with the true robot pose. Must be called from a subsystem */
+  public default void simulationPeriodic(Pose2d simTruePose) {
+    throw new UnsupportedOperationException("simulationPeriodic is not supported outside of simulation");
+  }
 
+  /** A Field2d for visualizing our robot and objects on the field. */
+  public default Field2d getSimDebugField() {
+    throw new UnsupportedOperationException("getSimDebugField is not supported outside of simulation");
+  }
 }
-

@@ -4,30 +4,21 @@
 
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.numbers.N1;
-import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
-import frc.robot.Constants.VisionConstants;
 import frc.robot.Robot;
-import org.photonvision.EstimatedRobotPose;
+import frc.robot.Constants.VisionConstants;
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
 import org.photonvision.simulation.VisionSystemSim;
 import org.photonvision.targeting.PhotonPipelineResult;
 
-import java.util.Optional;
-
 public class VisionIOPhotonSim implements VisionIO {
   private final PhotonCamera m_camera;
   private final PhotonCameraSim m_cameraSim;
   private final VisionSystemSim m_visionSim;
-  private double m_lastEstTimestamp = 0;
 
   public VisionIOPhotonSim() {
     m_camera = new PhotonCamera(VisionConstants.kCameraName);
@@ -58,76 +49,17 @@ public class VisionIOPhotonSim implements VisionIO {
     inputs.pipelineResult = VisionIOInputs.serializePipelineResult(result);
   }
 
-  public PhotonPipelineResult getLatestResult() {
-    return m_camera.getLatestResult();
+  @Override
+  public PhotonCamera getCamera() {
+    return m_camera;
   }
 
-  /**
-   * The latest estimated robot pose on the field from vision data. This may be empty. This should
-   * only be called once per loop.
-   *
-   * @return An {@link EstimatedRobotPose} with an estimated pose, estimate timestamp, and targets
-   *     used for estimation.
-   */
-  public Optional<EstimatedRobotPose> getEstimatedGlobalPose(PhotonPoseEstimator photonEstimator) {
-    var visionEst = photonEstimator.update();
-    double latestTimestamp = m_camera.getLatestResult().getTimestampSeconds();
-    boolean newResult = Math.abs(latestTimestamp - m_lastEstTimestamp) > 1e-5;
+  /** Updates the simulation with the true robot pose. Must be called from a subsystem */
+  @Override
+  public void simulationPeriodic(Pose2d simTruePose) {
     if (Robot.isSimulation()) {
-      visionEst.ifPresentOrElse(
-          est ->
-              getSimDebugField()
-                  .getObject("VisionEstimation")
-                  .setPose(est.estimatedPose.toPose2d()),
-          () -> {
-            if (newResult) getSimDebugField().getObject("VisionEstimation").setPoses();
-          });
+      m_visionSim.update(simTruePose);
     }
-    if (newResult) m_lastEstTimestamp = latestTimestamp;
-    return visionEst;
-  }
-
-  /**
-   * The standard deviations of the estimated pose from {@link #getEstimatedGlobalPose()}, for use
-   * with {@link edu.wpi.first.math.estimator.SwerveDrivePoseEstimator SwerveDrivePoseEstimator}.
-   * This should only be used when there are targets visible.
-   *
-   * @param estimatedPose The estimated pose to guess standard deviations for.
-   */
-  public Matrix<N3, N1> getEstimationStdDevs(
-      Pose2d estimatedPose, PhotonPoseEstimator photonEstimator) {
-    var estStdDevs = VisionConstants.kSingleTagStdDevs;
-    var targets = getLatestResult().getTargets();
-    int numTags = 0;
-    double avgDist = 0;
-    for (var tgt : targets) {
-      var tagPose = photonEstimator.getFieldTags().getTagPose(tgt.getFiducialId());
-      if (tagPose.isEmpty()) continue;
-      numTags++;
-      avgDist +=
-          tagPose.get().toPose2d().getTranslation().getDistance(estimatedPose.getTranslation());
-    }
-    if (numTags == 0) return estStdDevs;
-    avgDist /= numTags;
-    // Decrease std devs if multiple targets are visible
-    if (numTags > 1) estStdDevs = VisionConstants.kMultiTagStdDevs;
-    // Increase std devs based on (average) distance
-    if (numTags == 1 && avgDist > 4)
-      estStdDevs = VecBuilder.fill(Double.MAX_VALUE, Double.MAX_VALUE, Double.MAX_VALUE);
-    else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
-
-    return estStdDevs;
-  }
-
-  // ----- Simulation
-
-  public void simulationPeriodic(Pose2d robotSimPose) {
-    m_visionSim.update(robotSimPose);
-  }
-
-  /** Reset pose history of the robot in the vision system simulation. */
-  public void resetSimPose(Pose2d pose) {
-    m_visionSim.resetRobotPose(pose);
   }
 
   /** A Field2d for visualizing our robot and objects on the field. */
