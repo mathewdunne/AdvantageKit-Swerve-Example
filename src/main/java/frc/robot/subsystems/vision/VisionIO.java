@@ -4,16 +4,22 @@
 
 package frc.robot.subsystems.vision;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
+import org.photonvision.EstimatedRobotPose;
+import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.common.dataflow.structures.Packet;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonPipelineResult.APacketSerde;
+
+import java.util.Optional;
 
 public interface VisionIO {
 
   public static class VisionIOInputs implements LoggableInputs {
 
+    public double timestamp = 0.0;
     public byte[] pipelineResult = new byte[] {};
 
     // Serializer/deserializer for PhotonPipelineResult
@@ -21,9 +27,11 @@ public interface VisionIO {
 
     public void toLog(LogTable table) {
       table.put("PipelineResult", pipelineResult);
+      table.put("Timestamp", timestamp);
     }
 
     public void fromLog(LogTable table) {
+      timestamp = table.get("Timestamp", timestamp);
       pipelineResult = table.get("PipelineResult", pipelineResult);
     }
 
@@ -43,6 +51,12 @@ public interface VisionIO {
 
   /** Updates the set of loggable inputs. */
   public default void updateInputs(VisionIOInputs inputs) {}
+
+  /** Returns the latest PhotonPipelineResult */
+  public PhotonPipelineResult getLatestResult();
+
+  /** Returns the latest estimated robot pose from vision data */
+  public Optional<EstimatedRobotPose> getEstimatedGlobalPose(PhotonPoseEstimator estimator);
 
 }
 
