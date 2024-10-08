@@ -12,12 +12,12 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 
 import java.util.Optional;
-
-public class VisionIOPhotonVision implements VisionIO {
+ 
+public class VisionIOPhotonSim implements VisionIO {
   private final PhotonCamera camera;
   private final PhotonPoseEstimator photonPoseEstimator;
 
-  public VisionIOPhotonVision() {
+  public VisionIOPhotonSim() {
       camera = new PhotonCamera(VisionConstants.kCameraName);
       photonPoseEstimator = new PhotonPoseEstimator(
               VisionConstants.kTagLayout,

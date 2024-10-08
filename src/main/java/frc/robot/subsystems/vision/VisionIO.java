@@ -4,26 +4,45 @@
 
 package frc.robot.subsystems.vision;
 
-import edu.wpi.first.math.geometry.Pose2d;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
+import org.photonvision.common.dataflow.structures.Packet;
+import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonPipelineResult.APacketSerde;
 
 public interface VisionIO {
 
   public static class VisionIOInputs implements LoggableInputs {
-    public double captureTimestamp = 0.0;
-    public Pose2d estimatedPose = new Pose2d();
+
+    public byte[] pipelineResult = new byte[] {};
+
+    // Serializer/deserializer for PhotonPipelineResult
+    private static final APacketSerde serde = new APacketSerde();
 
     public void toLog(LogTable table) {
-        table.put("CaptureTimestamp", captureTimestamp);
-        table.put("EstimatedPose", estimatedPose);
+      table.put("PipelineResult", pipelineResult);
     }
 
     public void fromLog(LogTable table) {
-        captureTimestamp = table.get("CaptureTimestamp", captureTimestamp);
-        estimatedPose = table.get("EstimatedPose", estimatedPose);
+      pipelineResult = table.get("PipelineResult", pipelineResult);
     }
+
+    /**  Method to pack a PhotonPipelineResult into a byte array */
+    public static byte[] serializePipelineResult(PhotonPipelineResult result) {
+      Packet packet = new Packet(result.getPacketSize());
+      serde.pack(packet, result);
+      return packet.getData();
+    }
+
+    /** Method to unpack a byte array into a PhotonPipelineResult */
+    public static PhotonPipelineResult deserializePipelineResult(byte[] data) {
+      Packet packet = new Packet(data);
+      return serde.unpack(packet);
+    }
+  }
+
+  /** Updates the set of loggable inputs. */
+  public default void updateInputs(VisionIOInputs inputs) {}
+
 }
 
-  public default void updateInputs(VisionIOInputs inputs) {}
-}
