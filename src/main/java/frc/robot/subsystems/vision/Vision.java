@@ -7,6 +7,7 @@ package frc.robot.subsystems.vision;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -14,6 +15,8 @@ import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Robot;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -21,6 +24,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class Vision extends SubsystemBase {
   private final VisionIO m_io;
@@ -88,8 +92,20 @@ public class Vision extends SubsystemBase {
         Matrix<N3, N1> estStdDevs = getEstimationStdDevs(robotPose, result);
         m_addVisionMeasurementFunc.addVisionMeasurement(robotPose, latestTimestamp, estStdDevs);
 
-        Logger.recordOutput("Vision/EstimatedPose", estPose.estimatedPose.toPose2d());
+        Logger.recordOutput("Vision/VisionEstimatedPose", estPose.estimatedPose.toPose2d());
       }
+
+      // Log the detected AprilTags
+      List<Pose3d> allTagPoses = new ArrayList<>();
+      for (PhotonTrackedTarget target : result.getTargets()) {
+        if (target.getFiducialId() == -1) continue;
+        Optional<Pose3d> tagPose = VisionConstants.kTagLayout.getTagPose(target.getFiducialId());
+        if (tagPose.isPresent()) {
+          allTagPoses.add(tagPose.get());
+        }
+      }
+      Logger.recordOutput(
+          "Vision/AllTagPoses", allTagPoses.toArray(new Pose3d[allTagPoses.size()]));
 
       // If in simulation, update the simulation field visualization
       if (Robot.isSimulation()) {
