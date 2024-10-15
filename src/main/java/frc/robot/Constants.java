@@ -140,4 +140,16 @@ public final class Constants {
     public static final Matrix<N3, N1> kSingleTagStdDevs = VecBuilder.fill(4, 4, 8);
     public static final Matrix<N3, N1> kMultiTagStdDevs = VecBuilder.fill(0.5, 0.5, 1);
   }
+
+  public static class ArmConstants {
+    public static final double kS = 0.0;
+    public static final double kV = 0.0;
+    public static final double kP = 1.0;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0;
+
+    public static final int kMotorPort = 12;
+    public static final int kCurrentLimit = 40;
+    public static final int kAbsoluteEncoderOffset = 0;
+  }
 }
