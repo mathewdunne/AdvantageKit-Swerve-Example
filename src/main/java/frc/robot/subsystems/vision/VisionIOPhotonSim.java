@@ -39,9 +39,10 @@ public class VisionIOPhotonSim implements VisionIO {
     // Add the simulated camera to view the targets on this simulated field.
     m_visionSim.addCamera(m_cameraSim, VisionConstants.kRobotToCam);
 
-    m_cameraSim.enableRawStream(true);
-    m_cameraSim.enableProcessedStream(true);
-    m_cameraSim.enableDrawWireframe(true);
+    boolean renderSim = false;
+    m_cameraSim.enableRawStream(renderSim);
+    m_cameraSim.enableProcessedStream(renderSim);
+    m_cameraSim.enableDrawWireframe(renderSim);
   }
 
   @Override

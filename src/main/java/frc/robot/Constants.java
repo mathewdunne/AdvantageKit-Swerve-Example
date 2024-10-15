@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Transform3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -125,7 +126,10 @@ public final class Constants {
     public static final String kCameraName = "arducam";
     // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
     public static final Transform3d kRobotToCam =
-        new Transform3d(new Translation3d(0.5, 0.0, 0.5), new Rotation3d(0, 0, 0));
+        new Transform3d(
+            new Translation3d(
+                Units.inchesToMeters(11.56 + 0.39 + 16.0), 0.0, Units.inchesToMeters(13.876 + 1.9)),
+            new Rotation3d(0, Units.degreesToRadians(-15), 0));
 
     // The layout of the AprilTags on the field
     public static final AprilTagFieldLayout kTagLayout =
