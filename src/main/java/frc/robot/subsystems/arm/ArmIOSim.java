@@ -5,7 +5,6 @@
 package frc.robot.subsystems.arm;
 
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants;
@@ -46,5 +45,4 @@ public class ArmIOSim implements ArmIO {
     m_armAppliedVolts = MathUtil.clamp(voltage, -12.0, 12.0);
     armSim.setInputVoltage(m_armAppliedVolts);
   }
-
 }
