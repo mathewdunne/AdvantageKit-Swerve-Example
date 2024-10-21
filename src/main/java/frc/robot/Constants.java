@@ -33,6 +33,8 @@ public final class Constants {
     REPLAY
   }
 
+  public static final double kLoopPeriodSecs = 0.02;
+
   public static final class ControllerConstants {
     public static final int kDriverControllerPort = 0;
     public static final double kDriverControllerDeadband = 0.1;
