@@ -7,26 +7,44 @@ package frc.robot.subsystems.arm;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.simulation.DCMotorSim;
+import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
+import frc.robot.Constants;
+import frc.robot.Constants.ArmConstants;
 
 public class ArmIOSim implements ArmIO {
-  private static final double LOOP_PERIOD_SECS = 0.02;
-  private DCMotorSim m_motorSim = new DCMotorSim(DCMotor.getFalcon500(1), 75, 0.25);
+  private SingleJointedArmSim armSim =
+      new SingleJointedArmSim(
+          DCMotor.getFalcon500(1),
+          ArmConstants.kGearRatio,
+          ArmConstants.kMOIkgm2,
+          ArmConstants.kLengthMeters,
+          ArmConstants.kMinAngleRad,
+          ArmConstants.kMaxAngleRad,
+          true,
+          ArmConstants.kMinAngleRad);
+
   private double m_armAppliedVolts = 0.0;
+
+  public ArmIOSim() {
+    System.out.println("[Init] CreatingArmIOSim");
+  }
 
   @Override
   public void updateInputs(ArmIOInputs inputs) {
-    m_motorSim.update(LOOP_PERIOD_SECS);
-    inputs.armPositionRad = m_motorSim.getAngularPositionRad();
-    inputs.absoluteArmPosition = new Rotation2d(inputs.armPositionRad);
-    inputs.armVelocityRadPerSec = m_motorSim.getAngularVelocityRadPerSec();
-    inputs.armAppliedVolts = m_armAppliedVolts;
-    inputs.armCurrentAmps = new double[] {m_motorSim.getCurrentDrawAmps()};
+    armSim.update(Constants.kLoopPeriodSecs);
+
+    inputs.absolutePositionRad = armSim.getAngleRads();
+    inputs.internalPositionRad = armSim.getAngleRads();
+    inputs.velocityRadPerSec = armSim.getVelocityRadPerSec();
+    inputs.appliedVolts = m_armAppliedVolts;
+    inputs.currentAmps = new double[] {armSim.getCurrentDrawAmps()};
+    inputs.tempCelsius = new double[] {};
   }
 
   @Override
-  public void setVoltage(double volts) {
-    m_armAppliedVolts = MathUtil.clamp(volts, -12.0, 12.0);
-    m_motorSim.setInputVoltage(volts);
+  public void setVoltage(double voltage) {
+    m_armAppliedVolts = MathUtil.clamp(voltage, -12.0, 12.0);
+    armSim.setInputVoltage(m_armAppliedVolts);
   }
+
 }

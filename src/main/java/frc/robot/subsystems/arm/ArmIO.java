@@ -4,17 +4,17 @@
 
 package frc.robot.subsystems.arm;
 
-import edu.wpi.first.math.geometry.Rotation2d;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ArmIO {
   @AutoLog
   public static class ArmIOInputs {
-    public double armPositionRad = 0.0;
-    public Rotation2d absoluteArmPosition = new Rotation2d();
-    public double armVelocityRadPerSec = 0.0;
-    public double armAppliedVolts = 0.0;
-    public double[] armCurrentAmps = new double[] {};
+    public double absolutePositionRad = 0.0; // Absolute is the through bore encoder on the arm
+    public double internalPositionRad = 0.0; // Internal is the relative encoder in the motor
+    public double velocityRadPerSec = 0.0;
+    public double appliedVolts = 0.0;
+    public double[] currentAmps = new double[] {};
+    public double[] tempCelsius = new double[] {};
   }
 
   /** Updates the set of loggable inputs. */
