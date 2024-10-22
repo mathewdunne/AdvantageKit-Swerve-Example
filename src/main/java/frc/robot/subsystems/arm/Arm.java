@@ -6,8 +6,8 @@ package frc.robot.subsystems.arm;
 
 import static edu.wpi.first.units.Units.Volts;
 
+import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -25,13 +25,15 @@ public class Arm extends SubsystemBase {
   private final ArmIO m_io;
   private final ArmIOInputsAutoLogged m_inputs = new ArmIOInputsAutoLogged();
 
+  boolean manualControl = false;
+
   private static final Translation2d rootPosition = new Translation2d(-1.32, -0.3405);
   private Mechanism2d mechanism;
   private MechanismRoot2d mechanismRoot;
   private MechanismLigament2d mechanismLigament;
 
   private final PIDController m_pidController;
-  private final SimpleMotorFeedforward m_ffModel;
+  private final ArmFeedforward m_ffModel;
   private final SysIdRoutine m_sysId;
 
   public Arm(ArmIO io) {
@@ -47,19 +49,22 @@ public class Arm extends SubsystemBase {
     // separate robot with different tuning)
     switch (Constants.kCurrentMode) {
       case REAL:
-        m_ffModel = new SimpleMotorFeedforward(ArmConstants.kS, ArmConstants.kV);
+        m_ffModel = new ArmFeedforward(ArmConstants.kS, ArmConstants.kV, ArmConstants.kG);
         m_pidController = new PIDController(ArmConstants.kP, ArmConstants.kI, ArmConstants.kD);
+        m_pidController.setTolerance(ArmConstants.kToleranceRad);
         break;
       case REPLAY:
-        m_ffModel = new SimpleMotorFeedforward(0.1, 0.05);
+        m_ffModel = new ArmFeedforward(0.1, 0.05, 0.01);
         m_pidController = new PIDController(1.0, 0.0, 0.0);
+        m_pidController.setTolerance(ArmConstants.kToleranceRad);
         break;
       case SIM:
-        m_ffModel = new SimpleMotorFeedforward(0.1, 0.05);
+        m_ffModel = new ArmFeedforward(0.1, 0.05, 0.01);
         m_pidController = new PIDController(0.5, 0.0, 0.0);
+        m_pidController.setTolerance(ArmConstants.kToleranceRad);
         break;
       default:
-        m_ffModel = new SimpleMotorFeedforward(0.0, 0.0);
+        m_ffModel = new ArmFeedforward(0.0, 0.0, 0.0);
         m_pidController = new PIDController(0.0, 0.0, 0.0);
         break;
     }
@@ -81,24 +86,29 @@ public class Arm extends SubsystemBase {
     Logger.processInputs("Arm", m_inputs);
 
     // Run closed loop PID + FF control
-    if (Double.valueOf(m_pidController.getSetpoint()) != null) {
-      m_io.setVoltage(
-          m_ffModel.calculate(m_inputs.velocityRadPerSec)
-              + m_pidController.calculate(m_inputs.absolutePositionRad));
+    double pid = 0.0;
+    double ff = 0.0;
+    if (!manualControl) {
+      pid = m_pidController.calculate(m_inputs.absolutePositionRad);
+      ff = m_ffModel.calculate(m_inputs.absolutePositionRad, m_inputs.velocityRadPerSec);
+      m_io.setVoltage((pid + ff));
     }
     // Log the arm pose
     Logger.recordOutput("Mechanism2d/Arm", mechanism);
     Logger.recordOutput("Mechanism3d/Arm", getPose3d(m_inputs.absolutePositionRad));
     Logger.recordOutput("Arm/AngleSetpointRad", m_pidController.getSetpoint());
     Logger.recordOutput("Arm/ActualAngleRad", m_inputs.absolutePositionRad);
+    Logger.recordOutput("Arm/PID", pid);
+    Logger.recordOutput("Arm/FF", ff);
   }
 
   /** Run open loop at the specified voltage. */
   public void runVolts(double volts) {
+    manualControl = true;
     m_io.setVoltage(volts);
   }
 
-  /** Set the setpoint for PID control. (in radians, with 0 being straight up) */
+  /** Set the setpoint for PID control. (in radians, with 0 being horizontal and up being PI/2) */
   public void setAngleSetpoint(double angle) {
     m_pidController.setSetpoint(angle);
   }
@@ -108,6 +118,7 @@ public class Arm extends SubsystemBase {
     m_pidController.setSetpoint(m_inputs.absolutePositionRad);
     m_pidController.reset();
     m_io.setVoltage(0);
+    manualControl = false;
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */

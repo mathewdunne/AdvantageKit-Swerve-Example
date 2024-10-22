@@ -146,9 +146,12 @@ public final class Constants {
   public static class ArmConstants {
     public static final double kS = 0.0;
     public static final double kV = 0.0;
+    public static final double kG = 0.0;
     public static final double kP = 1.0;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
+    public static final double kToleranceRad = Units.degreesToRadians(2);
+    public static final double kMaxI = Units.degreesToRadians(90);
 
     public static final int kMotorPort = 12;
     public static final int kCurrentLimit = 40;

@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -170,11 +171,25 @@ public class RobotContainer {
                 }));
 
     m_driverController
-        .rightTrigger(0.05)
+        .rightTrigger(0.01)
         .whileTrue(
             new RepeatCommand(
                 new InstantCommand(
-                    () -> m_arm.runVolts(m_driverController.getRightTriggerAxis() * 12.0))))
+                    () ->
+                        m_arm.runVolts(
+                            m_driverController.getRightTriggerAxis()
+                                * RobotController.getBatteryVoltage()))))
+        .onFalse(new InstantCommand(() -> m_arm.stop()));
+
+    m_driverController
+        .leftTrigger(0.01)
+        .whileTrue(
+            new RepeatCommand(
+                new InstantCommand(
+                    () ->
+                        m_arm.runVolts(
+                            -m_driverController.getLeftTriggerAxis()
+                                * RobotController.getBatteryVoltage()))))
         .onFalse(new InstantCommand(() -> m_arm.stop()));
   }
 
