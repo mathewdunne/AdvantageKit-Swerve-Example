@@ -11,9 +11,11 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismRoot2d;
+import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
@@ -27,10 +29,10 @@ public class Arm extends SubsystemBase {
 
   boolean manualControl = false;
 
-  private static final Translation2d rootPosition = new Translation2d(-1.32, -0.3405);
-  private Mechanism2d mechanism;
-  private MechanismRoot2d mechanismRoot;
-  private MechanismLigament2d mechanismLigament;
+  private final Translation2d m_rootPosition;
+  private Mechanism2d m_mechanism;
+  private MechanismRoot2d m_mechanismRoot;
+  private MechanismLigament2d m_mechanismLigament;
 
   private final PIDController m_pidController;
   private final ArmFeedforward m_ffModel;
@@ -41,9 +43,24 @@ public class Arm extends SubsystemBase {
     m_io = io;
 
     // Create the mechanism for visualization
-    mechanism = new Mechanism2d(4, 3);
-    mechanismRoot = mechanism.getRoot("Arm", 2.0 + rootPosition.getX(), rootPosition.getY());
-    // mechanismLigament = mechanismRoot.append(new M)
+    // with and height are for the "canvas" that shows the mechanism
+    // set to the side profile of the robot (max height (y) and width (x))
+    // the bottom center point of the Mechanism2d canvas aligns with the robot's origin
+    m_mechanism = new Mechanism2d(Units.inchesToMeters(38.5), Units.inchesToMeters(48));
+    // Position of the root/pivot point of the arm within the Mechanism2d canvas (0, 0 being the
+    // bottom left corner of the side profile of the robot)
+    // measured from CAD, the -2 is due to the robot's origin being the center of the swerve, not
+    // the center of the robot
+    m_rootPosition = new Translation2d(Units.inchesToMeters(32.25 - 4), Units.inchesToMeters(11.7));
+    m_mechanismRoot = m_mechanism.getRoot("ArmWrist", m_rootPosition.getX(), m_rootPosition.getY());
+    m_mechanismLigament =
+        m_mechanismRoot.append(
+            new MechanismLigament2d(
+                "ArmLigament",
+                ArmConstants.kLengthMeters,
+                Units.radiansToDegrees(ArmConstants.kMinAngleRad),
+                4,
+                new Color8Bit(0, 0, 255)));
 
     // Switch constants based on mode (the physics simulator is treated as a
     // separate robot with different tuning)
@@ -87,14 +104,17 @@ public class Arm extends SubsystemBase {
 
     // Run closed loop PID + FF control
     double pid = 0.0;
-    double ff = 0.0;
+    double ff = m_ffModel.calculate(m_inputs.absolutePositionRad, m_inputs.velocityRadPerSec);
     if (!manualControl) {
       pid = m_pidController.calculate(m_inputs.absolutePositionRad);
-      ff = m_ffModel.calculate(m_inputs.absolutePositionRad, m_inputs.velocityRadPerSec);
-      m_io.setVoltage((pid + ff));
     }
+    m_io.setVoltage((pid + ff));
+
+    // Update mechanism2d (need to subtract from 180 to mirror across vertical axis)
+    m_mechanismLigament.setAngle(180 - Units.radiansToDegrees(m_inputs.absolutePositionRad));
+
     // Log the arm pose
-    Logger.recordOutput("Mechanism2d/Arm", mechanism);
+    Logger.recordOutput("Mechanism2d/ArmWrist", m_mechanism);
     Logger.recordOutput("Mechanism3d/Arm", getPose3d(m_inputs.absolutePositionRad));
     Logger.recordOutput("Arm/AngleSetpointRad", m_pidController.getSetpoint());
     Logger.recordOutput("Arm/ActualAngleRad", m_inputs.absolutePositionRad);
@@ -134,6 +154,6 @@ public class Arm extends SubsystemBase {
   /** Returns the 3D pose of the intake for visualization. */
   private Pose3d getPose3d(double angleRad) {
     return new Pose3d(
-        rootPosition.getX(), 0.0, rootPosition.getY(), new Rotation3d(0, angleRad, 0));
+        m_rootPosition.getX(), 0.0, m_rootPosition.getY(), new Rotation3d(0, angleRad, 0));
   }
 }
