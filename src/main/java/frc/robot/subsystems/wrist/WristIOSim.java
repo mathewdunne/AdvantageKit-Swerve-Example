@@ -6,14 +6,14 @@ package frc.robot.subsystems.wrist;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.WristConstants;
 import java.util.function.Supplier;
 
 public class WristIOSim implements WristIO {
-  private SingleJointedArmSim m_wristSim =
-      new SingleJointedArmSim(
+  private MovingFrameSingleJointedArmSim m_wristSim =
+      new MovingFrameSingleJointedArmSim(
           DCMotor.getNEO(1),
           WristConstants.kGearRatio,
           WristConstants.kMOIkgm2,
@@ -21,7 +21,8 @@ public class WristIOSim implements WristIO {
           WristConstants.kMinAngleRad,
           WristConstants.kMaxAngleRad,
           true,
-          WristConstants.kMinAngleRad);
+          WristConstants.kMinAngleRad,
+          ArmConstants.kStartAngleRad);
 
   private double m_wristAppliedVolts = 0.0;
   private Supplier<Double> m_armAngleRadFunction;
@@ -33,6 +34,7 @@ public class WristIOSim implements WristIO {
 
   @Override
   public void updateInputs(WristIOInputs inputs) {
+    m_wristSim.setArmAngle(Math.PI - m_armAngleRadFunction.get());
     m_wristSim.update(Constants.kLoopPeriodSecs);
 
     inputs.absolutePositionRad = m_wristSim.getAngleRads();
