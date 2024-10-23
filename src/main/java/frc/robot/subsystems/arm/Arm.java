@@ -154,6 +154,7 @@ public class Arm extends SubsystemBase {
   /** Returns the 3D pose of the intake for visualization. */
   private Pose3d getPose3d(double angleRad) {
     return new Pose3d(
-        m_rootPosition.getX(), 0.0, m_rootPosition.getY(), new Rotation3d(0, angleRad, 0));
+        m_rootPosition.getX() - 0.49, -0.01, m_rootPosition.getY(), new Rotation3d(0, angleRad, 0));
+    // these offsets are just due to the origin of the cad models being finicky
   }
 }
