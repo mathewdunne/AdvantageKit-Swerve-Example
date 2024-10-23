@@ -103,7 +103,8 @@ public class RobotContainer {
                 m_swerveDrive::addVisionMeasurement,
                 m_swerveDrive::getSimTruePose);
         m_arm = new Arm(new ArmIOSim() {});
-        m_wrist = new Wrist(new WristIOSim() {}, m_arm.getMechanismLigament());
+        m_wrist =
+            new Wrist(new WristIOSim(m_arm::getMechanismAngle) {}, m_arm.getMechanismLigament());
         break;
 
       default:

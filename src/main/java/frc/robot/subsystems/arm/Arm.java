@@ -173,4 +173,9 @@ public class Arm extends SubsystemBase {
   public MechanismLigament2d getMechanismLigament() {
     return m_mechanismLigament;
   }
+
+  /** Returns the angle of the arm Mechanism2d in radians. */
+  public double getMechanismAngle() {
+    return Units.degreesToRadians(m_mechanismLigament.getAngle());
+  }
 }

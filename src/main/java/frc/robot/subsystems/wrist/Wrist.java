@@ -126,6 +126,11 @@ public class Wrist extends SubsystemBase {
     Logger.recordOutput("Wrist/ActualAngleRad", m_inputs.absolutePositionRad);
     Logger.recordOutput("Wrist/PID", pid);
     Logger.recordOutput("Wrist/FF", ff);
+
+    Logger.recordOutput("Test/ArmAngle", m_armMechanismLigament.getAngle());
+    Logger.recordOutput("Test/WristAngle", Units.radiansToDegrees(m_inputs.absolutePositionRad));
+    Logger.recordOutput(
+        "Test/RealWristAngle", Units.radiansToDegrees(m_inputs.realWorldPositionRad));
   }
 
   /** Run open loop at the specified voltage. */
