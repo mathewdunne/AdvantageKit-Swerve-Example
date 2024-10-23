@@ -9,6 +9,8 @@ import static edu.wpi.first.units.Units.Volts;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -17,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.WristConstants;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
@@ -25,22 +28,22 @@ public class Wrist extends SubsystemBase {
 
   private boolean m_isPidEnabled;
 
-  // private final Translation2d m_rootPosition;
   private MechanismLigament2d m_armMechanismLigament;
   private MechanismLigament2d m_shooterMechanismLigament;
   private MechanismLigament2d m_intakeMechanismLigament;
+  private Supplier<Translation3d> m_mechanismRootSupplier;
 
   private final PIDController m_pidController;
   private final ArmFeedforward m_ffModel;
   private final SysIdRoutine m_sysId;
 
-  public Wrist(WristIO io, MechanismLigament2d armLigament) {
+  public Wrist(
+      WristIO io, MechanismLigament2d armLigament, Supplier<Translation3d> getWristRootSupplier) {
     System.out.println("[Init] Creating Wrist");
     m_io = io;
     m_armMechanismLigament = armLigament;
+    m_mechanismRootSupplier = getWristRootSupplier;
 
-    // m_rootPosition = new Translation2d(Units.inchesToMeters(32.25 - 4),
-    // Units.inchesToMeters(11.7));
     // 2 ligaments for the wrist since the pibot point is in the middle
     // just always 180 degrees apart
     m_shooterMechanismLigament =
@@ -56,9 +59,9 @@ public class Wrist extends SubsystemBase {
             new MechanismLigament2d(
                 "WristIntakeLigament",
                 WristConstants.kLengthMeters,
-                0,
+                WristConstants.kStartAngleRad + 180,
                 4,
-                new Color8Bit(255, 0, 0)));
+                m_shooterMechanismLigament.getColor()));
 
     // Switch constants based on mode (the physics simulator is treated as a
     // separate robot with different tuning)
@@ -122,7 +125,7 @@ public class Wrist extends SubsystemBase {
     m_intakeMechanismLigament.setAngle(Units.radiansToDegrees(m_inputs.absolutePositionRad));
 
     // Log the wrist pose
-    Logger.recordOutput("Mechanism3d/Wrist", getPose3d(m_inputs.absolutePositionRad));
+    Logger.recordOutput("Mechanism3d/Wrist", getPose3d(m_inputs.realWorldPositionRad));
     Logger.recordOutput("Wrist/AngleSetpointRad", m_pidController.getSetpoint());
     Logger.recordOutput("Wrist/ActualAngleRad", m_inputs.absolutePositionRad);
     Logger.recordOutput("Wrist/PID", pid);
@@ -147,6 +150,7 @@ public class Wrist extends SubsystemBase {
 
   /** Stop and hold the wrist at its current position */
   public void stopAndHold() {
+    m_io.setVoltage(0.0);
     m_pidController.setSetpoint(m_inputs.absolutePositionRad);
     m_pidController.reset();
     m_isPidEnabled = true;
@@ -164,10 +168,6 @@ public class Wrist extends SubsystemBase {
 
   /** Returns the 3D pose of the intake for visualization. */
   private Pose3d getPose3d(double angleRad) {
-    // return new Pose3d(
-    //     m_rootPosition.getX() - 0.49, -0.01, m_rootPosition.getY(), new Rotation3d(0, angleRad,
-    // 0));
-    return new Pose3d();
-    // these offsets are just due to the origin of the cad models being finicky
+    return new Pose3d(m_mechanismRootSupplier.get(), new Rotation3d(0, -angleRad, 0));
   }
 }

@@ -158,11 +158,11 @@ public final class Constants {
 
     public static final double kGearRatio = 240;
     public static final double kLengthMeters =
-        Units.inchesToMeters(16.86); // between the arm pivot and the wrist pivot
+        Units.inchesToMeters(17.5); // between the arm pivot and the wrist pivot
     public static final double kMOIkgm2 = 2.767; // moment of inertia (from CAD)
     public static final double kMinAngleRad =
         Units.degreesToRadians(6); // 0 rad is horizontal, hardstop is slightly above
-    public static final double kMaxAngleRad = Units.degreesToRadians(80); // max is almost vertical
+    public static final double kMaxAngleRad = Units.degreesToRadians(85); // max is almost vertical
     public static final double kStartAngleRad = kMinAngleRad;
   }
 

@@ -11,6 +11,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.geometry.Translation3d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -21,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Arm extends SubsystemBase {
@@ -147,6 +149,7 @@ public class Arm extends SubsystemBase {
 
   /** Stop and hold the arm at its current position */
   public void stopAndHold() {
+    m_io.setVoltage(0.0);
     m_pidController.setSetpoint(m_inputs.absolutePositionRad);
     m_pidController.reset();
     m_isPidEnabled = true;
@@ -167,6 +170,19 @@ public class Arm extends SubsystemBase {
     return new Pose3d(
         m_rootPosition.getX() - 0.49, -0.01, m_rootPosition.getY(), new Rotation3d(0, angleRad, 0));
     // these offsets are just due to the origin of the cad models being finicky
+  }
+
+  /** Returns the 2d pose of the tip of the arm ligament */
+  @AutoLogOutput(key = "Arm/TipPosition")
+  public Translation3d getTipPosition() {
+    Translation3d armBasePosition = getPose3d(m_inputs.absolutePositionRad).getTranslation();
+    Translation3d armTipPosition =
+        armBasePosition.plus(
+            new Translation3d(
+                -ArmConstants.kLengthMeters * Math.cos(m_inputs.absolutePositionRad),
+                0,
+                ArmConstants.kLengthMeters * Math.sin(m_inputs.absolutePositionRad)));
+    return armTipPosition;
   }
 
   /** Returns the ligament of the arm's Mechanism2d. */

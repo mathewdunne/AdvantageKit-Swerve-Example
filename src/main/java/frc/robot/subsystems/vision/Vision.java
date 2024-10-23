@@ -76,8 +76,6 @@ public class Vision extends SubsystemBase {
     PhotonPipelineResult result =
         VisionIOInputs.deserializePipelineResult(m_inputs.pipelineResult, m_inputs.timestamp);
 
-    Logger.recordOutput("Mechanisms/Wrist", new Pose3d());
-
     // Check for new vision data
     double latestTimestamp = m_inputs.timestamp;
     boolean newResult = Math.abs(latestTimestamp - m_lastEstTimestamp) > 1e-5;

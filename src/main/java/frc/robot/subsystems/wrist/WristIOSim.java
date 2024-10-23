@@ -25,16 +25,16 @@ public class WristIOSim implements WristIO {
           ArmConstants.kStartAngleRad);
 
   private double m_wristAppliedVolts = 0.0;
-  private Supplier<Double> m_armAngleRadFunction;
+  private Supplier<Double> m_armAngleRadSupplier;
 
-  public WristIOSim(Supplier<Double> armAngleRadFunction) {
+  public WristIOSim(Supplier<Double> armAngleRadSupplier) {
     System.out.println("[Init] CreatingWristIOSim");
-    m_armAngleRadFunction = armAngleRadFunction;
+    m_armAngleRadSupplier = armAngleRadSupplier;
   }
 
   @Override
   public void updateInputs(WristIOInputs inputs) {
-    m_wristSim.setArmAngle(Math.PI - m_armAngleRadFunction.get());
+    m_wristSim.setArmAngle(Math.PI - m_armAngleRadSupplier.get());
     m_wristSim.update(Constants.kLoopPeriodSecs);
 
     inputs.absolutePositionRad = m_wristSim.getAngleRads();
@@ -46,7 +46,7 @@ public class WristIOSim implements WristIO {
 
     // Real world position is (arm angle - 180 + the wrist angle) but in radians
     inputs.realWorldPositionRad =
-        m_armAngleRadFunction.get() - Math.PI + inputs.absolutePositionRad;
+        m_armAngleRadSupplier.get() - Math.PI + inputs.absolutePositionRad;
   }
 
   @Override
