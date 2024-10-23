@@ -77,14 +77,14 @@ public class Arm extends SubsystemBase {
         break;
       case SIM:
         m_ffModel = new ArmFeedforward(0.1, 0.05, 0.01);
-        m_pidController = new PIDController(0.5, 0.0, 0.0);
+        m_pidController = new PIDController(10.0, 0.0, 0.0);
         m_pidController.setTolerance(ArmConstants.kToleranceRad);
         break;
       default:
         m_ffModel = new ArmFeedforward(0.0, 0.0, 0.0);
         m_pidController = new PIDController(0.0, 0.0, 0.0);
         break;
-      }
+    }
 
     // Set initial setpoint
     m_pidController.setSetpoint(ArmConstants.kStartAngleRad);
@@ -167,5 +167,10 @@ public class Arm extends SubsystemBase {
     return new Pose3d(
         m_rootPosition.getX() - 0.49, -0.01, m_rootPosition.getY(), new Rotation3d(0, angleRad, 0));
     // these offsets are just due to the origin of the cad models being finicky
+  }
+
+  /** Returns the ligament of the arm's Mechanism2d. */
+  public MechanismLigament2d getMechanismLigament() {
+    return m_mechanismLigament;
   }
 }

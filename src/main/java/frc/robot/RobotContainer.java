@@ -9,6 +9,7 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
@@ -36,6 +37,8 @@ import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.flywheel.FlywheelIOSparkMax;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOPhotonSim;
+import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIOSim;
 import java.util.Random;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
@@ -52,6 +55,7 @@ public class RobotContainer {
   private final Flywheel m_flywheel;
   private final Vision m_vision;
   private final Arm m_arm;
+  private final Wrist m_wrist;
 
   // Controller
   private final CommandXboxController m_driverController =
@@ -80,6 +84,7 @@ public class RobotContainer {
         m_flywheel = new Flywheel(new FlywheelIOSparkMax());
         m_vision = null; // TO DO
         m_arm = null; // TO DO
+        m_wrist = null; // TO DO
         break;
 
       case SIM:
@@ -98,6 +103,7 @@ public class RobotContainer {
                 m_swerveDrive::addVisionMeasurement,
                 m_swerveDrive::getSimTruePose);
         m_arm = new Arm(new ArmIOSim() {});
+        m_wrist = new Wrist(new WristIOSim() {}, m_arm.getMechanismLigament());
         break;
 
       default:
@@ -112,6 +118,7 @@ public class RobotContainer {
         m_flywheel = new Flywheel(new FlywheelIO() {});
         m_vision = null; // TO DO
         m_arm = null; // TO DO
+        m_wrist = null; // TO DO
         break;
     }
 
@@ -175,22 +182,43 @@ public class RobotContainer {
         .whileTrue(
             new RepeatCommand(
                 new InstantCommand(
-                    () ->
-                        m_arm.runVolts(
-                            m_driverController.getRightTriggerAxis()
-                                * RobotController.getBatteryVoltage()))))
+                    () -> m_arm.runVolts(0.7 * RobotController.getBatteryVoltage()))))
         .onFalse(new InstantCommand(() -> m_arm.stopAndHold()));
-
     m_driverController
         .leftTrigger(0.01)
         .whileTrue(
             new RepeatCommand(
                 new InstantCommand(
-                    () ->
-                        m_arm.runVolts(
-                            -m_driverController.getLeftTriggerAxis()
-                                * RobotController.getBatteryVoltage()))))
+                    () -> m_arm.runVolts(-0.7 * RobotController.getBatteryVoltage()))))
         .onFalse(new InstantCommand(() -> m_arm.stopAndHold()));
+
+    m_driverController
+        .rightBumper()
+        .whileTrue(
+            new RepeatCommand(
+                new InstantCommand(
+                    () -> m_wrist.runVolts(0.3 * RobotController.getBatteryVoltage()))))
+        .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
+    m_driverController
+        .leftBumper()
+        .whileTrue(
+            new RepeatCommand(
+                new InstantCommand(
+                    () -> m_wrist.runVolts(-0.3 * RobotController.getBatteryVoltage()))))
+        .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
+
+    m_driverController
+        .a()
+        .onTrue(new InstantCommand(() -> m_arm.setAngleSetpoint(Units.degreesToRadians(30))));
+    m_driverController
+        .b()
+        .onTrue(new InstantCommand(() -> m_arm.setAngleSetpoint(Units.degreesToRadians(65))));
+    m_driverController
+        .x()
+        .onTrue(new InstantCommand(() -> m_wrist.setAngleSetpoint(Units.degreesToRadians(67))));
+    m_driverController
+        .y()
+        .onTrue(new InstantCommand(() -> m_wrist.setAngleSetpoint(Units.degreesToRadians(100))));
   }
 
   /**

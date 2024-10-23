@@ -11,7 +11,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 
 public class ArmIOSim implements ArmIO {
-  private SingleJointedArmSim armSim =
+  private SingleJointedArmSim m_armSim =
       new SingleJointedArmSim(
           DCMotor.getFalcon500(1),
           ArmConstants.kGearRatio,
@@ -30,19 +30,19 @@ public class ArmIOSim implements ArmIO {
 
   @Override
   public void updateInputs(ArmIOInputs inputs) {
-    armSim.update(Constants.kLoopPeriodSecs);
+    m_armSim.update(Constants.kLoopPeriodSecs);
 
-    inputs.absolutePositionRad = armSim.getAngleRads();
-    inputs.internalPositionRad = armSim.getAngleRads();
-    inputs.velocityRadPerSec = armSim.getVelocityRadPerSec();
+    inputs.absolutePositionRad = m_armSim.getAngleRads();
+    inputs.internalPositionRad = m_armSim.getAngleRads();
+    inputs.velocityRadPerSec = m_armSim.getVelocityRadPerSec();
     inputs.appliedVolts = m_armAppliedVolts;
-    inputs.currentAmps = new double[] {armSim.getCurrentDrawAmps()};
+    inputs.currentAmps = new double[] {m_armSim.getCurrentDrawAmps()};
     inputs.tempCelsius = new double[] {};
   }
 
   @Override
   public void setVoltage(double voltage) {
     m_armAppliedVolts = MathUtil.clamp(voltage, -12.0, 12.0);
-    armSim.setInputVoltage(m_armAppliedVolts);
+    m_armSim.setInputVoltage(m_armAppliedVolts);
   }
 }
