@@ -109,7 +109,8 @@ public class Wrist extends SubsystemBase {
     double pid = 0.0;
     double ff = 0.0;
     if (m_isPidEnabled) {
-      ff = m_ffModel.calculate(m_inputs.absolutePositionRad, m_inputs.velocityRadPerSec);
+      // real world position to compensate for arm movement
+      ff = m_ffModel.calculate(m_inputs.realWorldPositionRad, m_inputs.velocityRadPerSec);
       pid = m_pidController.calculate(m_inputs.absolutePositionRad);
       m_io.setVoltage((pid + ff));
     }
@@ -126,11 +127,6 @@ public class Wrist extends SubsystemBase {
     Logger.recordOutput("Wrist/ActualAngleRad", m_inputs.absolutePositionRad);
     Logger.recordOutput("Wrist/PID", pid);
     Logger.recordOutput("Wrist/FF", ff);
-
-    Logger.recordOutput("Test/ArmAngle", m_armMechanismLigament.getAngle());
-    Logger.recordOutput("Test/WristAngle", Units.radiansToDegrees(m_inputs.absolutePositionRad));
-    Logger.recordOutput(
-        "Test/RealWristAngle", Units.radiansToDegrees(m_inputs.realWorldPositionRad));
   }
 
   /** Run open loop at the specified voltage. */
