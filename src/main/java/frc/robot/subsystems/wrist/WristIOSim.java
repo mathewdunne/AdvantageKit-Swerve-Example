@@ -9,6 +9,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.simulation.SingleJointedArmSim;
 import frc.robot.Constants;
 import frc.robot.Constants.WristConstants;
+import java.util.function.Supplier;
 
 public class WristIOSim implements WristIO {
   private SingleJointedArmSim m_wristSim =
@@ -23,9 +24,11 @@ public class WristIOSim implements WristIO {
           WristConstants.kMinAngleRad);
 
   private double m_wristAppliedVolts = 0.0;
+  private Supplier<Double> m_armAngleRadFunction;
 
-  public WristIOSim() {
+  public WristIOSim(Supplier<Double> armAngleRadFunction) {
     System.out.println("[Init] CreatingWristIOSim");
+    m_armAngleRadFunction = armAngleRadFunction;
   }
 
   @Override
@@ -38,6 +41,10 @@ public class WristIOSim implements WristIO {
     inputs.appliedVolts = m_wristAppliedVolts;
     inputs.currentAmps = new double[] {m_wristSim.getCurrentDrawAmps()};
     inputs.tempCelsius = new double[] {};
+
+    // Real world position is (arm angle - 180 + the wrist angle) but in radians
+    inputs.realWorldPositionRad =
+        m_armAngleRadFunction.get() - Math.PI + inputs.absolutePositionRad;
   }
 
   @Override
