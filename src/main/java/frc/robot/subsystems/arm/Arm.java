@@ -27,7 +27,7 @@ public class Arm extends SubsystemBase {
   private final ArmIO m_io;
   private final ArmIOInputsAutoLogged m_inputs = new ArmIOInputsAutoLogged();
 
-  boolean manualControl = false;
+  private boolean m_isPidEnabled;
 
   private final Translation2d m_rootPosition;
   private Mechanism2d m_mechanism;
@@ -58,7 +58,7 @@ public class Arm extends SubsystemBase {
             new MechanismLigament2d(
                 "ArmLigament",
                 ArmConstants.kLengthMeters,
-                Units.radiansToDegrees(ArmConstants.kMinAngleRad),
+                Units.radiansToDegrees(ArmConstants.kStartAngleRad),
                 4,
                 new Color8Bit(0, 0, 255)));
 
@@ -84,7 +84,11 @@ public class Arm extends SubsystemBase {
         m_ffModel = new ArmFeedforward(0.0, 0.0, 0.0);
         m_pidController = new PIDController(0.0, 0.0, 0.0);
         break;
-    }
+      }
+
+    // Set initial setpoint
+    m_pidController.setSetpoint(ArmConstants.kStartAngleRad);
+    m_isPidEnabled = true;
 
     // Configure SysId
     m_sysId =
@@ -104,13 +108,16 @@ public class Arm extends SubsystemBase {
 
     // Run closed loop PID + FF control
     double pid = 0.0;
-    double ff = m_ffModel.calculate(m_inputs.absolutePositionRad, m_inputs.velocityRadPerSec);
-    if (!manualControl) {
+    double ff = 0.0;
+    if (m_isPidEnabled) {
+      ff = m_ffModel.calculate(m_inputs.absolutePositionRad, m_inputs.velocityRadPerSec);
       pid = m_pidController.calculate(m_inputs.absolutePositionRad);
+      m_io.setVoltage((pid + ff));
     }
-    m_io.setVoltage((pid + ff));
 
-    // Update mechanism2d (need to subtract from 180 to mirror across vertical axis)
+    // Update mechanism2d
+    // Mechanism2d uses 0 degrees to the right and increases counterclockwise
+    // Subtracting from 180 degrees mirrors the angle across the vertical axis
     m_mechanismLigament.setAngle(180 - Units.radiansToDegrees(m_inputs.absolutePositionRad));
 
     // Log the arm pose
@@ -124,27 +131,25 @@ public class Arm extends SubsystemBase {
 
   /** Run open loop at the specified voltage. */
   public void runVolts(double volts) {
-    manualControl = true;
+    m_isPidEnabled = false;
     m_io.setVoltage(volts);
   }
 
   /** Set the setpoint for PID control. (in radians, with 0 being horizontal and up being PI/2) */
-  public void setAngleSetpoint(double angle) {
-    m_pidController.setSetpoint(angle);
-  }
-
-  /** Stop the arm */
-  public void stop() {
-    m_io.setVoltage(0);
-    manualControl = false;
+  public void setAngleSetpoint(double angleRad) {
+    if (angleRad < ArmConstants.kMinAngleRad) {
+      angleRad = ArmConstants.kMinAngleRad;
+    } else if (angleRad > ArmConstants.kMaxAngleRad) {
+      angleRad = ArmConstants.kMaxAngleRad;
+    }
+    m_pidController.setSetpoint(angleRad);
   }
 
   /** Stop and hold the arm at its current position */
   public void stopAndHold() {
     m_pidController.setSetpoint(m_inputs.absolutePositionRad);
     m_pidController.reset();
-    m_io.setVoltage(0);
-    manualControl = false;
+    m_isPidEnabled = true;
   }
 
   /** Returns a command to run a quasistatic test in the specified direction. */

@@ -151,18 +151,42 @@ public final class Constants {
     public static final double kI = 0.0;
     public static final double kD = 0.0;
     public static final double kToleranceRad = Units.degreesToRadians(2);
-    public static final double kMaxI = Units.degreesToRadians(90);
 
     public static final int kMotorPort = 12;
     public static final int kCurrentLimit = 40;
     public static final int kAbsoluteEncoderOffset = 0;
 
-    public static final double kGearRatio = 50;
+    public static final double kGearRatio = 240;
     public static final double kLengthMeters =
         Units.inchesToMeters(16.86); // between the arm pivot and the wrist pivot
-    public static final double kMOIkgm2 = 3.7; // moment of inertia (educated guess)
+    public static final double kMOIkgm2 = 2.767; // moment of inertia (from CAD)
     public static final double kMinAngleRad =
         Units.degreesToRadians(6); // 0 rad is horizontal, hardstop is slightly above
     public static final double kMaxAngleRad = Units.degreesToRadians(80); // max is almost vertical
+    public static final double kStartAngleRad = kMinAngleRad;
+  }
+
+  public static class WristConstants {
+    public static final double kS = 0.0;
+    public static final double kV = 0.0;
+    public static final double kG = 0.0;
+    public static final double kP = 1.0;
+    public static final double kI = 0.0;
+    public static final double kD = 0.0;
+    public static final double kToleranceRad = Units.degreesToRadians(0.5);
+
+    public static final int kMotorPort = 13;
+    public static final int kCurrentLimit = 40;
+    public static final int kAbsoluteEncoderOffset = 0;
+
+    public static final double kGearRatio = 40;
+    public static final double kLengthMeters =
+        Units.inchesToMeters(7.0); // between the wrist pivot and the tip of the shooter end
+    public static final double kMOIkgm2 = 0.329; // moment of inertia (from CAD)
+
+    // For these angles, they are relative to the arm, with 0 degrees being parallel to the arm
+    public static final double kMinAngleRad = Units.degreesToRadians(45);
+    public static final double kMaxAngleRad = Units.degreesToRadians(135);
+    public static final double kStartAngleRad = Units.degreesToRadians(67);
   }
 }
