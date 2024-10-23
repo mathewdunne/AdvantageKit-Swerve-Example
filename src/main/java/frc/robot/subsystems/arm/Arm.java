@@ -133,8 +133,14 @@ public class Arm extends SubsystemBase {
     m_pidController.setSetpoint(angle);
   }
 
-  /** Stop the arm. */
+  /** Stop the arm */
   public void stop() {
+    m_io.setVoltage(0);
+    manualControl = false;
+  }
+
+  /** Stop and hold the arm at its current position */
+  public void stopAndHold() {
     m_pidController.setSetpoint(m_inputs.absolutePositionRad);
     m_pidController.reset();
     m_io.setVoltage(0);

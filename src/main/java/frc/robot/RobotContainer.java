@@ -179,7 +179,7 @@ public class RobotContainer {
                         m_arm.runVolts(
                             m_driverController.getRightTriggerAxis()
                                 * RobotController.getBatteryVoltage()))))
-        .onFalse(new InstantCommand(() -> m_arm.stop()));
+        .onFalse(new InstantCommand(() -> m_arm.stopAndHold()));
 
     m_driverController
         .leftTrigger(0.01)
@@ -190,7 +190,7 @@ public class RobotContainer {
                         m_arm.runVolts(
                             -m_driverController.getLeftTriggerAxis()
                                 * RobotController.getBatteryVoltage()))))
-        .onFalse(new InstantCommand(() -> m_arm.stop()));
+        .onFalse(new InstantCommand(() -> m_arm.stopAndHold()));
   }
 
   /**
