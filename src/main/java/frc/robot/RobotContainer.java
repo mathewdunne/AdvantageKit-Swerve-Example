@@ -197,14 +197,14 @@ public class RobotContainer {
         .whileTrue(
             new RepeatCommand(
                 new InstantCommand(
-                    () -> m_wrist.runVolts(0.3 * RobotController.getBatteryVoltage()))))
+                    () -> m_wrist.runVolts(-0.3 * RobotController.getBatteryVoltage()))))
         .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
     m_driverController
         .leftBumper()
         .whileTrue(
             new RepeatCommand(
                 new InstantCommand(
-                    () -> m_wrist.runVolts(-0.3 * RobotController.getBatteryVoltage()))))
+                    () -> m_wrist.runVolts(0.3 * RobotController.getBatteryVoltage()))))
         .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
 
     m_driverController
@@ -215,10 +215,10 @@ public class RobotContainer {
         .onTrue(new InstantCommand(() -> m_arm.setAngleSetpoint(Units.degreesToRadians(65))));
     m_driverController
         .x()
-        .onTrue(new InstantCommand(() -> m_wrist.setAngleSetpoint(Units.degreesToRadians(67))));
+        .onTrue(new InstantCommand(() -> m_wrist.setAngleSetpoint(Units.degreesToRadians(100))));
     m_driverController
         .y()
-        .onTrue(new InstantCommand(() -> m_wrist.setAngleSetpoint(Units.degreesToRadians(100))));
+        .onTrue(new InstantCommand(() -> m_wrist.setAngleSetpoint(Units.degreesToRadians(67))));
   }
 
   /**

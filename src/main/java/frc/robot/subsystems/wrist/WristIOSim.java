@@ -19,7 +19,7 @@ public class WristIOSim implements WristIO {
           WristConstants.kLengthMeters,
           WristConstants.kMinAngleRad,
           WristConstants.kMaxAngleRad,
-          false,
+          true,
           WristConstants.kMinAngleRad);
 
   private double m_wristAppliedVolts = 0.0;
@@ -42,7 +42,7 @@ public class WristIOSim implements WristIO {
 
   @Override
   public void setVoltage(double voltage) {
-    m_wristAppliedVolts = -MathUtil.clamp(voltage, -12.0, 12.0);
+    m_wristAppliedVolts = MathUtil.clamp(voltage, -12.0, 12.0);
     m_wristSim.setInputVoltage(m_wristAppliedVolts);
   }
 }

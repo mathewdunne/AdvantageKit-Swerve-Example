@@ -162,7 +162,7 @@ public final class Constants {
     public static final double kMOIkgm2 = 2.767; // moment of inertia (from CAD)
     public static final double kMinAngleRad =
         Units.degreesToRadians(6); // 0 rad is horizontal, hardstop is slightly above
-    public static final double kMaxAngleRad = Units.degreesToRadians(80); // max is almost vertical
+    public static final double kMaxAngleRad = Units.degreesToRadians(90); // max is almost vertical
     public static final double kStartAngleRad = kMinAngleRad;
   }
 

@@ -27,7 +27,8 @@ public class Wrist extends SubsystemBase {
 
   // private final Translation2d m_rootPosition;
   private MechanismLigament2d m_armMechanismLigament;
-  private MechanismLigament2d m_wristMechanismLigament;
+  private MechanismLigament2d m_shooterMechanismLigament;
+  private MechanismLigament2d m_intakeMechanismLigament;
 
   private final PIDController m_pidController;
   private final ArmFeedforward m_ffModel;
@@ -40,12 +41,22 @@ public class Wrist extends SubsystemBase {
 
     // m_rootPosition = new Translation2d(Units.inchesToMeters(32.25 - 4),
     // Units.inchesToMeters(11.7));
-    m_wristMechanismLigament =
+    // 2 ligaments for the wrist since the pibot point is in the middle
+    // just always 180 degrees apart
+    m_shooterMechanismLigament =
         m_armMechanismLigament.append(
             new MechanismLigament2d(
-                "WristLigament",
+                "WristShooterLigament",
                 WristConstants.kLengthMeters,
                 Units.radiansToDegrees(WristConstants.kStartAngleRad),
+                4,
+                new Color8Bit(255, 0, 0)));
+    m_intakeMechanismLigament =
+        m_armMechanismLigament.append(
+            new MechanismLigament2d(
+                "WristIntakeLigament",
+                WristConstants.kLengthMeters,
+                0,
                 4,
                 new Color8Bit(255, 0, 0)));
 
@@ -65,7 +76,7 @@ public class Wrist extends SubsystemBase {
         break;
       case SIM:
         m_ffModel = new ArmFeedforward(0.1, 0.05, 0.01);
-        m_pidController = new PIDController(10.0, 0.0, 0.0);
+        m_pidController = new PIDController(10, 0.0, 0.5);
         m_pidController.setTolerance(WristConstants.kToleranceRad);
         break;
       default:
@@ -104,9 +115,10 @@ public class Wrist extends SubsystemBase {
     }
 
     // Update mechanism2d
-    // Mechanism2d uses 0 degrees to the right and increases counterclockwise
-    // Subtracting from 180 degrees mirrors the angle across the vertical axis
-    m_wristMechanismLigament.setAngle(Units.radiansToDegrees(m_inputs.absolutePositionRad));
+    // 0 degrees for ligament is straight in line with the parent ligament
+    // Subtracting 180 degrees makes it move the right way
+    m_shooterMechanismLigament.setAngle(Units.radiansToDegrees(m_inputs.absolutePositionRad) - 180);
+    m_intakeMechanismLigament.setAngle(Units.radiansToDegrees(m_inputs.absolutePositionRad));
 
     // Log the wrist pose
     Logger.recordOutput("Mechanism3d/Wrist", getPose3d(m_inputs.absolutePositionRad));
