@@ -4,20 +4,28 @@
 
 package frc.robot.util;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-/** A PID controller that can be tuned on SmartDashboard. */
-public class TunablePIDController extends PIDController {
+/** A Profiled PID controller that can be tuned on SmartDashboard. */
+public class TunableProfiledPIDController extends ProfiledPIDController {
 
   private final String m_key;
   private final boolean m_tuneMode;
 
-  public TunablePIDController(
-      double kP, double kI, double kD, double toleranceRad, String key, boolean tuneMode) {
-    super(kP, kI, kD);
+  public TunableProfiledPIDController(
+      double kP,
+      double kI,
+      double kD,
+      double toleranceRad,
+      double maxVelocity,
+      double maxAccel,
+      String key,
+      boolean tuneMode) {
+    super(kP, kI, kD, new TrapezoidProfile.Constraints(maxVelocity, maxAccel));
     setTolerance(toleranceRad);
-    m_key = key + "/PID";
+    m_key = key + "/TrapPID";
     m_tuneMode = tuneMode;
 
     if (m_tuneMode) {

@@ -81,7 +81,7 @@ public class Wrist extends SubsystemBase {
       case SIM:
         m_ffModel = new ArmFeedforward(0.0, 3.1407, 0.79481, 0.037738);
         m_pidController =
-            new TunablePIDController(1, 0.0, 0, WristConstants.kToleranceRad, "Wrist", true);
+            new TunablePIDController(20, 0.0, 1, WristConstants.kToleranceRad, "Wrist", true);
         break;
       default:
         m_ffModel = new ArmFeedforward(0.0, 0.0, 0.0);
@@ -114,7 +114,7 @@ public class Wrist extends SubsystemBase {
     double ff = 0.0;
     if (m_isPidEnabled) {
       // real world position to compensate for arm movement
-      ff = m_ffModel.calculate(m_inputs.realWorldPositionRad, m_inputs.velocityRadPerSec);
+      ff = m_ffModel.calculate(m_inputs.realWorldPositionRad, 0); // goal velocity is 0
       pid = m_pidController.calculate(m_inputs.absolutePositionRad);
       m_io.setVoltage((pid + ff));
     }
