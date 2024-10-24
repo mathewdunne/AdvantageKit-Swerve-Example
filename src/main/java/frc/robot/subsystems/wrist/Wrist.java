@@ -11,7 +11,6 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -68,7 +67,7 @@ public class Wrist extends SubsystemBase {
     // TUNE THESE VALUES
     m_ffModel = new ArmFeedforward(0.0, 3.1407, 0.79481, 0.037738);
     m_pidController =
-        new TunablePIDController(0, 0, 0, WristConstants.kToleranceRad, "Wrist", true);
+        new TunablePIDController(10, 0, 0, WristConstants.kToleranceRad, "Wrist", true);
     // ---------------------------------------------------------------------------------------------------------------
 
     // Set initial setpoint
