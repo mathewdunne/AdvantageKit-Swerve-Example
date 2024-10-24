@@ -175,6 +175,7 @@ public final class Constants {
     public static final double kI = 0.0;
     public static final double kD = 0.0;
     public static final double kToleranceRad = Units.degreesToRadians(0.5);
+    public static final double kMaxAccelerationRadPerSec2 = 50;
 
     public static final int kMotorPort = 13;
     public static final int kCurrentLimit = 40;

@@ -28,6 +28,9 @@ public class WristIOSim implements WristIO {
   private double m_wristAppliedVolts = 0.0;
   private Supplier<Double> m_armAngleRadSupplier;
 
+  // private double lastVelocity = 0.0;
+  // private long lastVelocityTime = Logger.getRealTimestamp();
+
   public WristIOSim(Supplier<Double> armAngleRadSupplier) {
     System.out.println("[Init] CreatingWristIOSim");
     m_armAngleRadSupplier = armAngleRadSupplier;
@@ -48,6 +51,15 @@ public class WristIOSim implements WristIO {
     // Real world position is (arm angle - 180 + the wrist angle) but in radians
     inputs.realWorldPositionRad =
         m_armAngleRadSupplier.get() - Math.PI + inputs.absolutePositionRad;
+
+    // long currentTime = Logger.getRealTimestamp();
+    // Logger.recordOutput(
+    //     "Wrist/Accel",
+    //     (inputs.velocityRadPerSec - lastVelocity)
+    //         / (currentTime - lastVelocityTime)
+    //         * Math.pow(10, 6));
+    // lastVelocity = inputs.velocityRadPerSec;
+    // lastVelocityTime = currentTime;
   }
 
   @Override

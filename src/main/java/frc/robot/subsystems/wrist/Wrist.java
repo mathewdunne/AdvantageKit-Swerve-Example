@@ -7,10 +7,11 @@ package frc.robot.subsystems.wrist;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
 import edu.wpi.first.wpilibj.util.Color8Bit;
@@ -19,7 +20,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.WristConstants;
-import frc.robot.util.TunablePIDController;
+import frc.robot.util.TunableProfiledPIDController;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -34,7 +35,7 @@ public class Wrist extends SubsystemBase {
   private MechanismLigament2d m_intakeMechanismLigament;
   private Supplier<Translation3d> m_mechanismRootSupplier;
 
-  private final PIDController m_pidController;
+  private final ProfiledPIDController m_pidController;
   private final ArmFeedforward m_ffModel;
   private final SysIdRoutine m_sysId;
 
@@ -70,27 +71,51 @@ public class Wrist extends SubsystemBase {
       case REAL:
         m_ffModel = new ArmFeedforward(WristConstants.kS, WristConstants.kV, WristConstants.kG);
         m_pidController =
-            new PIDController(WristConstants.kP, WristConstants.kI, WristConstants.kD);
-        m_pidController.setTolerance(WristConstants.kToleranceRad);
+            new TunableProfiledPIDController(
+                WristConstants.kP,
+                WristConstants.kI,
+                WristConstants.kD,
+                WristConstants.kToleranceRad,
+                m_ffModel.maxAchievableVelocity(
+                    12, Math.PI / 4, WristConstants.kMaxAccelerationRadPerSec2),
+                WristConstants.kMaxAccelerationRadPerSec2,
+                "Wrist",
+                true);
         break;
       case REPLAY:
         m_ffModel = new ArmFeedforward(0.1, 0.05, 0.01);
-        m_pidController = new PIDController(1.0, 0.0, 0.0);
-        m_pidController.setTolerance(WristConstants.kToleranceRad);
+        m_pidController =
+            new TunableProfiledPIDController(
+                1,
+                0,
+                1,
+                WristConstants.kToleranceRad,
+                m_ffModel.maxAchievableVelocity(12, Math.PI / 4, 50),
+                50,
+                "Wrist",
+                true);
         break;
       case SIM:
         m_ffModel = new ArmFeedforward(0.0, 3.1407, 0.79481, 0.037738);
         m_pidController =
-            new TunablePIDController(20, 0.0, 1, WristConstants.kToleranceRad, "Wrist", true);
+            new TunableProfiledPIDController(
+                1,
+                0,
+                1,
+                WristConstants.kToleranceRad,
+                m_ffModel.maxAchievableVelocity(12, Math.PI / 4, 50),
+                50,
+                "Wrist",
+                true);
         break;
       default:
         m_ffModel = new ArmFeedforward(0.0, 0.0, 0.0);
-        m_pidController = new PIDController(0.0, 0.0, 0.0);
+        m_pidController = new TunableProfiledPIDController(0, 0, 0, 0, 0, 0, "Wrist", false);
         break;
     }
 
     // Set initial setpoint
-    m_pidController.setSetpoint(WristConstants.kStartAngleRad);
+    m_pidController.setGoal(WristConstants.kStartAngleRad);
     m_isPidEnabled = true;
 
     // Configure SysId
@@ -114,8 +139,13 @@ public class Wrist extends SubsystemBase {
     double ff = 0.0;
     if (m_isPidEnabled) {
       // real world position to compensate for arm movement
-      ff = m_ffModel.calculate(m_inputs.realWorldPositionRad, 0); // goal velocity is 0
       pid = m_pidController.calculate(m_inputs.absolutePositionRad);
+      // FF calculation needs to use the real world position.
+      // I know its supposed to take a setpoint, but with trapezoidal profiling the setpoint is
+      // close enough to the real world position
+      ff =
+          m_ffModel.calculate(
+              m_inputs.realWorldPositionRad, m_pidController.getSetpoint().velocity);
       m_io.setVoltage((pid + ff));
     }
 
@@ -127,7 +157,8 @@ public class Wrist extends SubsystemBase {
 
     // Log the wrist pose
     Logger.recordOutput("Mechanism3d/Wrist", getPose3d(m_inputs.realWorldPositionRad));
-    Logger.recordOutput("Wrist/AngleSetpointRad", m_pidController.getSetpoint());
+    Logger.recordOutput("Wrist/AngleSetpointRad", m_pidController.getSetpoint().position);
+    Logger.recordOutput("Wrist/AngleGoalRad", m_pidController.getGoal().position);
     Logger.recordOutput("Wrist/ActualAngleRad", m_inputs.absolutePositionRad);
     Logger.recordOutput("Wrist/PID", pid);
     Logger.recordOutput("Wrist/FF", ff);
@@ -146,14 +177,14 @@ public class Wrist extends SubsystemBase {
     } else if (angleRad > WristConstants.kMaxAngleRad) {
       angleRad = WristConstants.kMaxAngleRad;
     }
-    m_pidController.setSetpoint(angleRad);
+    m_pidController.setGoal(angleRad);
   }
 
   /** Stop and hold the wrist at its current position */
   public void stopAndHold() {
     m_io.setVoltage(0.0);
-    m_pidController.setSetpoint(m_inputs.absolutePositionRad);
-    m_pidController.reset();
+    m_pidController.setGoal(m_inputs.absolutePositionRad);
+    m_pidController.reset(new TrapezoidProfile.State(m_inputs.absolutePositionRad, 0));
     m_isPidEnabled = true;
   }
 

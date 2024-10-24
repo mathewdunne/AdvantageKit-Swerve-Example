@@ -87,7 +87,7 @@ public class Arm extends SubsystemBase {
         m_ffModel = new ArmFeedforward(0.0, 0.0, 0.0);
         m_pidController =
             new TunableProfiledPIDController(
-                50,
+                30,
                 0,
                 1,
                 ArmConstants.kToleranceRad,
