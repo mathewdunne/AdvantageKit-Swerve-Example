@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControllerConstants;
@@ -167,48 +166,26 @@ public class RobotContainer {
         .rightStick()
         .onTrue(new InstantCommand(() -> m_swerveDrive.resetOdometry()).ignoringDisable(true));
 
-    // Apply a random offset to pose estimator to test vision correction
-    m_driverController
-        .y()
-        .onTrue(
-            new InstantCommand(
-                () -> {
-                  Random rand = new Random();
-                  Transform2d randomOffset =
-                      new Transform2d(
-                          new Translation2d(rand.nextDouble() * 4 - 2, rand.nextDouble() * 4 - 2),
-                          new Rotation2d(rand.nextDouble() * 2 * Math.PI));
-                  m_swerveDrive.setPose(m_swerveDrive.getPose().plus(randomOffset));
-                }));
-
     m_driverController
         .rightTrigger(0.01)
         .whileTrue(
-            new RepeatCommand(
-                new InstantCommand(
-                    () -> m_arm.runVolts(0.7 * RobotController.getBatteryVoltage()))))
+            new InstantCommand(() -> m_arm.runVolts(0.7 * RobotController.getBatteryVoltage())))
         .onFalse(new InstantCommand(() -> m_arm.stopAndHold()));
     m_driverController
         .leftTrigger(0.01)
         .whileTrue(
-            new RepeatCommand(
-                new InstantCommand(
-                    () -> m_arm.runVolts(-0.7 * RobotController.getBatteryVoltage()))))
+            new InstantCommand(() -> m_arm.runVolts(-0.7 * RobotController.getBatteryVoltage())))
         .onFalse(new InstantCommand(() -> m_arm.stopAndHold()));
 
     m_driverController
         .rightBumper()
         .whileTrue(
-            new RepeatCommand(
-                new InstantCommand(
-                    () -> m_wrist.runVolts(-0.3 * RobotController.getBatteryVoltage()))))
+            new InstantCommand(() -> m_wrist.runVolts(-0.3 * RobotController.getBatteryVoltage())))
         .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
     m_driverController
         .leftBumper()
         .whileTrue(
-            new RepeatCommand(
-                new InstantCommand(
-                    () -> m_wrist.runVolts(0.3 * RobotController.getBatteryVoltage()))))
+            new InstantCommand(() -> m_wrist.runVolts(0.3 * RobotController.getBatteryVoltage())))
         .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
 
     m_driverController
