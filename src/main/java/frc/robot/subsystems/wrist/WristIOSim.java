@@ -9,6 +9,7 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.WristConstants;
+import frc.robot.util.MovingFrameSingleJointedArmSim;
 import java.util.function.Supplier;
 
 public class WristIOSim implements WristIO {

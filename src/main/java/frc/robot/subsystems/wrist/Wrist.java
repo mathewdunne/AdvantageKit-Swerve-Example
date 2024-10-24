@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.WristConstants;
+import frc.robot.util.TunablePIDController;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -78,9 +79,9 @@ public class Wrist extends SubsystemBase {
         m_pidController.setTolerance(WristConstants.kToleranceRad);
         break;
       case SIM:
-        m_ffModel = new ArmFeedforward(0.1, 0.05, 0.01);
-        m_pidController = new PIDController(10, 0.0, 0.5);
-        m_pidController.setTolerance(WristConstants.kToleranceRad);
+        m_ffModel = new ArmFeedforward(0.0, 3.1407, 0.79481, 0.037738);
+        m_pidController =
+            new TunablePIDController(1, 0.0, 0, WristConstants.kToleranceRad, "Wrist", true);
         break;
       default:
         m_ffModel = new ArmFeedforward(0.0, 0.0, 0.0);

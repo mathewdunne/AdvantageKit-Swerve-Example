@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
+import frc.robot.util.TunablePIDController;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -78,8 +79,9 @@ public class Arm extends SubsystemBase {
         m_pidController.setTolerance(ArmConstants.kToleranceRad);
         break;
       case SIM:
-        m_ffModel = new ArmFeedforward(0.1, 0.05, 0.01);
-        m_pidController = new PIDController(10.0, 0.0, 0.0);
+        m_ffModel = new ArmFeedforward(0.0, 0.97556, 4.2894, 0.010929);
+        m_pidController =
+            new TunablePIDController(50, 0, 5, ArmConstants.kToleranceRad, "Arm", true);
         m_pidController.setTolerance(ArmConstants.kToleranceRad);
         break;
       default:
