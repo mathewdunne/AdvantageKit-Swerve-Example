@@ -24,6 +24,9 @@ public class ArmIOSim implements ArmIO {
 
   private double m_armAppliedVolts = 0.0;
 
+  // private double lastVelocity = 0.0;
+  // private long lastVelocityTime = Logger.getRealTimestamp();
+
   public ArmIOSim() {
     System.out.println("[Init] CreatingArmIOSim");
   }
@@ -38,6 +41,15 @@ public class ArmIOSim implements ArmIO {
     inputs.appliedVolts = m_armAppliedVolts;
     inputs.currentAmps = new double[] {m_armSim.getCurrentDrawAmps()};
     inputs.tempCelsius = new double[] {};
+
+    // long currentTime = Logger.getRealTimestamp();
+    // Logger.recordOutput(
+    //     "Arm/Accel",
+    //     (inputs.velocityRadPerSec - lastVelocity)
+    //         / (currentTime - lastVelocityTime)
+    //         * Math.pow(10, 6));
+    // lastVelocity = inputs.velocityRadPerSec;
+    // lastVelocityTime = currentTime;
   }
 
   @Override
