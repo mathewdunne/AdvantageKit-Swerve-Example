@@ -64,7 +64,7 @@ public class Vision extends SubsystemBase {
             VisionConstants.kTagLayout,
             m_poseStrategy,
             m_io.getCamera(),
-            VisionConstants.kRobotToCam);
+            VisionConstants.kRobotToApriltagCam);
     m_photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
   }
 

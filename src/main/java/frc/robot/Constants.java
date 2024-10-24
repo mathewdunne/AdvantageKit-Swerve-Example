@@ -125,9 +125,9 @@ public final class Constants {
   }
 
   public static class VisionConstants {
-    public static final String kCameraName = "arducam";
+    public static final String kApriltagCameraName = "copperShooterCamera";
     // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
-    public static final Transform3d kRobotToCam =
+    public static final Transform3d kRobotToApriltagCam =
         new Transform3d(
             new Translation3d(
                 Units.inchesToMeters(11.56 + 0.39 + 16.0), 0.0, Units.inchesToMeters(13.876 + 1.9)),

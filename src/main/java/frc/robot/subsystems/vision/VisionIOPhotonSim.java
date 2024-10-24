@@ -5,10 +5,10 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Robot;
+import java.io.IOException;
 import org.photonvision.PhotonCamera;
 import org.photonvision.simulation.PhotonCameraSim;
 import org.photonvision.simulation.SimCameraProperties;
@@ -20,26 +20,33 @@ public class VisionIOPhotonSim implements VisionIO {
   private final PhotonCameraSim m_cameraSim;
   private final VisionSystemSim m_visionSim;
 
+  // Simulated camera streams are CPU intensive and can be disabled when not needed
+  boolean renderSim = true;
+
   public VisionIOPhotonSim() {
-    m_camera = new PhotonCamera(VisionConstants.kCameraName);
+    m_camera = new PhotonCamera(VisionConstants.kApriltagCameraName);
     // Create the vision system simulation which handles cameras and targets on the field.
     m_visionSim = new VisionSystemSim("main");
     // Add all the AprilTags inside the tag layout as visible targets to this simulated field.
     m_visionSim.addAprilTags(VisionConstants.kTagLayout);
     // Create simulated camera properties. These can be set to mimic your actual camera.
-    var cameraProp = new SimCameraProperties();
-    cameraProp.setCalibration(960, 720, Rotation2d.fromDegrees(90));
-    cameraProp.setCalibError(0.35, 0.10);
+    SimCameraProperties cameraProp;
+    try {
+      cameraProp =
+          new SimCameraProperties("./photonvision/exports/copperShooterCamera.json", 1280, 720);
+      System.out.println("[VisionSim] Loaded camera calibration file");
+    } catch (IOException e) {
+      System.out.println(
+          "[VisionSim] Failed to load camera calibration file, using default values");
+      cameraProp = new SimCameraProperties();
+    }
     cameraProp.setFPS(15);
-    cameraProp.setAvgLatencyMs(50);
-    cameraProp.setLatencyStdDevMs(15);
     // Create a PhotonCameraSim which will update the linked PhotonCamera's values with visible
     // targets.
     m_cameraSim = new PhotonCameraSim(m_camera, cameraProp);
     // Add the simulated camera to view the targets on this simulated field.
-    m_visionSim.addCamera(m_cameraSim, VisionConstants.kRobotToCam);
+    m_visionSim.addCamera(m_cameraSim, VisionConstants.kRobotToApriltagCam);
 
-    boolean renderSim = false;
     m_cameraSim.enableRawStream(renderSim);
     m_cameraSim.enableProcessedStream(renderSim);
     m_cameraSim.enableDrawWireframe(renderSim);
