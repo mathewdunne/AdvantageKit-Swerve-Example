@@ -9,17 +9,22 @@ import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Transform2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.RepeatCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FlywheelConstants;
 import frc.robot.Constants.ModuleLocation;
 import frc.robot.commands.DriveCommands.MasterDriveCmd;
+import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ArmIOSim;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -32,6 +37,8 @@ import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.flywheel.FlywheelIOSparkMax;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOPhotonSim;
+import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIOSim;
 import java.util.Random;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
@@ -47,6 +54,8 @@ public class RobotContainer {
   private final SwerveSubsystem m_swerveDrive;
   private final Flywheel m_flywheel;
   private final Vision m_vision;
+  private final Arm m_arm;
+  private final Wrist m_wrist;
 
   // Controller
   private final CommandXboxController m_driverController =
@@ -74,6 +83,8 @@ public class RobotContainer {
                 new ModuleIOSparkMax(ModuleLocation.BACK_RIGHT));
         m_flywheel = new Flywheel(new FlywheelIOSparkMax());
         m_vision = null; // TO DO
+        m_arm = null; // TO DO
+        m_wrist = null; // TO DO
         break;
 
       case SIM:
@@ -91,6 +102,12 @@ public class RobotContainer {
                 new VisionIOPhotonSim() {},
                 m_swerveDrive::addVisionMeasurement,
                 m_swerveDrive::getSimTruePose);
+        m_arm = new Arm(new ArmIOSim() {});
+        m_wrist =
+            new Wrist(
+                new WristIOSim(m_arm::getMechanismAngle) {},
+                m_arm.getMechanismLigament(),
+                m_arm::getTipPosition);
         break;
 
       default:
@@ -104,6 +121,8 @@ public class RobotContainer {
                 new ModuleIO() {});
         m_flywheel = new Flywheel(new FlywheelIO() {});
         m_vision = null; // TO DO
+        m_arm = null; // TO DO
+        m_wrist = null; // TO DO
         break;
     }
 
@@ -118,30 +137,7 @@ public class RobotContainer {
     m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
-    m_autoChooser.addOption(
-        "Drive SysId (Quasistatic Forward)",
-        m_swerveDrive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    m_autoChooser.addOption(
-        "Drive SysId (Quasistatic Reverse)",
-        m_swerveDrive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    m_autoChooser.addOption(
-        "Drive SysId (Dynamic Forward)",
-        m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    m_autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)",
-        m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
-    m_autoChooser.addOption(
-        "Flywheel SysId (Quasistatic Forward)",
-        m_flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
-    m_autoChooser.addOption(
-        "Flywheel SysId (Quasistatic Reverse)",
-        m_flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
-    m_autoChooser.addOption(
-        "Flywheel SysId (Dynamic Forward)",
-        m_flywheel.sysIdDynamic(SysIdRoutine.Direction.kForward));
-    m_autoChooser.addOption(
-        "Flywheel SysId (Dynamic Reverse)",
-        m_flywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    addSysIDRoutines(m_autoChooser);
 
     // Create master drive command
     m_masterDriveCmd =
@@ -184,6 +180,49 @@ public class RobotContainer {
                           new Rotation2d(rand.nextDouble() * 2 * Math.PI));
                   m_swerveDrive.setPose(m_swerveDrive.getPose().plus(randomOffset));
                 }));
+
+    m_driverController
+        .rightTrigger(0.01)
+        .whileTrue(
+            new RepeatCommand(
+                new InstantCommand(
+                    () -> m_arm.runVolts(0.7 * RobotController.getBatteryVoltage()))))
+        .onFalse(new InstantCommand(() -> m_arm.stopAndHold()));
+    m_driverController
+        .leftTrigger(0.01)
+        .whileTrue(
+            new RepeatCommand(
+                new InstantCommand(
+                    () -> m_arm.runVolts(-0.7 * RobotController.getBatteryVoltage()))))
+        .onFalse(new InstantCommand(() -> m_arm.stopAndHold()));
+
+    m_driverController
+        .rightBumper()
+        .whileTrue(
+            new RepeatCommand(
+                new InstantCommand(
+                    () -> m_wrist.runVolts(-0.3 * RobotController.getBatteryVoltage()))))
+        .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
+    m_driverController
+        .leftBumper()
+        .whileTrue(
+            new RepeatCommand(
+                new InstantCommand(
+                    () -> m_wrist.runVolts(0.3 * RobotController.getBatteryVoltage()))))
+        .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
+
+    m_driverController
+        .a()
+        .onTrue(new InstantCommand(() -> m_arm.setAngleSetpoint(Units.degreesToRadians(30))));
+    m_driverController
+        .b()
+        .onTrue(new InstantCommand(() -> m_arm.setAngleSetpoint(Units.degreesToRadians(65))));
+    m_driverController
+        .x()
+        .onTrue(new InstantCommand(() -> m_wrist.setAngleSetpoint(Units.degreesToRadians(100))));
+    m_driverController
+        .y()
+        .onTrue(new InstantCommand(() -> m_wrist.setAngleSetpoint(Units.degreesToRadians(67))));
   }
 
   /**
@@ -193,5 +232,41 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     return m_autoChooser.get();
+  }
+
+  // Add sysID routines to auto chooser
+  public void addSysIDRoutines(LoggedDashboardChooser<Command> autoChooser) {
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Forward)",
+        m_swerveDrive.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Quasistatic Reverse)",
+        m_swerveDrive.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Forward)",
+        m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Drive SysId (Dynamic Reverse)",
+        m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Flywheel SysId (Quasistatic Forward)",
+        m_flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Flywheel SysId (Quasistatic Reverse)",
+        m_flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Flywheel SysId (Dynamic Forward)",
+        m_flywheel.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Flywheel SysId (Dynamic Reverse)",
+        m_flywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Arm SysId (Quasistatic Forward)", m_arm.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Arm SysId (Quasistatic Reverse)", m_arm.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+    autoChooser.addOption(
+        "Arm SysId (Dynamic Forward)", m_arm.sysIdDynamic(SysIdRoutine.Direction.kForward));
+    autoChooser.addOption(
+        "Arm SysId (Dynamic Reverse)", m_arm.sysIdDynamic(SysIdRoutine.Direction.kReverse));
   }
 }
