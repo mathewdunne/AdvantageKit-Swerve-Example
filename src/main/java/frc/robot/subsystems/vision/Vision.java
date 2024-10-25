@@ -11,11 +11,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -23,7 +20,6 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
-import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class Vision extends SubsystemBase {
   private final VisionIO m_io;
@@ -35,31 +31,14 @@ public class Vision extends SubsystemBase {
   private final AddVisionMeasurement m_addVisionMeasurementFunc;
   private Supplier<Pose2d> m_getTrueSimPose;
 
-  private final PoseStrategy m_poseStrategy;
-
   public Vision(VisionIO io, AddVisionMeasurement addVisionMeasurementFunc) {
     m_io = io;
     m_addVisionMeasurementFunc = addVisionMeasurementFunc;
 
-    switch (Constants.kCurrentMode) {
-      case REAL:
-        m_poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
-        break;
-      case SIM:
-        m_poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_RIO;
-        break;
-      case REPLAY:
-        m_poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_RIO;
-        break;
-      default:
-        m_poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_RIO;
-        break;
-    }
-
     m_photonEstimator =
         new PhotonPoseEstimator(
             VisionConstants.kTagLayout,
-            m_poseStrategy,
+            PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
             m_io.getApriltagCamera(),
             VisionConstants.kRobotToApriltagCam);
     m_photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
@@ -94,16 +73,15 @@ public class Vision extends SubsystemBase {
       }
 
       // Log the detected AprilTags
-      List<Pose3d> allTagPoses = new ArrayList<>();
-      for (PhotonTrackedTarget target : result.getTargets()) {
-        if (target.getFiducialId() == -1) continue;
-        Optional<Pose3d> tagPose = VisionConstants.kTagLayout.getTagPose(target.getFiducialId());
-        if (tagPose.isPresent()) {
-          allTagPoses.add(tagPose.get());
-        }
-      }
-      Logger.recordOutput(
-          "Vision/AllTagPoses", allTagPoses.toArray(new Pose3d[allTagPoses.size()]));
+      Pose3d[] allTagPoses =
+          result.getTargets().stream()
+              .filter(target -> target.getFiducialId() != -1)
+              .map(target -> VisionConstants.kTagLayout.getTagPose(target.getFiducialId()))
+              .filter(Optional::isPresent)
+              .map(Optional::get)
+              .toArray(Pose3d[]::new);
+
+      Logger.recordOutput("Vision/AllTagPoses", allTagPoses);
     }
   }
 
