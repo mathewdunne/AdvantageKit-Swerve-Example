@@ -13,7 +13,6 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.Robot;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +30,7 @@ public class Vision extends SubsystemBase {
   private final VisionIOInputs m_inputs = new VisionIOInputs();
 
   private final PhotonPoseEstimator m_photonEstimator;
-  private double m_lastEstTimestamp = 0;
+  private double m_lastEstTimestampApriltags = 0;
 
   private final AddVisionMeasurement m_addVisionMeasurementFunc;
   private final Supplier<Pose2d> m_getTrueSimPose;
@@ -63,8 +62,8 @@ public class Vision extends SubsystemBase {
         new PhotonPoseEstimator(
             VisionConstants.kTagLayout,
             m_poseStrategy,
-            m_io.getCamera(),
-            VisionConstants.kRobotToCam);
+            m_io.getApriltagCamera(),
+            VisionConstants.kRobotToApriltagCam);
     m_photonEstimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
   }
 
@@ -73,14 +72,15 @@ public class Vision extends SubsystemBase {
     m_io.updateInputs(m_inputs);
     Logger.processInputs("Vision", m_inputs);
 
+    // Check for new apriltag data
     PhotonPipelineResult result =
-        VisionIOInputs.deserializePipelineResult(m_inputs.pipelineResult, m_inputs.timestamp);
+        VisionIOInputs.deserializePipelineResult(
+            m_inputs.apriltagCamPipelineResult, m_inputs.apriltagCamTimestamp);
 
-    // Check for new vision data
-    double latestTimestamp = m_inputs.timestamp;
-    boolean newResult = Math.abs(latestTimestamp - m_lastEstTimestamp) > 1e-5;
+    double latestTimestamp = m_inputs.apriltagCamTimestamp;
+    boolean newResult = Math.abs(latestTimestamp - m_lastEstTimestampApriltags) > 1e-5;
     if (newResult) {
-      m_lastEstTimestamp = latestTimestamp;
+      m_lastEstTimestampApriltags = latestTimestamp;
 
       // Update the photonEstimator with the latest result
       Optional<EstimatedRobotPose> estimatedPose = m_photonEstimator.update(result);
@@ -106,22 +106,6 @@ public class Vision extends SubsystemBase {
       }
       Logger.recordOutput(
           "Vision/AllTagPoses", allTagPoses.toArray(new Pose3d[allTagPoses.size()]));
-
-      // If in simulation, update the simulation field visualization
-      if (Robot.isSimulation()) {
-        estimatedPose.ifPresentOrElse(
-            est -> {
-              // Assume you have access to the Field2d object from your IO layer
-              m_io.getSimDebugField()
-                  .getObject("VisionEstimation")
-                  .setPose(est.estimatedPose.toPose2d());
-            },
-            () -> {
-              if (newResult) {
-                m_io.getSimDebugField().getObject("VisionEstimation").setPoses();
-              }
-            });
-      }
     }
   }
 

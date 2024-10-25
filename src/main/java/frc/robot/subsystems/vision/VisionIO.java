@@ -17,20 +17,27 @@ public interface VisionIO {
 
   public static class VisionIOInputs implements LoggableInputs {
 
-    public double timestamp = 0.0;
-    public byte[] pipelineResult = new byte[] {};
+    public double apriltagCamTimestamp = 0.0;
+    public byte[] apriltagCamPipelineResult = new byte[] {};
+
+    public double intakeCamTimestamp = 0.0;
+    public byte[] intakeCamPipelineResult = new byte[] {};
 
     // Serializer/deserializer for PhotonPipelineResult
     private static final APacketSerde serde = new APacketSerde();
 
     public void toLog(LogTable table) {
-      table.put("PipelineResult", pipelineResult);
-      table.put("Timestamp", timestamp);
+      table.put("Timestamp", apriltagCamTimestamp);
+      table.put("AprilTagCamPipelineResult", apriltagCamPipelineResult);
+      table.put("Timestamp", intakeCamTimestamp);
+      table.put("IntakeCamPipelineResult", intakeCamPipelineResult);
     }
 
     public void fromLog(LogTable table) {
-      timestamp = table.get("Timestamp", timestamp);
-      pipelineResult = table.get("PipelineResult", pipelineResult);
+      apriltagCamTimestamp = table.get("Timestamp", apriltagCamTimestamp);
+      apriltagCamPipelineResult = table.get("AprilTagCamPipelineResult", apriltagCamPipelineResult);
+      intakeCamTimestamp = table.get("Timestamp", intakeCamTimestamp);
+      intakeCamPipelineResult = table.get("IntakeCamPipelineResult", intakeCamPipelineResult);
     }
 
     /** Method to pack a PhotonPipelineResult into a byte array */
@@ -53,7 +60,7 @@ public interface VisionIO {
   public default void updateInputs(VisionIOInputs inputs) {}
 
   /** Gets the PhotonCamera object. Must be implemented in both simulation and real robot classes */
-  public PhotonCamera getCamera();
+  public PhotonCamera getApriltagCamera();
 
   // ONLY NEEDED FOR SIMULATION
   /** Updates the simulation with the true robot pose. Must be called from a subsystem */
