@@ -134,8 +134,8 @@ public final class Constants {
     public static final String kIntakeCameraName = "silverIntakeCamera";
     public static final Transform3d kRobotToIntakeCam =
         new Transform3d(
-            new Translation3d(-0.22, -0.23, 0.48),
-            new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(180)));
+            new Translation3d(-0.24, -0.25, 0.5),
+            new Rotation3d(0, Units.degreesToRadians(15), Units.degreesToRadians(180)));
 
     // The layout of the AprilTags on the field
     public static final AprilTagFieldLayout kTagLayout =

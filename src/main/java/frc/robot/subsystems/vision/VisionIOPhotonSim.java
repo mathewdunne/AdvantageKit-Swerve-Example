@@ -5,8 +5,8 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Rotation3d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Robot;
 import java.io.IOException;
@@ -43,9 +43,11 @@ public class VisionIOPhotonSim implements VisionIO {
     // Different simulated world with game piece targets
     m_visionSimWorldGamePieces = new VisionSystemSim("gamePieces");
     TargetModel noteModel = NoteModel.getNoteModel();
-    VisionTargetSim noteTarget =
-        new VisionTargetSim(new Pose3d(2.8956, 4.1148, 0, new Rotation3d()), noteModel);
-    m_visionSimWorldGamePieces.addVisionTargets("note", noteTarget);
+    VisionTargetSim[] noteTargets = new VisionTargetSim[NoteModel.getNotePositions().size()];
+    for (int i = 0; i < noteTargets.length; i++) {
+      noteTargets[i] = new VisionTargetSim(NoteModel.getNotePositions().get(i), noteModel);
+    }
+    m_visionSimWorldGamePieces.addVisionTargets("note", noteTargets);
 
     // Create simulated camera properties. These can be set to mimic your actual camera.
     SimCameraProperties shooterCameraProps;
@@ -61,16 +63,8 @@ public class VisionIOPhotonSim implements VisionIO {
     }
     shooterCameraProps.setFPS(15);
 
-    SimCameraProperties intakeCameraProps;
-    try {
-      intakeCameraProps =
-          new SimCameraProperties("./photonvision/exports/silverIntakeCamera.json", 1280, 720);
-      System.out.println("[VisionSim] Loaded intake camera calibration file");
-    } catch (IOException e) {
-      System.out.println(
-          "[VisionSim] Failed to load intake camera calibration file, using default values");
-      intakeCameraProps = new SimCameraProperties();
-    }
+    SimCameraProperties intakeCameraProps = new SimCameraProperties();
+    intakeCameraProps.setCalibration(960, 720, new Rotation2d(Units.degreesToRadians(90)));
     intakeCameraProps.setFPS(15);
 
     // Create a PhotonCameraSim which will update the PhotonCamera's values with visible targets.

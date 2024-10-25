@@ -4,6 +4,8 @@
 
 package frc.robot.subsystems.vision;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation3d;
 import java.util.ArrayList;
 import java.util.List;
@@ -179,5 +181,23 @@ public class NoteModel {
     vertices.add(new Translation3d(0.148792, -0.054156, -0.024620));
     vertices.add(new Translation3d(0.162709, -0.059221, -0.016070));
     return vertices;
+  }
+
+  public static List<Pose3d> getNotePositions() {
+    List<Pose3d> notePositions = new ArrayList<>();
+    notePositions.add(new Pose3d(2.90, 4.11, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(2.90, 5.56, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(2.90, 7.01, 0, new Rotation3d()));
+
+    notePositions.add(new Pose3d(8.23, 4.11, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(8.23, 5.79, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(8.23, 7.47, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(8.23, 2.43, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(8.23, 0.75, 0, new Rotation3d()));
+
+    notePositions.add(new Pose3d(13.67, 4.11, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(13.67, 5.56, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(13.67, 7.01, 0, new Rotation3d()));
+    return notePositions;
   }
 }
