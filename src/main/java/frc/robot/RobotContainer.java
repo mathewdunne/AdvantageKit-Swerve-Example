@@ -18,7 +18,7 @@ import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FlywheelConstants;
 import frc.robot.Constants.ModuleLocation;
-import frc.robot.commands.drive.MasterDriveCmd;
+import frc.robot.commands.SwerveDriveCmd;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIOSim;
 import frc.robot.subsystems.drive.GyroIO;
@@ -63,7 +63,7 @@ public class RobotContainer {
       new LoggedDashboardNumber("Flywheel Speed", FlywheelConstants.defaultSpeed);
 
   // Commands
-  private final MasterDriveCmd m_masterDriveCmd;
+  private final SwerveDriveCmd m_masterDriveCmd;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -134,7 +134,7 @@ public class RobotContainer {
 
     // Create master drive command
     m_masterDriveCmd =
-        new MasterDriveCmd(
+        new SwerveDriveCmd(
             m_swerveDrive,
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
