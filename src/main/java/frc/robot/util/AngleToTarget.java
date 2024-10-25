@@ -39,27 +39,27 @@ public class AngleToTarget {
         }
         break;
       case FACE_AMP:
-        angle = Math.PI;
+        angle = Math.PI / 2;
         break;
       case FACE_SOURCE:
         if (isRed) {
-          angle = 11 * Math.PI / 6;
+          angle = Math.PI / 3;
         } else {
-          angle = Math.PI / 6;
+          angle = 2 * Math.PI / 3;
         }
         break;
       case FACE_FORWARD:
         if (isRed) {
-          angle = 3 * Math.PI / 2;
+          angle = Math.PI;
         } else {
-          angle = Math.PI / 2;
+          angle = 0;
         }
         break;
       case FACE_BACKWARD:
         if (isRed) {
-          angle = Math.PI / 2;
+          angle = 0;
         } else {
-          angle = 3 * Math.PI / 2;
+          angle = Math.PI;
         }
         break;
       case LOB_PASS:

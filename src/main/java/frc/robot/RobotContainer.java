@@ -32,6 +32,7 @@ import frc.robot.subsystems.flywheel.FlywheelIO;
 import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.flywheel.FlywheelIOSparkMax;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIOPhotonReal;
 import frc.robot.subsystems.vision.VisionIOPhotonSim;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIOSim;
@@ -77,7 +78,7 @@ public class RobotContainer {
                 new ModuleIOSparkMax(ModuleLocation.BACK_LEFT),
                 new ModuleIOSparkMax(ModuleLocation.BACK_RIGHT));
         m_flywheel = new Flywheel(new FlywheelIOSparkMax());
-        m_vision = null; // TO DO
+        m_vision = new Vision(new VisionIOPhotonReal() {}, m_swerveDrive::addVisionMeasurement);
         m_arm = null; // TO DO
         m_wrist = null; // TO DO
         break;
@@ -92,11 +93,8 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim());
         m_flywheel = new Flywheel(new FlywheelIOSim());
-        m_vision =
-            new Vision(
-                new VisionIOPhotonSim() {},
-                m_swerveDrive::addVisionMeasurement,
-                m_swerveDrive::getSimTruePose);
+        m_vision = new Vision(new VisionIOPhotonSim() {}, m_swerveDrive::addVisionMeasurement);
+        m_vision.setSimTruePoseSupplier(m_swerveDrive::getSimTruePose);
         m_arm = new Arm(new ArmIOSim() {});
         m_wrist =
             new Wrist(
@@ -194,6 +192,11 @@ public class RobotContainer {
         .whileTrue(
             new InstantCommand(() -> m_wrist.runVolts(0.3 * RobotController.getBatteryVoltage())))
         .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
+
+    // Aim amp
+    m_driverController
+        .a()
+        .onTrue(new InstantCommand(() -> m_masterDriveCmd.setAimDriveMode(AimDriveMode.LOB_PASS)));
   }
 
   /**

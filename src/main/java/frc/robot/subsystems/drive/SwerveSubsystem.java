@@ -73,14 +73,7 @@ public class SwerveSubsystem extends SubsystemBase {
           m_kinematics, m_rawGyroRotation, m_lastModulePositions, new Pose2d());
 
   // Aimbot PID controller, used for all aim to target functions
-  private PIDController m_aimLockPID =
-      new TunablePIDController(
-          AimLockConstants.kP,
-          AimLockConstants.kI,
-          AimLockConstants.kD,
-          AimLockConstants.kToleranceRad,
-          "Aimbot",
-          true);
+  private final PIDController m_aimLockPID;
 
   public SwerveSubsystem(
       GyroIO gyroIO,
@@ -133,6 +126,17 @@ public class SwerveSubsystem extends SubsystemBase {
                 },
                 null,
                 this));
+
+    // set up AimLock PID
+    m_aimLockPID =
+        new TunablePIDController(
+            AimLockConstants.kP,
+            AimLockConstants.kI,
+            AimLockConstants.kD,
+            AimLockConstants.kToleranceRad,
+            "Aimbot",
+            true);
+    m_aimLockPID.enableContinuousInput(-Math.PI, Math.PI);
 
     // True pose for vision sim
     if (Constants.kCurrentMode == Constants.Mode.SIM) {
