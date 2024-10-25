@@ -33,15 +33,13 @@ public class Vision extends SubsystemBase {
   private double m_lastEstTimestampApriltags = 0;
 
   private final AddVisionMeasurement m_addVisionMeasurementFunc;
-  private final Supplier<Pose2d> m_getTrueSimPose;
+  private Supplier<Pose2d> m_getTrueSimPose;
 
   private final PoseStrategy m_poseStrategy;
 
-  public Vision(
-      VisionIO io, AddVisionMeasurement addVisionMeasurementFunc, Supplier<Pose2d> getTrueSimPose) {
+  public Vision(VisionIO io, AddVisionMeasurement addVisionMeasurementFunc) {
     m_io = io;
     m_addVisionMeasurementFunc = addVisionMeasurementFunc;
-    m_getTrueSimPose = getTrueSimPose;
 
     switch (Constants.kCurrentMode) {
       case REAL:
@@ -109,8 +107,13 @@ public class Vision extends SubsystemBase {
     }
   }
 
+  public void setSimTruePoseSupplier(Supplier<Pose2d> getTrueSimPose) {
+    m_getTrueSimPose = getTrueSimPose;
+  }
+
   @Override
   public void simulationPeriodic() {
+    if (m_getTrueSimPose == null) return;
     m_io.simulationPeriodic(m_getTrueSimPose.get());
   }
 

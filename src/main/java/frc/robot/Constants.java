@@ -121,7 +121,14 @@ public final class Constants {
     FACE_BACKWARD,
     FACE_AMP,
     FACE_SOURCE,
-    PASS
+    LOB_PASS
+  }
+
+  public static class AimLockConstants {
+    public static final double kP = 10;
+    public static final double kI = 0.0;
+    public static final double kD = 0.5;
+    public static final double kToleranceRad = Units.degreesToRadians(2);
   }
 
   public static class VisionConstants {

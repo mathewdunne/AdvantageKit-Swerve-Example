@@ -12,6 +12,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,9 +31,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.Constants.AimLockConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleLocation;
+import frc.robot.util.GeometryUtils;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.TunablePIDController;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -67,6 +71,9 @@ public class SwerveSubsystem extends SubsystemBase {
   private SwerveDrivePoseEstimator m_poseEstimator =
       new SwerveDrivePoseEstimator(
           m_kinematics, m_rawGyroRotation, m_lastModulePositions, new Pose2d());
+
+  // Aimbot PID controller, used for all aim to target functions
+  private final PIDController m_aimLockPID;
 
   public SwerveSubsystem(
       GyroIO gyroIO,
@@ -120,6 +127,17 @@ public class SwerveSubsystem extends SubsystemBase {
                 null,
                 this));
 
+    // set up AimLock PID
+    m_aimLockPID =
+        new TunablePIDController(
+            AimLockConstants.kP,
+            AimLockConstants.kI,
+            AimLockConstants.kD,
+            AimLockConstants.kToleranceRad,
+            "Aimbot",
+            true);
+    m_aimLockPID.enableContinuousInput(-Math.PI, Math.PI);
+
     // True pose for vision sim
     if (Constants.kCurrentMode == Constants.Mode.SIM) {
       m_simTruePose = new Pose2d();
@@ -133,14 +151,11 @@ public class SwerveSubsystem extends SubsystemBase {
       module.periodic();
     }
 
-    // Stop moving when disabled
+    // Stop moving and empty setpoint states when disabled
     if (DriverStation.isDisabled()) {
       for (var module : m_modules) {
         module.stop();
       }
-    }
-    // Log empty setpoint states when disabled
-    if (DriverStation.isDisabled()) {
       Logger.recordOutput("SwerveStates/Setpoints", new SwerveModuleState[] {});
       Logger.recordOutput("SwerveStates/SetpointsOptimized", new SwerveModuleState[] {});
     }
@@ -176,12 +191,14 @@ public class SwerveSubsystem extends SubsystemBase {
   }
 
   /**
-   * Runs the drive at the desired velocity.
+   * Runs the drive at the desired velocity. (with drift correction)
    *
    * @param speeds Speeds in meters/sec
    */
   public void runVelocity(ChassisSpeeds speeds) {
     // Calculate module setpoints
+    // Discretize does the same thing as the correction code below, but we may need to up the
+    // driftrate
     ChassisSpeeds discreteSpeeds = ChassisSpeeds.discretize(speeds, 0.02);
     SwerveModuleState[] setpointStates = m_kinematics.toSwerveModuleStates(discreteSpeeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, m_maxLinearSpeed);
@@ -196,6 +213,27 @@ public class SwerveSubsystem extends SubsystemBase {
     // Log setpoint states
     Logger.recordOutput("SwerveStates/Setpoints", setpointStates);
     Logger.recordOutput("SwerveStates/SetpointsOptimized", optimizedSetpointStates);
+  }
+
+  // Epic correction for drift
+  // Sources:
+  // https://www.chiefdelphi.com/t/whitepaper-swerve-drive-skew-and-second-order-kinematics/416964/5
+  // https://github.com/Team7520/UltimateSwerveBase
+  // DriftRate was added by 4920, they used 4
+  private static ChassisSpeeds correctForDynamics(ChassisSpeeds originalSpeeds, double driftRate) {
+    Pose2d futureRobotPose =
+        new Pose2d(
+            originalSpeeds.vxMetersPerSecond * Constants.kLoopPeriodSecs,
+            originalSpeeds.vyMetersPerSecond * Constants.kLoopPeriodSecs,
+            Rotation2d.fromRadians(
+                originalSpeeds.omegaRadiansPerSecond * Constants.kLoopPeriodSecs * driftRate));
+    Twist2d twistForPose = GeometryUtils.log(futureRobotPose);
+    ChassisSpeeds updatedSpeeds =
+        new ChassisSpeeds(
+            twistForPose.dx / Constants.kLoopPeriodSecs,
+            twistForPose.dy / Constants.kLoopPeriodSecs,
+            twistForPose.dtheta / Constants.kLoopPeriodSecs);
+    return updatedSpeeds;
   }
 
   /** Stops the drive. */
@@ -303,5 +341,10 @@ public class SwerveSubsystem extends SubsystemBase {
   /** Returns the true pose of the robot on the field (for vision simulation). */
   public Pose2d getSimTruePose() {
     return m_simTruePose;
+  }
+
+  /** Returns the AimLock PID controller used for aiming to a desired angle */
+  public PIDController getAimLockPID() {
+    return m_aimLockPID;
   }
 }

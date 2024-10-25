@@ -6,7 +6,6 @@ package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
@@ -15,10 +14,11 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.FlywheelConstants;
 import frc.robot.Constants.ModuleLocation;
-import frc.robot.commands.DriveCommands.MasterDriveCmd;
+import frc.robot.commands.SwerveDriveCmd;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIOSim;
 import frc.robot.subsystems.drive.GyroIO;
@@ -32,6 +32,7 @@ import frc.robot.subsystems.flywheel.FlywheelIO;
 import frc.robot.subsystems.flywheel.FlywheelIOSim;
 import frc.robot.subsystems.flywheel.FlywheelIOSparkMax;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIOPhotonReal;
 import frc.robot.subsystems.vision.VisionIOPhotonSim;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIOSim;
@@ -62,7 +63,7 @@ public class RobotContainer {
       new LoggedDashboardNumber("Flywheel Speed", FlywheelConstants.defaultSpeed);
 
   // Commands
-  private final MasterDriveCmd m_masterDriveCmd;
+  private final SwerveDriveCmd m_masterDriveCmd;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -77,7 +78,7 @@ public class RobotContainer {
                 new ModuleIOSparkMax(ModuleLocation.BACK_LEFT),
                 new ModuleIOSparkMax(ModuleLocation.BACK_RIGHT));
         m_flywheel = new Flywheel(new FlywheelIOSparkMax());
-        m_vision = null; // TO DO
+        m_vision = new Vision(new VisionIOPhotonReal() {}, m_swerveDrive::addVisionMeasurement);
         m_arm = null; // TO DO
         m_wrist = null; // TO DO
         break;
@@ -92,11 +93,8 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim());
         m_flywheel = new Flywheel(new FlywheelIOSim());
-        m_vision =
-            new Vision(
-                new VisionIOPhotonSim() {},
-                m_swerveDrive::addVisionMeasurement,
-                m_swerveDrive::getSimTruePose);
+        m_vision = new Vision(new VisionIOPhotonSim() {}, m_swerveDrive::addVisionMeasurement);
+        m_vision.setSimTruePoseSupplier(m_swerveDrive::getSimTruePose);
         m_arm = new Arm(new ArmIOSim() {});
         m_wrist =
             new Wrist(
@@ -136,7 +134,7 @@ public class RobotContainer {
 
     // Create master drive command
     m_masterDriveCmd =
-        new MasterDriveCmd(
+        new SwerveDriveCmd(
             m_swerveDrive,
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
@@ -155,47 +153,50 @@ public class RobotContainer {
   private void configureButtonBindings() {
     m_swerveDrive.setDefaultCommand(m_masterDriveCmd);
 
+    // Toggle field oriented / robot oriented drive
     m_driverController
         .leftStick()
         .onTrue(new InstantCommand(() -> m_masterDriveCmd.toggleBaseDriveMode()));
+    // Reset robot pose to 0, 0
     m_driverController
         .rightStick()
         .onTrue(new InstantCommand(() -> m_swerveDrive.resetOdometry()).ignoringDisable(true));
-
+    // Aimbot
     m_driverController
-        .rightTrigger(0.01)
+        .leftTrigger(0.1)
+        .onTrue(
+            new InstantCommand(() -> m_masterDriveCmd.setAimDriveMode(AimDriveMode.AIM_SPEAKER)));
+
+    // Arm up
+    m_driverController
+        .povUp()
         .whileTrue(
             new InstantCommand(() -> m_arm.runVolts(0.7 * RobotController.getBatteryVoltage())))
         .onFalse(new InstantCommand(() -> m_arm.stopAndHold()));
+    // Arm down
     m_driverController
-        .leftTrigger(0.01)
+        .povDown()
         .whileTrue(
             new InstantCommand(() -> m_arm.runVolts(-0.7 * RobotController.getBatteryVoltage())))
         .onFalse(new InstantCommand(() -> m_arm.stopAndHold()));
 
+    // Wrist up
     m_driverController
-        .rightBumper()
+        .povRight()
         .whileTrue(
             new InstantCommand(() -> m_wrist.runVolts(-0.3 * RobotController.getBatteryVoltage())))
         .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
+    // Wrist down
     m_driverController
-        .leftBumper()
+        .povLeft()
         .whileTrue(
             new InstantCommand(() -> m_wrist.runVolts(0.3 * RobotController.getBatteryVoltage())))
         .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
 
+    // Aim amp
     m_driverController
         .a()
-        .onTrue(new InstantCommand(() -> m_arm.setAngleSetpoint(Units.degreesToRadians(30))));
-    m_driverController
-        .b()
-        .onTrue(new InstantCommand(() -> m_arm.setAngleSetpoint(Units.degreesToRadians(65))));
-    m_driverController
-        .x()
-        .onTrue(new InstantCommand(() -> m_wrist.setAngleSetpoint(Units.degreesToRadians(100))));
-    m_driverController
-        .y()
-        .onTrue(new InstantCommand(() -> m_wrist.setAngleSetpoint(Units.degreesToRadians(67))));
+        .onTrue(new InstantCommand(() -> m_masterDriveCmd.setAimDriveMode(AimDriveMode.LOB_PASS)));
   }
 
   /**
