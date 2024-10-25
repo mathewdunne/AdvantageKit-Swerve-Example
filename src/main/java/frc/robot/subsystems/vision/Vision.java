@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import java.util.Optional;
@@ -31,7 +30,6 @@ public class Vision extends SubsystemBase {
 
   private final AddVisionMeasurement m_addVisionMeasurementFunc;
   private Supplier<Pose2d> m_getTrueSimPose;
-
 
   public Vision(VisionIO io, AddVisionMeasurement addVisionMeasurementFunc) {
     m_io = io;
