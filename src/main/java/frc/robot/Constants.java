@@ -126,12 +126,16 @@ public final class Constants {
 
   public static class VisionConstants {
     public static final String kApriltagCameraName = "copperShooterCamera";
-    // Cam mounted facing forward, half a meter forward of center, half a meter up from center.
     public static final Transform3d kRobotToApriltagCam =
         new Transform3d(
             new Translation3d(
                 Units.inchesToMeters(11.56 + 0.39 + 16.0), 0.0, Units.inchesToMeters(13.876 + 1.9)),
             new Rotation3d(0, Units.degreesToRadians(-15), 0));
+    public static final String kIntakeCameraName = "silverIntakeCamera";
+    public static final Transform3d kRobotToIntakeCam =
+        new Transform3d(
+            new Translation3d(-0.22, -0.23, 0.48),
+            new Rotation3d(0, Units.degreesToRadians(20), Units.degreesToRadians(180)));
 
     // The layout of the AprilTags on the field
     public static final AprilTagFieldLayout kTagLayout =

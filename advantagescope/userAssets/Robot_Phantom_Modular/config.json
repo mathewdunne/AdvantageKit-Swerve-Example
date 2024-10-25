@@ -33,14 +33,14 @@
         1280,
         720
       ],
-      "fov": 90
+      "fov": 70
     },
     {
       "name": "Intake Camera",
       "rotations": [
         {
           "axis": "y",
-          "degrees": 15
+          "degrees": 20
         },
         {
           "axis": "z",
@@ -48,13 +48,13 @@
         }
       ],
       "position": [
-        -0.24,
         -0.22,
-        0.5
+        -0.23,
+        0.48
       ],
       "resolution": [
-        640,
-        480
+        1280,
+        720
       ],
       "fov": 95
     }
@@ -81,14 +81,10 @@
         },
         {
           "axis": "y",
-          "degrees": -61.5
+          "degrees": 0
         }
       ],
-      "zeroedPosition": [
-        -0.43,
-        0.182,
-        0.147
-      ]
+      "zeroedPosition": []
     }
   ]
 }
