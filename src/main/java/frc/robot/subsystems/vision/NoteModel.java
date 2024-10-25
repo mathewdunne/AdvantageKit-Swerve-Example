@@ -189,15 +189,15 @@ public class NoteModel {
     notePositions.add(new Pose3d(2.90, 5.56, 0, new Rotation3d()));
     notePositions.add(new Pose3d(2.90, 7.01, 0, new Rotation3d()));
 
-    notePositions.add(new Pose3d(8.23, 4.11, 0, new Rotation3d()));
-    notePositions.add(new Pose3d(8.23, 5.79, 0, new Rotation3d()));
-    notePositions.add(new Pose3d(8.23, 7.47, 0, new Rotation3d()));
-    notePositions.add(new Pose3d(8.23, 2.43, 0, new Rotation3d()));
-    notePositions.add(new Pose3d(8.23, 0.75, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(8.27, 4.11, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(8.27, 5.79, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(8.27, 7.47, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(8.27, 2.43, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(8.27, 0.75, 0, new Rotation3d()));
 
-    notePositions.add(new Pose3d(13.67, 4.11, 0, new Rotation3d()));
-    notePositions.add(new Pose3d(13.67, 5.56, 0, new Rotation3d()));
-    notePositions.add(new Pose3d(13.67, 7.01, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(13.64, 4.11, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(13.64, 5.56, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(13.64, 7.01, 0, new Rotation3d()));
     return notePositions;
   }
 }
