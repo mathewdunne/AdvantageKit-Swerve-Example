@@ -12,6 +12,7 @@ import com.pathplanner.lib.util.HolonomicPathFollowerConfig;
 import com.pathplanner.lib.util.PathPlannerLogging;
 import com.pathplanner.lib.util.ReplanningConfig;
 import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -30,10 +31,12 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.Constants.AimLockConstants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleLocation;
 import frc.robot.util.GeometryUtils;
 import frc.robot.util.LocalADStarAK;
+import frc.robot.util.TunablePIDController;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -68,6 +71,16 @@ public class SwerveSubsystem extends SubsystemBase {
   private SwerveDrivePoseEstimator m_poseEstimator =
       new SwerveDrivePoseEstimator(
           m_kinematics, m_rawGyroRotation, m_lastModulePositions, new Pose2d());
+
+  // Aimbot PID controller, used for all aim to target functions
+  private PIDController m_aimLockPID =
+      new TunablePIDController(
+          AimLockConstants.kP,
+          AimLockConstants.kI,
+          AimLockConstants.kD,
+          AimLockConstants.kToleranceRad,
+          "Aimbot",
+          true);
 
   public SwerveSubsystem(
       GyroIO gyroIO,
@@ -324,5 +337,10 @@ public class SwerveSubsystem extends SubsystemBase {
   /** Returns the true pose of the robot on the field (for vision simulation). */
   public Pose2d getSimTruePose() {
     return m_simTruePose;
+  }
+
+  /** Returns the AimLock PID controller used for aiming to a desired angle */
+  public PIDController getAimLockPID() {
+    return m_aimLockPID;
   }
 }
