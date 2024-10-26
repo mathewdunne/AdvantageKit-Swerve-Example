@@ -7,11 +7,12 @@ package frc.robot.subsystems.arm;
 import static edu.wpi.first.units.Units.Volts;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.geometry.Translation3d;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
 import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
@@ -20,8 +21,9 @@ import edu.wpi.first.wpilibj.util.Color8Bit;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
-import frc.robot.util.TunablePIDController;
+import frc.robot.util.TunableProfiledPIDController;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -36,7 +38,7 @@ public class Arm extends SubsystemBase {
   private MechanismRoot2d m_mechanismRoot;
   private MechanismLigament2d m_mechanismLigament;
 
-  private final PIDController m_pidController;
+  private final ProfiledPIDController m_pidController;
   private final ArmFeedforward m_ffModel;
   private final SysIdRoutine m_sysId;
 
@@ -64,14 +66,58 @@ public class Arm extends SubsystemBase {
                 4,
                 new Color8Bit(0, 0, 255)));
 
-    // ---------------------------------------------------------------------------------------------------------------
-    // TUNE THESE VALUES
-    m_ffModel = new ArmFeedforward(0, 0, 0, 0);
-    m_pidController = new TunablePIDController(10, 0, 0, ArmConstants.kToleranceRad, "Arm", true);
-    // ---------------------------------------------------------------------------------------------------------------
+    // Switch constants based on mode (the physics simulator is treated as a
+    // separate robot with different tuning)
+    switch (Constants.kCurrentMode) {
+      case REAL:
+        m_ffModel = new ArmFeedforward(ArmConstants.kS, ArmConstants.kV, ArmConstants.kG);
+        m_pidController =
+            new TunableProfiledPIDController(
+                ArmConstants.kP,
+                ArmConstants.kI,
+                ArmConstants.kD,
+                ArmConstants.kToleranceRad,
+                m_ffModel.maxAchievableVelocity(
+                    12, Math.PI / 4, ArmConstants.kMaxAccelerationRadPerSec2),
+                ArmConstants.kMaxAccelerationRadPerSec2,
+                "Arm",
+                true);
+        break;
+      case REPLAY:
+        m_ffModel = new ArmFeedforward(0.0, 0.0, 0.0);
+        m_pidController =
+            new TunableProfiledPIDController(
+                30,
+                0,
+                1,
+                ArmConstants.kToleranceRad,
+                m_ffModel.maxAchievableVelocity(12, Math.PI / 4, 120),
+                120,
+                "Arm",
+                true);
+        break;
+      case SIM:
+        m_ffModel = new ArmFeedforward(0.0, 0.97556, 4.2894, 0.010929);
+        m_pidController =
+            new TunableProfiledPIDController(
+                30,
+                0,
+                1,
+                ArmConstants.kToleranceRad,
+                m_ffModel.maxAchievableVelocity(12, Math.PI / 4, 120),
+                120,
+                "Arm",
+                true);
+        break;
+      default:
+        m_ffModel = new ArmFeedforward(0.0, 0.0, 0.0);
+        m_pidController =
+            new TunableProfiledPIDController(0.0, 0.0, 0.0, 0.0, 0.0, 0.0, "Arm", false);
+        break;
+    }
 
     // Set initial setpoint
-    m_pidController.setSetpoint(ArmConstants.kStartAngleRad);
+    m_pidController.setGoal(ArmConstants.kStartAngleRad);
     m_isPidEnabled = true;
 
     // Configure SysId
@@ -95,7 +141,9 @@ public class Arm extends SubsystemBase {
     double ff = 0.0;
     if (m_isPidEnabled) {
       pid = m_pidController.calculate(m_inputs.absolutePositionRad);
-      ff = m_ffModel.calculate(m_pidController.getSetpoint(), 0);
+      ff =
+          m_ffModel.calculate(
+              m_pidController.getSetpoint().position, m_pidController.getSetpoint().velocity);
       m_io.setVoltage((pid + ff));
     }
 
@@ -107,7 +155,8 @@ public class Arm extends SubsystemBase {
     // Log the arm pose
     Logger.recordOutput("Mechanism2d/ArmWrist", m_mechanism);
     Logger.recordOutput("Mechanism3d/Arm", getPose3d(m_inputs.absolutePositionRad));
-    Logger.recordOutput("Arm/AngleSetpointRad", m_pidController.getSetpoint());
+    Logger.recordOutput("Arm/AngleSetpointRad", m_pidController.getSetpoint().position);
+    Logger.recordOutput("Arm/AngleGoalRad", m_pidController.getGoal().position);
     Logger.recordOutput("Arm/ActualAngleRad", m_inputs.absolutePositionRad);
     Logger.recordOutput("Arm/PID", pid);
     Logger.recordOutput("Arm/FF", ff);
@@ -126,14 +175,14 @@ public class Arm extends SubsystemBase {
     } else if (angleRad > ArmConstants.kMaxAngleRad) {
       angleRad = ArmConstants.kMaxAngleRad;
     }
-    m_pidController.setSetpoint(angleRad);
+    m_pidController.setGoal(angleRad);
   }
 
   /** Stop and hold the arm at its current position */
   public void stopAndHold() {
     m_io.setVoltage(0.0);
-    m_pidController.setSetpoint(m_inputs.absolutePositionRad);
-    m_pidController.reset();
+    m_pidController.setGoal(m_inputs.absolutePositionRad);
+    m_pidController.reset(new TrapezoidProfile.State(m_inputs.absolutePositionRad, 0));
     m_isPidEnabled = true;
   }
 
@@ -155,7 +204,6 @@ public class Arm extends SubsystemBase {
   }
 
   /** Returns the 2d pose of the tip of the arm ligament */
-  @AutoLogOutput(key = "Arm/TipPosition")
   public Translation3d getTipPosition() {
     Translation3d armBasePosition = getPose3d(m_inputs.absolutePositionRad).getTranslation();
     Translation3d armTipPosition =
