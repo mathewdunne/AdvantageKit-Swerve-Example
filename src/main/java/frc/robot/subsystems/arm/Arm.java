@@ -204,7 +204,6 @@ public class Arm extends SubsystemBase {
   }
 
   /** Returns the 2d pose of the tip of the arm ligament */
-  @AutoLogOutput(key = "Arm/TipPosition")
   public Translation3d getTipPosition() {
     Translation3d armBasePosition = getPose3d(m_inputs.absolutePositionRad).getTranslation();
     Translation3d armTipPosition =
