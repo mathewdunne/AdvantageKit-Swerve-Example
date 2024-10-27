@@ -11,8 +11,10 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
+import frc.robot.util.AddVisionMeasurementCallback;
 import java.util.Optional;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -28,12 +30,29 @@ public class Vision extends SubsystemBase {
   private final PhotonPoseEstimator m_photonEstimator;
   private double m_lastEstTimestampApriltags = 0;
 
-  private final AddVisionMeasurement m_addVisionMeasurementFunc;
+  private final AddVisionMeasurementCallback m_addVisionMeasurementCallback;
   private Supplier<Pose2d> m_getTrueSimPose;
 
-  public Vision(VisionIO io, AddVisionMeasurement addVisionMeasurementFunc) {
+  private final PoseStrategy m_poseStrategy;
+
+  public Vision(VisionIO io, AddVisionMeasurementCallback addVisionMeasurementCallback) {
     m_io = io;
-    m_addVisionMeasurementFunc = addVisionMeasurementFunc;
+    m_addVisionMeasurementCallback = addVisionMeasurementCallback;
+
+    switch (Constants.kCurrentMode) {
+      case REAL:
+        m_poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
+        break;
+      case SIM:
+        m_poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_RIO;
+        break;
+      case REPLAY:
+        m_poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_RIO;
+        break;
+      default:
+        m_poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_RIO;
+        break;
+    }
 
     m_photonEstimator =
         new PhotonPoseEstimator(
@@ -67,7 +86,7 @@ public class Vision extends SubsystemBase {
         EstimatedRobotPose estPose = estimatedPose.get();
         Pose2d robotPose = estPose.estimatedPose.toPose2d();
         Matrix<N3, N1> estStdDevs = getEstimationStdDevs(robotPose, result);
-        m_addVisionMeasurementFunc.addVisionMeasurement(robotPose, latestTimestamp, estStdDevs);
+        m_addVisionMeasurementCallback.execute(robotPose, latestTimestamp, estStdDevs);
 
         Logger.recordOutput("Vision/VisionEstimatedPose", estPose.estimatedPose.toPose2d());
       }

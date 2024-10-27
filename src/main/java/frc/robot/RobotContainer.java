@@ -192,11 +192,6 @@ public class RobotContainer {
         .whileTrue(
             new InstantCommand(() -> m_wrist.runVolts(0.3 * RobotController.getBatteryVoltage())))
         .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
-
-    // Aim amp
-    m_driverController
-        .a()
-        .onTrue(new InstantCommand(() -> m_masterDriveCmd.setAimDriveMode(AimDriveMode.LOB_PASS)));
   }
 
   /**

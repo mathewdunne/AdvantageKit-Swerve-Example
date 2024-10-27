@@ -8,7 +8,7 @@ import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.VisionConstants;
 import org.littletonrobotics.junction.Logger;
 
-public class AngleToTarget {
+public class TargetingUtil {
   private static double calculateAngleToTarget(Pose2d robotPose, Translation2d targetPosition) {
     return Math.atan2(
         targetPosition.getY() - robotPose.getTranslation().getY(),
