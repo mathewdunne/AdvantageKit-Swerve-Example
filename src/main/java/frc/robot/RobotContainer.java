@@ -41,7 +41,9 @@ import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOPhotonReal;
 import frc.robot.subsystems.vision.VisionIOPhotonSim;
 import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.subsystems.wrist.WristIO;
 import frc.robot.subsystems.wrist.WristIOSim;
+import frc.robot.subsystems.wrist.WristIOSparkMax;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -84,7 +86,11 @@ public class RobotContainer {
                 new ModuleIOSparkMax(ModuleLocation.BACK_RIGHT));
         m_vision = new Vision(new VisionIOPhotonReal() {}, m_swerveDrive::addVisionMeasurement);
         m_arm = null; // TO DO
-        m_wrist = null; // TO DO
+        m_wrist =
+            new Wrist(
+                new WristIOSparkMax(m_arm::getMechanismAngle) {},
+                m_arm.getMechanismLigament(),
+                m_arm::getTipPosition);
         m_shooter = new Shooter(new ShooterIOSparkMax());
         m_intake = new Intake(new IntakeIOSparkMax());
         m_feeder = new Feeder(new FeederIOSparkMax());
@@ -123,7 +129,7 @@ public class RobotContainer {
                 new ModuleIO() {});
         m_vision = null; // TO DO
         m_arm = null; // TO DO
-        m_wrist = null; // TO DO
+        m_wrist = new Wrist(new WristIO() {}, m_arm.getMechanismLigament(), m_arm::getTipPosition);
         m_shooter = new Shooter(new ShooterIO() {});
         m_intake = new Intake(new IntakeIO() {});
         m_feeder = new Feeder(new FeederIO() {});
