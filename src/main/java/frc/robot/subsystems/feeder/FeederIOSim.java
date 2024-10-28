@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.Constants;
 
 public class FeederIOSim implements FeederIO {
-  private FlywheelSim m_sim = new FlywheelSim(DCMotor.getNEO(1), 1.5, 0.001);
+  private FlywheelSim m_sim = new FlywheelSim(DCMotor.getNeo550(1), 1.5, 0.001);
 
   private double m_appliedVolts = 0.0;
 

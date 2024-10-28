@@ -32,12 +32,12 @@ public class Intake extends SubsystemBase {
   }
 
   /** Run open loop at the specified voltage. Needs to be called periodically */
-  public void runVolts(double volts) {
+  private void runVolts(double volts) {
     m_io.setVoltage(volts);
   }
 
   /** Set a voltage to run at constantly */
-  public void setVoltage(double volts) {
+  public void runAtVoltage(double volts) {
     voltage = volts;
   }
 

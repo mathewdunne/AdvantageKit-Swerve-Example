@@ -24,6 +24,14 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSparkMax;
 import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIO;
+import frc.robot.subsystems.feeder.FeederIOSim;
+import frc.robot.subsystems.feeder.FeederIOSparkMax;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.IntakeIOSparkMax;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterIOSim;
@@ -44,10 +52,12 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final SwerveSubsystem m_swerveDrive;
-  private final Shooter m_shooter;
   private final Vision m_vision;
   private final Arm m_arm;
   private final Wrist m_wrist;
+  private final Shooter m_shooter;
+  private final Intake m_intake;
+  private final Feeder m_feeder;
 
   // Controller
   private final CommandXboxController m_driverController =
@@ -71,10 +81,12 @@ public class RobotContainer {
                 new ModuleIOSparkMax(ModuleLocation.FRONT_RIGHT),
                 new ModuleIOSparkMax(ModuleLocation.BACK_LEFT),
                 new ModuleIOSparkMax(ModuleLocation.BACK_RIGHT));
-        m_shooter = new Shooter(new ShooterIOSparkMax());
         m_vision = new Vision(new VisionIOPhotonReal() {}, m_swerveDrive::addVisionMeasurement);
         m_arm = null; // TO DO
         m_wrist = null; // TO DO
+        m_shooter = new Shooter(new ShooterIOSparkMax());
+        m_intake = new Intake(new IntakeIOSparkMax());
+        m_feeder = new Feeder(new FeederIOSparkMax());
         break;
 
       case SIM:
@@ -86,7 +98,6 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new ModuleIOSim());
-        m_shooter = new Shooter(new ShooterIOSim());
         m_vision = new Vision(new VisionIOPhotonSim() {}, m_swerveDrive::addVisionMeasurement);
         m_vision.setSimTruePoseSupplier(m_swerveDrive::getSimTruePose);
         m_arm = new Arm(new ArmIOSim() {});
@@ -95,6 +106,9 @@ public class RobotContainer {
                 new WristIOSim(m_arm::getMechanismAngle) {},
                 m_arm.getMechanismLigament(),
                 m_arm::getTipPosition);
+        m_shooter = new Shooter(new ShooterIOSim());
+        m_intake = new Intake(new IntakeIOSim());
+        m_feeder = new Feeder(new FeederIOSim());
         break;
 
       default:
@@ -106,10 +120,12 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        m_shooter = new Shooter(new ShooterIO() {});
         m_vision = null; // TO DO
         m_arm = null; // TO DO
         m_wrist = null; // TO DO
+        m_shooter = new Shooter(new ShooterIO() {});
+        m_intake = new Intake(new IntakeIO() {});
+        m_feeder = new Feeder(new FeederIO() {});
         break;
     }
 
@@ -185,6 +201,36 @@ public class RobotContainer {
         .whileTrue(
             new InstantCommand(() -> m_wrist.runVolts(0.3 * RobotController.getBatteryVoltage())))
         .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
+
+    // Feeder Forward
+    m_driverController
+        .a()
+        .whileTrue(
+            new InstantCommand(
+                () -> m_feeder.runAtVoltage(0.7 * RobotController.getBatteryVoltage())))
+        .onFalse(new InstantCommand(() -> m_feeder.stop()));
+    // Feeder Reverse
+    m_driverController
+        .b()
+        .whileTrue(
+            new InstantCommand(
+                () -> m_feeder.runAtVoltage(-0.7 * RobotController.getBatteryVoltage())))
+        .onFalse(new InstantCommand(() -> m_feeder.stop()));
+
+    // Intake Forward
+    m_driverController
+        .x()
+        .whileTrue(
+            new InstantCommand(
+                () -> m_intake.runAtVoltage(0.7 * RobotController.getBatteryVoltage())))
+        .onFalse(new InstantCommand(() -> m_intake.stop()));
+    // Intake Reverse
+    m_driverController
+        .y()
+        .whileTrue(
+            new InstantCommand(
+                () -> m_intake.runAtVoltage(-0.7 * RobotController.getBatteryVoltage())))
+        .onFalse(new InstantCommand(() -> m_intake.stop()));
   }
 
   /**

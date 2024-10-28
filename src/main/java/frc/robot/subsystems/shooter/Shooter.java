@@ -119,13 +119,13 @@ public class Shooter extends SubsystemBase {
   }
 
   /** Run open loop at the specified voltage. */
-  public void runVolts(double volts) {
+  private void runVolts(double volts) {
     m_isPidEnabled = false;
     m_io.setVoltage(volts);
   }
 
   /** Run closed loop at the specified velocity. */
-  public void runVelocityRPM(double velocityRPM) {
+  public void runAtVelocityRPM(double velocityRPM) {
     double velocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(velocityRPM);
     m_motor1PID.setSetpoint(velocityRadPerSec);
     m_motor2PID.setSetpoint(velocityRadPerSec);
