@@ -120,6 +120,15 @@ public final class Constants {
     public static final int kCurrentLimit = 30;
   }
 
+  public static final class FeederConstants {
+    public static final double feedVoltage = 12.0;
+    public static final double intakeVoltage = 12.0;
+    public static final double ejectVoltage = 12.0;
+
+    public static final int kMotorPort = 15;
+    public static final int kCurrentLimit = 30;
+  }
+
   public static enum BaseDriveMode {
     FIELD_ORIENTED,
     ROBOT_ORIENTED,

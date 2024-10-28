@@ -114,6 +114,8 @@ public class Shooter extends SubsystemBase {
           Units.radiansPerSecondToRotationsPerMinute(m_inputs.velocityRadPerSec[0]),
           Units.radiansPerSecondToRotationsPerMinute(m_inputs.velocityRadPerSec[1])
         });
+    Logger.recordOutput("Shooter/PID", new double[] {pid1, pid2});
+    Logger.recordOutput("Shooter/FF", new double[] {ff1, ff2});
   }
 
   /** Run open loop at the specified voltage. */
