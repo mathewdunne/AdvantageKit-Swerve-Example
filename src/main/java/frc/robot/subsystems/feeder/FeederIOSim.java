@@ -8,7 +8,6 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import frc.robot.Constants;
-
 import java.util.Random;
 
 public class FeederIOSim implements FeederIO {
@@ -64,5 +63,5 @@ public class FeederIOSim implements FeederIO {
 
   private double getRandomDouble(double min, double max) {
     return min + (max - min) * m_rng.nextDouble();
-}
+  }
 }

@@ -28,11 +28,13 @@ public interface FeederIO {
 
   /** Set the state of the beambreak to broken after a short delay */
   public default void setBeambreakBrokenAfterDelay() {
-      throw new UnsupportedOperationException("setBeambreakBrokenAfterDelay() is not supported outside of simulation");
+    throw new UnsupportedOperationException(
+        "setBeambreakBrokenAfterDelay() is not supported outside of simulation");
   }
 
   /** Set the state of the beambreak to unbroken after a short delay */
   public default void setBeambreakUnbrokenAfterDelay() {
-      throw new UnsupportedOperationException("setBeambreakUnbrokenAfterDelay() is not supported outside of simulation");
+    throw new UnsupportedOperationException(
+        "setBeambreakUnbrokenAfterDelay() is not supported outside of simulation");
   }
 }
