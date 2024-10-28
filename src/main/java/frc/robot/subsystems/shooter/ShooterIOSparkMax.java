@@ -16,45 +16,64 @@ import frc.robot.Constants.ShooterConstants;
  */
 public class ShooterIOSparkMax implements ShooterIO {
 
-  private final CANSparkMax m_leader =
+  private final CANSparkMax m_motor1 =
       new CANSparkMax(ShooterConstants.kLeaderMotorPort, MotorType.kBrushless);
-  private final CANSparkMax m_follower =
+  private final CANSparkMax m_motor2 =
       new CANSparkMax(ShooterConstants.kFollowerMotorPort, MotorType.kBrushless);
-  private final RelativeEncoder m_encoder = m_leader.getEncoder();
+  private final RelativeEncoder m_encoder1 = m_motor1.getEncoder();
+  private final RelativeEncoder m_encoder2 = m_motor1.getEncoder();
 
   public ShooterIOSparkMax() {
-    m_leader.restoreFactoryDefaults();
-    m_follower.restoreFactoryDefaults();
+    m_motor1.restoreFactoryDefaults();
+    m_motor2.restoreFactoryDefaults();
 
-    m_leader.setCANTimeout(250);
-    m_follower.setCANTimeout(250);
+    m_motor1.setCANTimeout(250);
+    m_motor2.setCANTimeout(250);
 
-    m_leader.setInverted(false);
-    m_follower.follow(m_leader, false);
+    m_motor1.setInverted(false);
+    m_motor2.setInverted(false);
 
-    m_leader.enableVoltageCompensation(12.0);
-    m_leader.setSmartCurrentLimit(ShooterConstants.kCurrentLimit);
+    m_motor1.enableVoltageCompensation(12.0);
+    m_motor1.setSmartCurrentLimit(ShooterConstants.kCurrentLimit);
+    m_motor2.enableVoltageCompensation(12.0);
+    m_motor2.setSmartCurrentLimit(ShooterConstants.kCurrentLimit);
 
-    m_leader.burnFlash();
-    m_follower.burnFlash();
+    m_motor1.burnFlash();
+    m_motor2.burnFlash();
   }
 
   @Override
   public void updateInputs(ShooterIOInputs inputs) {
-    inputs.velocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(m_encoder.getVelocity());
-    inputs.appliedVolts = m_leader.getAppliedOutput() * m_leader.getBusVoltage();
-    inputs.currentAmps = new double[] {m_leader.getOutputCurrent(), m_follower.getOutputCurrent()};
+    inputs.velocityRadPerSec =
+        new double[] {
+          Units.rotationsPerMinuteToRadiansPerSecond(m_encoder1.getVelocity()),
+          Units.rotationsPerMinuteToRadiansPerSecond(m_encoder2.getVelocity())
+        };
+    inputs.appliedVolts =
+        new double[] {
+          m_motor1.getAppliedOutput() * m_motor1.getBusVoltage(),
+          m_motor2.getAppliedOutput() * m_motor2.getBusVoltage()
+        };
+    inputs.currentAmps = new double[] {m_motor1.getOutputCurrent(), m_motor2.getOutputCurrent()};
     inputs.tempCelsius =
-        new double[] {m_leader.getMotorTemperature(), m_follower.getMotorTemperature()};
+        new double[] {m_motor1.getMotorTemperature(), m_motor2.getMotorTemperature()};
   }
 
   @Override
   public void setVoltage(double volts) {
-    m_leader.setVoltage(volts);
+    m_motor1.setVoltage(volts);
+    m_motor2.setVoltage(volts);
+  }
+
+  @Override
+  public void setVoltage(double motor1Volts, double motor2Volts) {
+    m_motor1.setVoltage(motor1Volts);
+    m_motor2.setVoltage(motor2Volts);
   }
 
   @Override
   public void stop() {
-    m_leader.stopMotor();
+    m_motor1.stopMotor();
+    m_motor2.stopMotor();
   }
 }

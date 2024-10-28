@@ -9,8 +9,8 @@ import org.littletonrobotics.junction.AutoLog;
 public interface ShooterIO {
   @AutoLog
   public static class ShooterIOInputs {
-    public double velocityRadPerSec = 0.0;
-    public double appliedVolts = 0.0;
+    public double[] velocityRadPerSec = new double[] {};
+    public double[] appliedVolts = new double[] {};
     public double[] currentAmps = new double[] {};
     public double[] tempCelsius = new double[] {};
   }
@@ -20,6 +20,9 @@ public interface ShooterIO {
 
   /** Run open loop at the specified voltage. */
   public default void setVoltage(double volts) {}
+
+  /** Run open loop at the specified voltage for each motor. */
+  public default void setVoltage(double motor1Volts, double motor2volts) {}
 
   /** Stop in open loop. */
   public default void stop() {}

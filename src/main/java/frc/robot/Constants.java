@@ -94,11 +94,17 @@ public final class Constants {
   }
 
   public static final class ShooterConstants {
-    public static final double kS = 0.0;
-    public static final double kV = 0.0;
-    public static final double kP = 1.0;
-    public static final double kI = 0.0;
-    public static final double kD = 0.0;
+    public static final double kS1 = 0.0;
+    public static final double kV1 = 0.0;
+    public static final double kP1 = 1.0;
+    public static final double kI1 = 0.0;
+    public static final double kD1 = 0.0;
+
+    public static final double kS2 = 0.0;
+    public static final double kV2 = 0.0;
+    public static final double kP2 = 1.0;
+    public static final double kI2 = 0.0;
+    public static final double kD2 = 0.0;
     public static final double kToleranceRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(100);
 
