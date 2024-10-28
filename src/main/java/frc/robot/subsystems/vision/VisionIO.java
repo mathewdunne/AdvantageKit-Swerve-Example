@@ -6,6 +6,7 @@ package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import frc.robot.Constants.VisionConstants;
 import org.littletonrobotics.junction.LogTable;
 import org.littletonrobotics.junction.inputs.LoggableInputs;
 import org.photonvision.PhotonCamera;
@@ -60,7 +61,9 @@ public interface VisionIO {
   public default void updateInputs(VisionIOInputs inputs) {}
 
   /** Gets the PhotonCamera object. Must be implemented in both simulation and real robot classes */
-  public PhotonCamera getApriltagCamera();
+  public default PhotonCamera getApriltagCamera() {
+    return new PhotonCamera(VisionConstants.kApriltagCameraName);
+  }
 
   // ONLY NEEDED FOR SIMULATION
   /** Updates the simulation with the true robot pose. Must be called from a subsystem */

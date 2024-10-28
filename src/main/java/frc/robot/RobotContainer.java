@@ -18,7 +18,9 @@ import frc.robot.Constants.ModuleLocation;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.SwerveDriveCmd;
 import frc.robot.subsystems.arm.Arm;
+import frc.robot.subsystems.arm.ArmIO;
 import frc.robot.subsystems.arm.ArmIOSim;
+import frc.robot.subsystems.arm.ArmIOSparkMax;
 import frc.robot.subsystems.drive.GyroIO;
 import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
@@ -38,6 +40,7 @@ import frc.robot.subsystems.shooter.ShooterIO;
 import frc.robot.subsystems.shooter.ShooterIOSim;
 import frc.robot.subsystems.shooter.ShooterIOSparkMax;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.vision.VisionIO;
 import frc.robot.subsystems.vision.VisionIOPhotonReal;
 import frc.robot.subsystems.vision.VisionIOPhotonSim;
 import frc.robot.subsystems.wrist.Wrist;
@@ -85,7 +88,7 @@ public class RobotContainer {
                 new ModuleIOSparkMax(ModuleLocation.BACK_LEFT),
                 new ModuleIOSparkMax(ModuleLocation.BACK_RIGHT));
         m_vision = new Vision(new VisionIOPhotonReal() {}, m_swerveDrive::addVisionMeasurement);
-        m_arm = null; // TO DO
+        m_arm = new Arm(new ArmIOSparkMax() {});
         m_wrist =
             new Wrist(
                 new WristIOSparkMax(m_arm::getMechanismAngle) {},
@@ -127,8 +130,8 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        m_vision = null; // TO DO
-        m_arm = null; // TO DO
+        m_vision = new Vision(new VisionIO() {}, m_swerveDrive::addVisionMeasurement);
+        m_arm = new Arm(new ArmIO() {});
         m_wrist = new Wrist(new WristIO() {}, m_arm.getMechanismLigament(), m_arm::getTipPosition);
         m_shooter = new Shooter(new ShooterIO() {});
         m_intake = new Intake(new IntakeIO() {});
