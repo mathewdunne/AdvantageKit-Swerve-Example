@@ -45,8 +45,8 @@ public class WristIOSim implements WristIO {
     inputs.internalPositionRad = m_wristSim.getAngleRads();
     inputs.velocityRadPerSec = m_wristSim.getVelocityRadPerSec();
     inputs.appliedVolts = m_wristAppliedVolts;
-    inputs.currentAmps = new double[] {m_wristSim.getCurrentDrawAmps()};
-    inputs.tempCelsius = new double[] {};
+    inputs.currentAmps = m_wristSim.getCurrentDrawAmps();
+    inputs.tempCelsius = 0.0;
 
     // Real world position is (arm angle - 180 + the wrist angle) but in radians
     inputs.realWorldPositionRad =

@@ -13,8 +13,8 @@ public interface ArmIO {
     public double internalPositionRad = 0.0; // Internal is the relative encoder in the motor
     public double velocityRadPerSec = 0.0;
     public double appliedVolts = 0.0;
-    public double[] currentAmps = new double[] {};
-    public double[] tempCelsius = new double[] {};
+    public double currentAmps = 0.0;
+    public double tempCelsius = 0.0;
   }
 
   /** Updates the set of loggable inputs. */

@@ -39,8 +39,8 @@ public class ArmIOSim implements ArmIO {
     inputs.internalPositionRad = m_armSim.getAngleRads();
     inputs.velocityRadPerSec = m_armSim.getVelocityRadPerSec();
     inputs.appliedVolts = m_armAppliedVolts;
-    inputs.currentAmps = new double[] {m_armSim.getCurrentDrawAmps()};
-    inputs.tempCelsius = new double[] {};
+    inputs.currentAmps = m_armSim.getCurrentDrawAmps();
+    inputs.tempCelsius = 0.0;
 
     // long currentTime = Logger.getRealTimestamp();
     // Logger.recordOutput(
