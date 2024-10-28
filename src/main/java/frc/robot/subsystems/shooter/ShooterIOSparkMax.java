@@ -44,6 +44,11 @@ public class ShooterIOSparkMax implements ShooterIO {
 
   @Override
   public void updateInputs(ShooterIOInputs inputs) {
+    inputs.positionRad =
+        new double[] {
+          Units.rotationsToRadians(m_encoder1.getPosition()),
+          Units.rotationsToRadians(m_encoder2.getPosition())
+        };
     inputs.velocityRadPerSec =
         new double[] {
           Units.rotationsPerMinuteToRadiansPerSecond(m_encoder1.getVelocity()),

@@ -17,6 +17,7 @@ public class IntakeIOSim implements IntakeIO {
   public void updateInputs(IntakeIOInputs inputs) {
     m_sim.update(Constants.kLoopPeriodSecs);
 
+    inputs.positionRad = 0.0;
     inputs.velocityRadPerSec = m_sim.getAngularVelocityRadPerSec();
     inputs.appliedVolts = m_appliedVolts;
     inputs.currentAmps = m_sim.getCurrentDrawAmps();
