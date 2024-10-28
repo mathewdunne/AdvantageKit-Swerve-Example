@@ -24,7 +24,6 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.util.TunableProfiledPIDController;
-import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Arm extends SubsystemBase {
@@ -204,7 +203,6 @@ public class Arm extends SubsystemBase {
   }
 
   /** Returns the 2d pose of the tip of the arm ligament */
-  @AutoLogOutput(key = "Arm/TipPosition")
   public Translation3d getTipPosition() {
     Translation3d armBasePosition = getPose3d(m_inputs.absolutePositionRad).getTranslation();
     Translation3d armTipPosition =

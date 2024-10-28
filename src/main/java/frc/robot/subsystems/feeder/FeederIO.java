@@ -2,15 +2,14 @@
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
 
-package frc.robot.subsystems.arm;
+package frc.robot.subsystems.feeder;
 
 import org.littletonrobotics.junction.AutoLog;
 
-public interface ArmIO {
+public interface FeederIO {
   @AutoLog
-  public static class ArmIOInputs {
-    public double absolutePositionRad = 0.0; // Absolute is the through bore encoder on the arm
-    public double internalPositionRad = 0.0; // Internal is the relative encoder in the motor
+  public static class FeederIOInputs {
+    public double positionRad = 0.0;
     public double velocityRadPerSec = 0.0;
     public double appliedVolts = 0.0;
     public double currentAmps = 0.0;
@@ -18,8 +17,11 @@ public interface ArmIO {
   }
 
   /** Updates the set of loggable inputs. */
-  public default void updateInputs(ArmIOInputs inputs) {}
+  public default void updateInputs(FeederIOInputs inputs) {}
 
-  /** Run the motor at the specified voltage */
+  /** Run open loop at the specified voltage. */
   public default void setVoltage(double volts) {}
+
+  /** Stop in open loop. */
+  public default void stop() {}
 }

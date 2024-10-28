@@ -14,7 +14,7 @@ import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.BaseDriveMode;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.subsystems.drive.SwerveSubsystem;
-import frc.robot.util.AngleToTarget;
+import frc.robot.util.TargetingUtil;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 
@@ -97,7 +97,7 @@ public class SwerveDriveCmd extends Command {
     } else {
       // Aim lock mode - use PID controller to compute omega
       double targetAngle =
-          AngleToTarget.getAngleToTarget(m_swerveSubsystem.getPose(), m_aimDriveMode);
+          TargetingUtil.getAngleToTarget(m_swerveSubsystem.getPose(), m_aimDriveMode);
       double currentAngle = m_swerveSubsystem.getPose().getRotation().getRadians();
       omegaRadiansPerSec = m_swerveSubsystem.getAimLockPID().calculate(currentAngle, targetAngle);
     }

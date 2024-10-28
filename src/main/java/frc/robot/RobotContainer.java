@@ -5,19 +5,17 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.ControllerConstants;
-import frc.robot.Constants.FlywheelConstants;
 import frc.robot.Constants.ModuleLocation;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.SwerveDriveCmd;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIOSim;
@@ -27,17 +25,24 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSparkMax;
 import frc.robot.subsystems.drive.SwerveSubsystem;
-import frc.robot.subsystems.flywheel.Flywheel;
-import frc.robot.subsystems.flywheel.FlywheelIO;
-import frc.robot.subsystems.flywheel.FlywheelIOSim;
-import frc.robot.subsystems.flywheel.FlywheelIOSparkMax;
+import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.feeder.FeederIO;
+import frc.robot.subsystems.feeder.FeederIOSim;
+import frc.robot.subsystems.feeder.FeederIOSparkMax;
+import frc.robot.subsystems.intake.Intake;
+import frc.robot.subsystems.intake.IntakeIO;
+import frc.robot.subsystems.intake.IntakeIOSim;
+import frc.robot.subsystems.intake.IntakeIOSparkMax;
+import frc.robot.subsystems.shooter.Shooter;
+import frc.robot.subsystems.shooter.ShooterIO;
+import frc.robot.subsystems.shooter.ShooterIOSim;
+import frc.robot.subsystems.shooter.ShooterIOSparkMax;
 import frc.robot.subsystems.vision.Vision;
 import frc.robot.subsystems.vision.VisionIOPhotonReal;
 import frc.robot.subsystems.vision.VisionIOPhotonSim;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIOSim;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
-import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -48,10 +53,12 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardNumber;
 public class RobotContainer {
   // Subsystems
   private final SwerveSubsystem m_swerveDrive;
-  private final Flywheel m_flywheel;
   private final Vision m_vision;
   private final Arm m_arm;
   private final Wrist m_wrist;
+  private final Shooter m_shooter;
+  private final Intake m_intake;
+  private final Feeder m_feeder;
 
   // Controller
   private final CommandXboxController m_driverController =
@@ -59,8 +66,6 @@ public class RobotContainer {
 
   // Dashboard inputs
   private final LoggedDashboardChooser<Command> m_autoChooser;
-  private final LoggedDashboardNumber m_flywheelSpeedInput =
-      new LoggedDashboardNumber("Flywheel Speed", FlywheelConstants.defaultSpeed);
 
   // Commands
   private final SwerveDriveCmd m_masterDriveCmd;
@@ -77,10 +82,12 @@ public class RobotContainer {
                 new ModuleIOSparkMax(ModuleLocation.FRONT_RIGHT),
                 new ModuleIOSparkMax(ModuleLocation.BACK_LEFT),
                 new ModuleIOSparkMax(ModuleLocation.BACK_RIGHT));
-        m_flywheel = new Flywheel(new FlywheelIOSparkMax());
         m_vision = new Vision(new VisionIOPhotonReal() {}, m_swerveDrive::addVisionMeasurement);
         m_arm = null; // TO DO
         m_wrist = null; // TO DO
+        m_shooter = new Shooter(new ShooterIOSparkMax());
+        m_intake = new Intake(new IntakeIOSparkMax());
+        m_feeder = new Feeder(new FeederIOSparkMax());
         break;
 
       case SIM:
@@ -92,7 +99,6 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new ModuleIOSim());
-        m_flywheel = new Flywheel(new FlywheelIOSim());
         m_vision = new Vision(new VisionIOPhotonSim() {}, m_swerveDrive::addVisionMeasurement);
         m_vision.setSimTruePoseSupplier(m_swerveDrive::getSimTruePose);
         m_arm = new Arm(new ArmIOSim() {});
@@ -101,6 +107,9 @@ public class RobotContainer {
                 new WristIOSim(m_arm::getMechanismAngle) {},
                 m_arm.getMechanismLigament(),
                 m_arm::getTipPosition);
+        m_shooter = new Shooter(new ShooterIOSim());
+        m_intake = new Intake(new IntakeIOSim());
+        m_feeder = new Feeder(new FeederIOSim());
         break;
 
       default:
@@ -112,21 +121,22 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        m_flywheel = new Flywheel(new FlywheelIO() {});
         m_vision = null; // TO DO
         m_arm = null; // TO DO
         m_wrist = null; // TO DO
+        m_shooter = new Shooter(new ShooterIO() {});
+        m_intake = new Intake(new IntakeIO() {});
+        m_feeder = new Feeder(new FeederIO() {});
         break;
     }
 
     // Set up auto routines
-    NamedCommands.registerCommand(
-        "Run Flywheel",
-        Commands.startEnd(
-                () -> m_flywheel.runVelocity(m_flywheelSpeedInput.get()),
-                m_flywheel::stop,
-                m_flywheel)
-            .withTimeout(5.0));
+    // NamedCommands.registerCommand(
+    //     "Run Shooter",
+    //     Commands.startEnd(
+    //             () -> m_shooter.runVelocity(m_ShooterSpeedInput.get()), m_shooter::stop,
+    // m_shooter)
+    //         .withTimeout(5.0));
     m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
@@ -193,10 +203,31 @@ public class RobotContainer {
             new InstantCommand(() -> m_wrist.runVolts(0.3 * RobotController.getBatteryVoltage())))
         .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
 
-    // Aim amp
+    // Shooter RPM targets
     m_driverController
         .a()
-        .onTrue(new InstantCommand(() -> m_masterDriveCmd.setAimDriveMode(AimDriveMode.LOB_PASS)));
+        .whileTrue(
+            new InstantCommand(
+                () -> m_shooter.runAtVelocityRPM(ShooterConstants.shootCloseVelocityRPM)))
+        .onFalse(new InstantCommand(() -> m_shooter.stop()));
+    m_driverController
+        .b()
+        .whileTrue(
+            new InstantCommand(
+                () -> m_shooter.runAtVelocityRPM(ShooterConstants.shootFarVelocityRPM)))
+        .onFalse(new InstantCommand(() -> m_shooter.stop()));
+    m_driverController
+        .x()
+        .whileTrue(
+            new InstantCommand(
+                () -> m_shooter.runAtVelocityRPM(ShooterConstants.passCloseVelocityRPM)))
+        .onFalse(new InstantCommand(() -> m_shooter.stop()));
+    m_driverController
+        .y()
+        .whileTrue(
+            new InstantCommand(
+                () -> m_shooter.runAtVelocityRPM(ShooterConstants.passFarVelocityRPM)))
+        .onFalse(new InstantCommand(() -> m_shooter.stop()));
   }
 
   /**
@@ -223,17 +254,15 @@ public class RobotContainer {
         "Drive SysId (Dynamic Reverse)",
         m_swerveDrive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     autoChooser.addOption(
-        "Flywheel SysId (Quasistatic Forward)",
-        m_flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
+        "Shooter SysId (Quasistatic Forward)",
+        m_shooter.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
-        "Flywheel SysId (Quasistatic Reverse)",
-        m_flywheel.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
+        "Shooter SysId (Quasistatic Reverse)",
+        m_shooter.sysIdQuasistatic(SysIdRoutine.Direction.kReverse));
     autoChooser.addOption(
-        "Flywheel SysId (Dynamic Forward)",
-        m_flywheel.sysIdDynamic(SysIdRoutine.Direction.kForward));
+        "Shooter SysId (Dynamic Forward)", m_shooter.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
-        "Flywheel SysId (Dynamic Reverse)",
-        m_flywheel.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        "Shooter SysId (Dynamic Reverse)", m_shooter.sysIdDynamic(SysIdRoutine.Direction.kReverse));
     autoChooser.addOption(
         "Arm SysId (Quasistatic Forward)", m_arm.sysIdQuasistatic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(

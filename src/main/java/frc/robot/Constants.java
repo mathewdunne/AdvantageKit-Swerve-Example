@@ -93,18 +93,47 @@ public final class Constants {
     public static final int kTurnCurrentLimit = 30;
   }
 
-  public static final class FlywheelConstants {
-    public static final double kS = 0.0;
-    public static final double kV = 0.0;
-    public static final double kP = 1.0;
-    public static final double kI = 0.0;
-    public static final double kD = 0.0;
-    public static final double defaultSpeed = 1500.0;
+  public static final class ShooterConstants {
+    public static final double kS1 = 0.0;
+    public static final double kV1 = 0.0;
+    public static final double kP1 = 1.0;
+    public static final double kI1 = 0.0;
+    public static final double kD1 = 0.0;
 
-    public static final double kGearRatio = 1.5;
+    public static final double kS2 = 0.0;
+    public static final double kV2 = 0.0;
+    public static final double kP2 = 1.0;
+    public static final double kI2 = 0.0;
+    public static final double kD2 = 0.0;
+    public static final double kToleranceRadPerSec =
+        Units.rotationsPerMinuteToRadiansPerSecond(100);
+
+    public static final double idleVelocityRPM = 2800;
+    public static final double shootCloseVelocityRPM = 5000;
+    public static final double shootFarVelocityRPM = 3500;
+    public static final double passCloseVelocityRPM = 2800;
+    public static final double passFarVelocityRPM = 3700;
+    public static final double passVelocityRPM = 3300;
 
     public static final int kLeaderMotorPort = 10;
     public static final int kFollowerMotorPort = 11;
+    public static final int kCurrentLimit = 30;
+  }
+
+  public static final class FeederConstants {
+    public static final double feedVoltage = 12.0;
+    public static final double intakeVoltage = 12.0;
+    public static final double ejectVoltage = -12.0;
+
+    public static final int kMotorPort = 15;
+    public static final int kCurrentLimit = 30;
+  }
+
+  public static final class IntakeConstants {
+    public static final double intakeVoltage = 12.0;
+    public static final double ejectVoltage = -12.0;
+
+    public static final int kMotorPort = 16;
     public static final int kCurrentLimit = 30;
   }
 
