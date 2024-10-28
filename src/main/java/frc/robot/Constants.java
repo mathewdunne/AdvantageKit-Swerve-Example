@@ -127,6 +127,8 @@ public final class Constants {
 
     public static final int kMotorPort = 15;
     public static final int kCurrentLimit = 30;
+
+    public static final int kBeambreakPort = 0;
   }
 
   public static final class IntakeConstants {

@@ -46,4 +46,9 @@ public class Feeder extends SubsystemBase {
     voltage = 0.0;
     m_io.stop();
   }
+
+  /** Gets the state of the beambreak */
+  public boolean getBeambreakBroken() {
+    return m_inputs.beambreakBroken;
+  }
 }
