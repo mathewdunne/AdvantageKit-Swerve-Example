@@ -17,7 +17,7 @@ public class ShooterIOSim implements ShooterIO {
   public void updateInputs(ShooterIOInputs inputs) {
     m_sim.update(Constants.kLoopPeriodSecs);
 
-    inputs.positionRad = new double[] {};
+    inputs.positionRad = new double[] {0.0, 0.0};
     inputs.velocityRadPerSec =
         new double[] {m_sim.getAngularVelocityRadPerSec(), m_sim.getAngularVelocityRadPerSec()};
     inputs.appliedVolts = new double[] {m_appliedVolts, m_appliedVolts};

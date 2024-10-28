@@ -64,7 +64,7 @@ public class Shooter extends SubsystemBase {
                     1.0, 0.0, 0.0, ShooterConstants.kToleranceRadPerSec, "Shooter", false);
         break;
       case SIM:
-        m_motor1ff = m_motor2ff = new SimpleMotorFeedforward(0.0, 0.0);
+        m_motor1ff = m_motor2ff = new SimpleMotorFeedforward(0.0, 0.029768, 0.030841);
         m_motor1PID =
             m_motor2PID =
                 new TunablePIDController(
@@ -116,6 +116,9 @@ public class Shooter extends SubsystemBase {
         });
     Logger.recordOutput("Shooter/PID", new double[] {pid1, pid2});
     Logger.recordOutput("Shooter/FF", new double[] {ff1, ff2});
+    Logger.recordOutput(
+        "Shooter/SetpointRPM",
+        Units.radiansPerSecondToRotationsPerMinute(m_motor1PID.getSetpoint()));
   }
 
   /** Run open loop at the specified voltage. */
@@ -130,14 +133,15 @@ public class Shooter extends SubsystemBase {
     m_motor1PID.setSetpoint(velocityRadPerSec);
     m_motor2PID.setSetpoint(velocityRadPerSec);
     m_isPidEnabled = true;
-
-    // Log Shooter setpoint
-    Logger.recordOutput("Shooter/SetpointRPM", velocityRPM);
   }
 
   /** Stops the Shooter. */
   public void stop() {
     m_isPidEnabled = false;
+    m_motor1PID.setSetpoint(0);
+    m_motor2PID.setSetpoint(0);
+    m_motor1PID.reset();
+    m_motor2PID.reset();
     m_io.stop();
   }
 

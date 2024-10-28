@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ModuleLocation;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.commands.SwerveDriveCmd;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIOSim;
@@ -202,35 +203,31 @@ public class RobotContainer {
             new InstantCommand(() -> m_wrist.runVolts(0.3 * RobotController.getBatteryVoltage())))
         .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
 
-    // Feeder Forward
+    // Shooter RPM targets
     m_driverController
         .a()
         .whileTrue(
             new InstantCommand(
-                () -> m_feeder.runAtVoltage(0.7 * RobotController.getBatteryVoltage())))
-        .onFalse(new InstantCommand(() -> m_feeder.stop()));
-    // Feeder Reverse
+                () -> m_shooter.runAtVelocityRPM(ShooterConstants.shootCloseVelocityRPM)))
+        .onFalse(new InstantCommand(() -> m_shooter.stop()));
     m_driverController
         .b()
         .whileTrue(
             new InstantCommand(
-                () -> m_feeder.runAtVoltage(-0.7 * RobotController.getBatteryVoltage())))
-        .onFalse(new InstantCommand(() -> m_feeder.stop()));
-
-    // Intake Forward
+                () -> m_shooter.runAtVelocityRPM(ShooterConstants.shootFarVelocityRPM)))
+        .onFalse(new InstantCommand(() -> m_shooter.stop()));
     m_driverController
         .x()
         .whileTrue(
             new InstantCommand(
-                () -> m_intake.runAtVoltage(0.7 * RobotController.getBatteryVoltage())))
-        .onFalse(new InstantCommand(() -> m_intake.stop()));
-    // Intake Reverse
+                () -> m_shooter.runAtVelocityRPM(ShooterConstants.passCloseVelocityRPM)))
+        .onFalse(new InstantCommand(() -> m_shooter.stop()));
     m_driverController
         .y()
         .whileTrue(
             new InstantCommand(
-                () -> m_intake.runAtVoltage(-0.7 * RobotController.getBatteryVoltage())))
-        .onFalse(new InstantCommand(() -> m_intake.stop()));
+                () -> m_shooter.runAtVelocityRPM(ShooterConstants.passFarVelocityRPM)))
+        .onFalse(new InstantCommand(() -> m_shooter.stop()));
   }
 
   /**
