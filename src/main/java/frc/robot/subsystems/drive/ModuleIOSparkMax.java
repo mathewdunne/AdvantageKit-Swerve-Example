@@ -77,8 +77,8 @@ public class ModuleIOSparkMax implements ModuleIO {
         throw new RuntimeException("Invalid module index");
     }
 
-    m_driveSparkMax.restoreFactoryDefaults();
-    m_turnSparkMax.restoreFactoryDefaults();
+    // m_driveSparkMax.restoreFactoryDefaults();
+    // m_turnSparkMax.restoreFactoryDefaults();
 
     m_driveSparkMax.setCANTimeout(250);
     m_turnSparkMax.setCANTimeout(250);
@@ -103,8 +103,8 @@ public class ModuleIOSparkMax implements ModuleIO {
     m_driveSparkMax.setCANTimeout(0);
     m_turnSparkMax.setCANTimeout(0);
 
-    m_driveSparkMax.burnFlash();
-    m_turnSparkMax.burnFlash();
+    // m_driveSparkMax.burnFlash();
+    // m_turnSparkMax.burnFlash();
   }
 
   @Override

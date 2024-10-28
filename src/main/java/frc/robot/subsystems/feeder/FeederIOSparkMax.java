@@ -19,7 +19,7 @@ public class FeederIOSparkMax implements FeederIO {
       new CANSparkMax(FeederConstants.kMotorPort, MotorType.kBrushless);
 
   public FeederIOSparkMax() {
-    m_motor.restoreFactoryDefaults();
+    // m_motor.restoreFactoryDefaults();
 
     m_motor.setCANTimeout(250);
 
@@ -28,7 +28,7 @@ public class FeederIOSparkMax implements FeederIO {
     m_motor.enableVoltageCompensation(12.0);
     m_motor.setSmartCurrentLimit(FeederConstants.kCurrentLimit);
 
-    m_motor.burnFlash();
+    // m_motor.burnFlash();
   }
 
   @Override

@@ -24,8 +24,8 @@ public class ShooterIOSparkMax implements ShooterIO {
   private final RelativeEncoder m_encoder2 = m_motor1.getEncoder();
 
   public ShooterIOSparkMax() {
-    m_motor1.restoreFactoryDefaults();
-    m_motor2.restoreFactoryDefaults();
+    // m_motor1.restoreFactoryDefaults();
+    // m_motor2.restoreFactoryDefaults();
 
     m_motor1.setCANTimeout(250);
     m_motor2.setCANTimeout(250);
@@ -38,8 +38,8 @@ public class ShooterIOSparkMax implements ShooterIO {
     m_motor2.enableVoltageCompensation(12.0);
     m_motor2.setSmartCurrentLimit(ShooterConstants.kCurrentLimit);
 
-    m_motor1.burnFlash();
-    m_motor2.burnFlash();
+    // m_motor1.burnFlash();
+    // m_motor2.burnFlash();
   }
 
   @Override

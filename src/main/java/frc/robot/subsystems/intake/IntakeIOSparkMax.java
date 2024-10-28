@@ -19,7 +19,7 @@ public class IntakeIOSparkMax implements IntakeIO {
       new CANSparkMax(IntakeConstants.kMotorPort, MotorType.kBrushless);
 
   public IntakeIOSparkMax() {
-    m_motor.restoreFactoryDefaults();
+    // m_motor.restoreFactoryDefaults();
 
     m_motor.setCANTimeout(250);
 
@@ -28,7 +28,7 @@ public class IntakeIOSparkMax implements IntakeIO {
     m_motor.enableVoltageCompensation(12.0);
     m_motor.setSmartCurrentLimit(IntakeConstants.kCurrentLimit);
 
-    m_motor.burnFlash();
+    // m_motor.burnFlash();
   }
 
   @Override
