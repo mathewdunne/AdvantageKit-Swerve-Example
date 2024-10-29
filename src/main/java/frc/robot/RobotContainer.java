@@ -165,7 +165,11 @@ public class RobotContainer {
     configureButtonBindings();
 
     // Set suppliers for note visualizer
-    NoteVisualizer.setRobotPoseSupplier(m_swerveDrive::getPose);
+    if (Robot.isSimulation()) {
+      NoteVisualizer.setRobotPoseSupplier(m_swerveDrive::getSimTruePose);
+    } else {
+      NoteVisualizer.setRobotPoseSupplier(m_swerveDrive::getPose);
+    }
     NoteVisualizer.setWristPoseSupplier(m_wrist::getPose3d);
   }
 
