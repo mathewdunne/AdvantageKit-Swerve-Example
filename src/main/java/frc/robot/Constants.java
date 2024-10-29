@@ -137,6 +137,7 @@ public final class Constants {
 
     public static final int kMotorPort = 16;
     public static final int kCurrentLimit = 30;
+    public static final double kCurrentThreshold = 18.0;
   }
 
   public static enum BaseDriveMode {

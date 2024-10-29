@@ -45,6 +45,11 @@ public class Feeder extends SubsystemBase {
   public void stop() {
     m_voltage = 0.0;
     m_io.stop();
+
+    // Cancel the beambreak broken after delay
+    if (m_io instanceof FeederIOSim) {
+      ((FeederIOSim) m_io).cancelSetBeambreak();
+    }
   }
 
   /** Gets the state of the beambreak */
@@ -55,14 +60,14 @@ public class Feeder extends SubsystemBase {
   /** Sets the beambreak to be broken after a delay in simulation */
   public void setBeambreakBrokenAfterDelay() {
     if (m_io instanceof FeederIOSim) {
-      m_io.setBeambreakBrokenAfterDelay();
+      ((FeederIOSim) m_io).setBeambreakBrokenAfterDelay();
     }
   }
 
   /** Sets the beambreak to be unbroken after a delay in simulation */
   public void setBeambreakUnbrokenAfterDelay() {
     if (m_io instanceof FeederIOSim) {
-      m_io.setBeambreakUnbrokenAfterDelay();
+      ((FeederIOSim) m_io).setBeambreakUnbrokenAfterDelay();
     }
   }
 }

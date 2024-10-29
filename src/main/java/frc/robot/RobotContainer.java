@@ -213,7 +213,9 @@ public class RobotContainer {
         .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
 
     // Intake
-    m_driverController.rightBumper().whileTrue(new IntakeCmd(m_intake, m_feeder, m_wrist, m_arm));
+    m_driverController
+        .rightBumper()
+        .whileTrue(new IntakeCmd(m_intake, m_feeder, m_wrist, m_arm, m_driverController));
   }
 
   /**

@@ -6,6 +6,7 @@ package frc.robot.subsystems.intake;
 
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.IntakeConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class Intake extends SubsystemBase {
@@ -45,5 +46,10 @@ public class Intake extends SubsystemBase {
   public void stop() {
     m_voltage = 0.0;
     m_io.stop();
+  }
+
+  /** True if motor current is above the threshold */
+  public boolean hasNote() {
+    return m_inputs.currentAmps > IntakeConstants.kCurrentThreshold;
   }
 }
