@@ -23,7 +23,7 @@ public class WristIOSim implements WristIO {
           WristConstants.kMaxAngleRad,
           true,
           WristConstants.kMinAngleRad,
-          ArmConstants.kStartAngleRad);
+          ArmConstants.kStowedAngleRad);
 
   private double m_wristAppliedVolts = 0.0;
   private Supplier<Double> m_armAngleRadSupplier;

@@ -7,7 +7,7 @@ import edu.wpi.first.math.numbers.N3;
 
 /*
  * This is an interface to pass in a callback function to add a vision measurement
- * so that the vision subsystem can add measurements to the pose estimator in the SwerveSubsystem
+ * so that the vision subsystem can add measurements to the pose estimator in the SwerveDrive
  */
 @FunctionalInterface
 public interface AddVisionMeasurementCallback {

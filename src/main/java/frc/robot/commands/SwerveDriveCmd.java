@@ -13,14 +13,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.BaseDriveMode;
 import frc.robot.Constants.ControllerConstants;
-import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.drive.SwerveDrive;
 import frc.robot.util.TargetingUtil;
 import java.util.function.DoubleSupplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 public class SwerveDriveCmd extends Command {
 
-  private final SwerveSubsystem m_swerveSubsystem;
+  private final SwerveDrive m_swerveDrive;
   private final DoubleSupplier m_xSupplier;
   private final DoubleSupplier m_ySupplier;
   private final DoubleSupplier m_omegaSupplier;
@@ -33,11 +33,11 @@ public class SwerveDriveCmd extends Command {
 
   /** Creates a new MasterDriveCommand. */
   public SwerveDriveCmd(
-      SwerveSubsystem swerveSubsystem,
+      SwerveDrive SwerveDrive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
       DoubleSupplier omegaSupplier) {
-    m_swerveSubsystem = swerveSubsystem;
+    m_swerveDrive = SwerveDrive;
     m_xSupplier = xSupplier;
     m_ySupplier = ySupplier;
     m_omegaSupplier = omegaSupplier;
@@ -45,7 +45,7 @@ public class SwerveDriveCmd extends Command {
     m_baseDriveMode = BaseDriveMode.FIELD_ORIENTED;
     m_aimDriveMode = AimDriveMode.NONE;
 
-    addRequirements(m_swerveSubsystem);
+    addRequirements(m_swerveDrive);
   }
 
   // Called when the command is initially scheduled.
@@ -82,8 +82,8 @@ public class SwerveDriveCmd extends Command {
     omega = Math.copySign(omega * omega, omega);
 
     // Scale the velocities to the robot's maximum speed
-    double maxLinearSpeed = m_swerveSubsystem.getMaxLinearSpeedMetersPerSec();
-    double maxAngularSpeed = m_swerveSubsystem.getMaxAngularSpeedRadPerSec();
+    double maxLinearSpeed = m_swerveDrive.getMaxLinearSpeedMetersPerSec();
+    double maxAngularSpeed = m_swerveDrive.getMaxAngularSpeedRadPerSec();
 
     double vx = adjustedX * maxLinearSpeed;
     double vy = adjustedY * maxLinearSpeed;
@@ -96,10 +96,9 @@ public class SwerveDriveCmd extends Command {
       omegaRadiansPerSec = omega * maxAngularSpeed;
     } else {
       // Aim lock mode - use PID controller to compute omega
-      double targetAngle =
-          TargetingUtil.getAngleToTarget(m_swerveSubsystem.getPose(), m_aimDriveMode);
-      double currentAngle = m_swerveSubsystem.getPose().getRotation().getRadians();
-      omegaRadiansPerSec = m_swerveSubsystem.getAimLockPID().calculate(currentAngle, targetAngle);
+      double targetAngle = TargetingUtil.getAngleToTarget(m_swerveDrive.getPose(), m_aimDriveMode);
+      double currentAngle = m_swerveDrive.getPose().getRotation().getRadians();
+      omegaRadiansPerSec = m_swerveDrive.getAimLockPID().calculate(currentAngle, targetAngle);
     }
 
     // Determine if the robot orientation should be flipped based on alliance color
@@ -107,7 +106,7 @@ public class SwerveDriveCmd extends Command {
         DriverStation.getAlliance().isPresent()
             && DriverStation.getAlliance().get() == Alliance.Red;
 
-    Rotation2d robotRotation = m_swerveSubsystem.getRotation();
+    Rotation2d robotRotation = m_swerveDrive.getRotation();
     if (isFlipped) {
       robotRotation = robotRotation.plus(new Rotation2d(Math.PI));
     }
@@ -124,7 +123,7 @@ public class SwerveDriveCmd extends Command {
     }
 
     // Send the calculated speeds to the swerve subsystem
-    m_swerveSubsystem.runVelocity(chassisSpeeds);
+    m_swerveDrive.runVelocity(chassisSpeeds);
   }
 
   // Called once the command ends or is interrupted.

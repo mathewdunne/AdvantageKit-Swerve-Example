@@ -12,10 +12,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ModuleLocation;
-import frc.robot.Constants.ShooterConstants;
+import frc.robot.commands.AimAtSpeakerCmd;
+import frc.robot.commands.FeederShootCmd;
+import frc.robot.commands.IntakeCmd;
 import frc.robot.commands.SwerveDriveCmd;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.arm.ArmIO;
@@ -26,7 +27,7 @@ import frc.robot.subsystems.drive.GyroIONavX;
 import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSparkMax;
-import frc.robot.subsystems.drive.SwerveSubsystem;
+import frc.robot.subsystems.drive.SwerveDrive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.feeder.FeederIO;
 import frc.robot.subsystems.feeder.FeederIOSim;
@@ -57,7 +58,7 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
  */
 public class RobotContainer {
   // Subsystems
-  private final SwerveSubsystem m_swerveDrive;
+  private final SwerveDrive m_swerveDrive;
   private final Vision m_vision;
   private final Arm m_arm;
   private final Wrist m_wrist;
@@ -81,7 +82,7 @@ public class RobotContainer {
       case REAL:
         // Real robot, instantiate hardware IO implementations
         m_swerveDrive =
-            new SwerveSubsystem(
+            new SwerveDrive(
                 new GyroIONavX(),
                 new ModuleIOSparkMax(ModuleLocation.FRONT_LEFT),
                 new ModuleIOSparkMax(ModuleLocation.FRONT_RIGHT),
@@ -102,7 +103,7 @@ public class RobotContainer {
       case SIM:
         // Sim robot, instantiate physics sim IO implementations
         m_swerveDrive =
-            new SwerveSubsystem(
+            new SwerveDrive(
                 new GyroIO() {},
                 new ModuleIOSim(),
                 new ModuleIOSim(),
@@ -124,7 +125,7 @@ public class RobotContainer {
       default:
         // Replayed robot, disable IO implementations
         m_swerveDrive =
-            new SwerveSubsystem(
+            new SwerveDrive(
                 new GyroIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {},
@@ -180,11 +181,6 @@ public class RobotContainer {
     m_driverController
         .rightStick()
         .onTrue(new InstantCommand(() -> m_swerveDrive.resetOdometry()).ignoringDisable(true));
-    // Aimbot
-    m_driverController
-        .leftTrigger(0.1)
-        .onTrue(
-            new InstantCommand(() -> m_masterDriveCmd.setAimDriveMode(AimDriveMode.AIM_SPEAKER)));
 
     // Arm up
     m_driverController
@@ -212,31 +208,29 @@ public class RobotContainer {
             new InstantCommand(() -> m_wrist.runVolts(0.3 * RobotController.getBatteryVoltage())))
         .onFalse(new InstantCommand(() -> m_wrist.stopAndHold()));
 
-    // Shooter RPM targets
+    // Intake
     m_driverController
-        .a()
-        .whileTrue(
-            new InstantCommand(
-                () -> m_shooter.runAtVelocityRPM(ShooterConstants.shootCloseVelocityRPM)))
-        .onFalse(new InstantCommand(() -> m_shooter.stop()));
+        .rightBumper()
+        .whileTrue(new IntakeCmd(m_intake, m_feeder, m_wrist, m_arm, m_driverController));
+
+    // Aim for speaker shot
     m_driverController
-        .b()
+        .leftTrigger(0.1)
         .whileTrue(
-            new InstantCommand(
-                () -> m_shooter.runAtVelocityRPM(ShooterConstants.shootFarVelocityRPM)))
-        .onFalse(new InstantCommand(() -> m_shooter.stop()));
+            new AimAtSpeakerCmd(
+                m_shooter,
+                m_feeder,
+                m_wrist,
+                m_arm,
+                m_driverController,
+                m_swerveDrive::getPose,
+                m_masterDriveCmd::setAimDriveMode));
+
+    // Shoot
     m_driverController
-        .x()
+        .rightTrigger(0.1)
         .whileTrue(
-            new InstantCommand(
-                () -> m_shooter.runAtVelocityRPM(ShooterConstants.passCloseVelocityRPM)))
-        .onFalse(new InstantCommand(() -> m_shooter.stop()));
-    m_driverController
-        .y()
-        .whileTrue(
-            new InstantCommand(
-                () -> m_shooter.runAtVelocityRPM(ShooterConstants.passFarVelocityRPM)))
-        .onFalse(new InstantCommand(() -> m_shooter.stop()));
+            new FeederShootCmd(m_feeder, m_shooter, m_wrist, m_swerveDrive::aimedAtSetpoint));
   }
 
   /**

@@ -35,6 +35,8 @@ public final class Constants {
 
   public static final double kLoopPeriodSecs = 0.02;
 
+  public static final double kCloseShotThresholdMeters = 3.1;
+
   public static final class ControllerConstants {
     public static final int kDriverControllerPort = 0;
     public static final double kDriverControllerDeadband = 0.1;
@@ -108,12 +110,12 @@ public final class Constants {
     public static final double kToleranceRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(100);
 
-    public static final double idleVelocityRPM = 2800;
-    public static final double shootCloseVelocityRPM = 5000;
-    public static final double shootFarVelocityRPM = 3500;
-    public static final double passCloseVelocityRPM = 2800;
-    public static final double passFarVelocityRPM = 3700;
-    public static final double passVelocityRPM = 3300;
+    public static final double kIdleVelocityRPM = 2800;
+    public static final double kShootCloseVelocityRPM = 5000;
+    public static final double kShootFarVelocityRPM = 3500;
+    public static final double kPassCloseVelocityRPM = 2800;
+    public static final double kPassFarVelocityRPM = 3700;
+    public static final double kPassVelocityRPM = 3300;
 
     public static final int kLeaderMotorPort = 10;
     public static final int kFollowerMotorPort = 11;
@@ -121,20 +123,23 @@ public final class Constants {
   }
 
   public static final class FeederConstants {
-    public static final double feedVoltage = 12.0;
-    public static final double intakeVoltage = 12.0;
-    public static final double ejectVoltage = -12.0;
+    public static final double kFeedVoltage = 12.0;
+    public static final double kIntakeVoltage = 12.0;
+    public static final double kEjectVoltage = -12.0;
 
     public static final int kMotorPort = 15;
     public static final int kCurrentLimit = 30;
+
+    public static final int kBeambreakPort = 0;
   }
 
   public static final class IntakeConstants {
-    public static final double intakeVoltage = 12.0;
-    public static final double ejectVoltage = -12.0;
+    public static final double kIntakeVoltage = 12.0;
+    public static final double kEjectVoltage = -12.0;
 
     public static final int kMotorPort = 16;
     public static final int kCurrentLimit = 30;
+    public static final double kCurrentThreshold = 18.0;
   }
 
   public static enum BaseDriveMode {
@@ -204,7 +209,7 @@ public final class Constants {
     public static final double kMinAngleRad =
         Units.degreesToRadians(6); // 0 rad is horizontal, hardstop is slightly above
     public static final double kMaxAngleRad = Units.degreesToRadians(85); // max is almost vertical
-    public static final double kStartAngleRad = kMinAngleRad;
+    public static final double kStowedAngleRad = kMinAngleRad;
   }
 
   public static class WristConstants {
@@ -214,7 +219,7 @@ public final class Constants {
     public static final double kP = 1.0;
     public static final double kI = 0.0;
     public static final double kD = 0.0;
-    public static final double kToleranceRad = Units.degreesToRadians(0.5);
+    public static final double kToleranceRad = Units.degreesToRadians(1);
     public static final double kMaxAccelerationRadPerSec2 = 50;
 
     public static final int kMotorPort = 13;
@@ -229,6 +234,6 @@ public final class Constants {
     // For these angles, they are relative to the arm, with 0 degrees being parallel to the arm
     public static final double kMinAngleRad = Units.degreesToRadians(45);
     public static final double kMaxAngleRad = Units.degreesToRadians(135);
-    public static final double kStartAngleRad = Units.degreesToRadians(67);
+    public static final double kStowedAngleRad = Units.degreesToRadians(67);
   }
 }

@@ -1,11 +1,15 @@
 package frc.robot.util;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import frc.robot.Constants;
 import frc.robot.Constants.AimDriveMode;
+import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.Constants.WristConstants;
 import org.littletonrobotics.junction.Logger;
 
 public class TargetingUtil {
@@ -73,7 +77,50 @@ public class TargetingUtil {
         angle = 0.0;
         break;
     }
-    Logger.recordOutput("Drive/AimLockSetpoint", angle);
+    Logger.recordOutput("Odometry/AimLockSetpoint", angle);
     return angle;
+  }
+
+  /*
+   * Returns the distance to the speaker from the robot's current pose.
+   */
+  public static double getDistanceToSpeaker(Pose2d robotPose) {
+    double distance =
+        robotPose
+            .getTranslation()
+            .getDistance(
+                VisionConstants.kTagLayout.getTagPose(4).get().toPose2d().getTranslation());
+    Logger.recordOutput("Odometry/DistanceToSpeaker", distance);
+    return distance;
+  }
+
+  /*
+   * Returns the angle of the wrist in radians based on the distance to the speaker.
+   */
+  public static double getWristAngle(double distanceToSpeaker) {
+    double angle = 0.0;
+    if (distanceToSpeaker < Constants.kCloseShotThresholdMeters) {
+      // close shot
+      angle = 0.491 * Math.atan(1 / distanceToSpeaker) + 0.586;
+    } else {
+      // far shot
+      angle = 0.491 * Math.atan(1 / distanceToSpeaker) + 0.586;
+    }
+    angle = MathUtil.clamp(angle, WristConstants.kMinAngleRad, WristConstants.kMaxAngleRad);
+    Logger.recordOutput("Wrist/AngleSetpoint", angle);
+    return angle;
+  }
+
+  /*
+   * Returns the shooter velocity in RPM based on the distance to the speaker.
+   */
+  public static double getShooterRPM(double distanceToSpeaker) {
+    if (distanceToSpeaker < Constants.kCloseShotThresholdMeters) {
+      // close shot
+      return ShooterConstants.kShootCloseVelocityRPM;
+    } else {
+      // far shot
+      return ShooterConstants.kShootFarVelocityRPM;
+    }
   }
 }

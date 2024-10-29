@@ -12,7 +12,7 @@ public class Feeder extends SubsystemBase {
   private final FeederIO m_io;
   private final FeederIOInputsAutoLogged m_inputs = new FeederIOInputsAutoLogged();
 
-  private double voltage = 0.0;
+  private double m_voltage = 0.0;
 
   /** Creates a new Feeder. */
   public Feeder(FeederIO io) {
@@ -25,7 +25,7 @@ public class Feeder extends SubsystemBase {
     m_io.updateInputs(m_inputs);
     Logger.processInputs("Feeder", m_inputs);
 
-    runVolts(voltage);
+    runVolts(m_voltage);
 
     Logger.recordOutput(
         "Feeder/RPM", Units.radiansPerSecondToRotationsPerMinute(m_inputs.velocityRadPerSec));
@@ -38,12 +38,36 @@ public class Feeder extends SubsystemBase {
 
   /** Set a voltage to run at constantly */
   public void runAtVoltage(double volts) {
-    voltage = volts;
+    m_voltage = volts;
   }
 
   /** Stops the Feeder. */
   public void stop() {
-    voltage = 0.0;
+    m_voltage = 0.0;
     m_io.stop();
+
+    // Cancel the beambreak broken after delay
+    if (m_io instanceof FeederIOSim) {
+      ((FeederIOSim) m_io).cancelSetBeambreak();
+    }
+  }
+
+  /** Gets the state of the beambreak */
+  public boolean getBeambreakBroken() {
+    return m_inputs.beambreakBroken;
+  }
+
+  /** Sets the beambreak to be broken after a delay in simulation */
+  public void setBeambreakBrokenAfterDelay() {
+    if (m_io instanceof FeederIOSim) {
+      ((FeederIOSim) m_io).setBeambreakBrokenAfterDelay();
+    }
+  }
+
+  /** Sets the beambreak to be unbroken after a delay in simulation */
+  public void setBeambreakUnbrokenAfterDelay() {
+    if (m_io instanceof FeederIOSim) {
+      ((FeederIOSim) m_io).setBeambreakUnbrokenAfterDelay();
+    }
   }
 }
