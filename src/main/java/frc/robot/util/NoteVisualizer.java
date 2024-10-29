@@ -101,6 +101,10 @@ public class NoteVisualizer {
 
   /** Shoots note from middle of arm to speaker */
   public static Command shoot() {
+    // If there is no note, return a command that does nothing
+    if (!hasNote) {
+      return Commands.none();
+    }
     return new ScheduleCommand( // Branch off and exit immediately
         Commands.defer(
                 () -> {
