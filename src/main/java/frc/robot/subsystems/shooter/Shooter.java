@@ -15,6 +15,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.util.TunablePIDController;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Shooter extends SubsystemBase {
@@ -153,5 +154,11 @@ public class Shooter extends SubsystemBase {
   /** Returns a command to run a dynamic test in the specified direction. */
   public Command sysIdDynamic(SysIdRoutine.Direction direction) {
     return m_sysId.dynamic(direction);
+  }
+
+  /** True if the shooter is at its target RPM */
+  @AutoLogOutput(key = "Shooter/AtSetpoint")
+  public boolean atSetpoint() {
+    return m_isPidEnabled && m_motor1PID.atSetpoint() && m_motor2PID.atSetpoint();
   }
 }

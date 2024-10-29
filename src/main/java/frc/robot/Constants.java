@@ -35,6 +35,8 @@ public final class Constants {
 
   public static final double kLoopPeriodSecs = 0.02;
 
+  public static final double kCloseShotThresholdMeters = 3.1;
+
   public static final class ControllerConstants {
     public static final int kDriverControllerPort = 0;
     public static final double kDriverControllerDeadband = 0.1;

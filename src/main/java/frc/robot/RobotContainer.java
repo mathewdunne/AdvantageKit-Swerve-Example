@@ -12,9 +12,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
-import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ModuleLocation;
+import frc.robot.commands.AimAtSpeakerCmd;
 import frc.robot.commands.IntakeCmd;
 import frc.robot.commands.SwerveDriveCmd;
 import frc.robot.subsystems.arm.Arm;
@@ -180,11 +180,19 @@ public class RobotContainer {
     m_driverController
         .rightStick()
         .onTrue(new InstantCommand(() -> m_swerveDrive.resetOdometry()).ignoringDisable(true));
-    // Aimbot
+        
+    // Aim for speaker shot
     m_driverController
         .leftTrigger(0.1)
-        .onTrue(
-            new InstantCommand(() -> m_masterDriveCmd.setAimDriveMode(AimDriveMode.AIM_SPEAKER)));
+        .whileTrue(
+            new AimAtSpeakerCmd(
+                m_shooter,
+                m_feeder,
+                m_wrist,
+                m_arm,
+                m_driverController,
+                m_swerveDrive::getPose,
+                m_masterDriveCmd::setAimDriveMode));
 
     // Arm up
     m_driverController
