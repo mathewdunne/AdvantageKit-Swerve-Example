@@ -40,7 +40,7 @@ import frc.robot.util.TunablePIDController;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-public class SwerveSubsystem extends SubsystemBase {
+public class SwerveDrive extends SubsystemBase {
   private static final double m_maxLinearSpeed = DriveConstants.kMaxSpeedMetersPerSecond;
   private static final double m_trackWidthX =
       Units.inchesToMeters(DriveConstants.kTrackLengthInches);
@@ -75,7 +75,7 @@ public class SwerveSubsystem extends SubsystemBase {
   // Aimbot PID controller, used for all aim to target functions
   private final PIDController m_aimLockPID;
 
-  public SwerveSubsystem(
+  public SwerveDrive(
       GyroIO gyroIO,
       ModuleIO flModuleIO,
       ModuleIO frModuleIO,
@@ -346,5 +346,10 @@ public class SwerveSubsystem extends SubsystemBase {
   /** Returns the AimLock PID controller used for aiming to a desired angle */
   public PIDController getAimLockPID() {
     return m_aimLockPID;
+  }
+
+  /** Gets whether or not the AimLock PID is at its setpoint */
+  public boolean aimedAtSetpoint() {
+    return m_aimLockPID.atSetpoint();
   }
 }

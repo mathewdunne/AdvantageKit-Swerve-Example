@@ -45,7 +45,7 @@ public class IntakeCmd extends Command {
   @Override
   public void initialize() {
     m_intake.runAtVoltage(IntakeConstants.kIntakeVoltage);
-    m_feeder.runAtVoltage(FeederConstants.kFeedVoltage);
+    m_feeder.runAtVoltage(FeederConstants.kIntakeVoltage);
 
     // Simulate a note being intaked by breaking the beambreak after a delay
     if (Robot.isSimulation()) {

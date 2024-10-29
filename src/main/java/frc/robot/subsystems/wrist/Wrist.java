@@ -210,4 +210,10 @@ public class Wrist extends SubsystemBase {
     return m_pidController.atGoal()
         && m_pidController.getGoal().position == WristConstants.kStowedAngleRad;
   }
+
+  /** True if the wrist PID is at its setpoint */
+  @AutoLogOutput(key = "Wrist/AtSetpoint")
+  public boolean atSetpoint() {
+    return m_pidController.atGoal();
+  }
 }
