@@ -12,7 +12,7 @@ public class Intake extends SubsystemBase {
   private final IntakeIO m_io;
   private final IntakeIOInputsAutoLogged m_inputs = new IntakeIOInputsAutoLogged();
 
-  private double voltage = 0.0;
+  private double m_voltage = 0.0;
 
   /** Creates a new Intake. */
   public Intake(IntakeIO io) {
@@ -25,7 +25,7 @@ public class Intake extends SubsystemBase {
     m_io.updateInputs(m_inputs);
     Logger.processInputs("Intake", m_inputs);
 
-    runVolts(voltage);
+    runVolts(m_voltage);
 
     Logger.recordOutput(
         "Intake/RPM", Units.radiansPerSecondToRotationsPerMinute(m_inputs.velocityRadPerSec));
@@ -38,12 +38,12 @@ public class Intake extends SubsystemBase {
 
   /** Set a voltage to run at constantly */
   public void runAtVoltage(double volts) {
-    voltage = volts;
+    m_voltage = volts;
   }
 
   /** Stops the Intake. */
   public void stop() {
-    voltage = 0.0;
+    m_voltage = 0.0;
     m_io.stop();
   }
 }

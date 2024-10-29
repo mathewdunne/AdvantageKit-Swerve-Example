@@ -24,6 +24,7 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
 import frc.robot.Constants.ArmConstants;
 import frc.robot.util.TunableProfiledPIDController;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Arm extends SubsystemBase {
@@ -61,7 +62,7 @@ public class Arm extends SubsystemBase {
             new MechanismLigament2d(
                 "ArmLigament",
                 ArmConstants.kLengthMeters,
-                Units.radiansToDegrees(ArmConstants.kStartAngleRad),
+                Units.radiansToDegrees(ArmConstants.kStowedAngleRad),
                 4,
                 new Color8Bit(0, 0, 255)));
 
@@ -116,7 +117,7 @@ public class Arm extends SubsystemBase {
     }
 
     // Set initial setpoint
-    m_pidController.setGoal(ArmConstants.kStartAngleRad);
+    m_pidController.setGoal(ArmConstants.kStowedAngleRad);
     m_isPidEnabled = true;
 
     // Configure SysId
@@ -222,5 +223,12 @@ public class Arm extends SubsystemBase {
   /** Returns the angle of the arm Mechanism2d in radians. */
   public double getMechanismAngle() {
     return Units.degreesToRadians(m_mechanismLigament.getAngle());
+  }
+
+  /** True if the arm PID setpoint is the stowed position and the PID is at setpoint */
+  @AutoLogOutput(key = "Arm/Stowed")
+  public boolean isStowed() {
+    return m_pidController.atGoal()
+        && m_pidController.getGoal().position == ArmConstants.kStowedAngleRad;
   }
 }

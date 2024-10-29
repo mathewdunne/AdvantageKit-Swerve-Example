@@ -22,6 +22,7 @@ import frc.robot.Constants;
 import frc.robot.Constants.WristConstants;
 import frc.robot.util.TunableProfiledPIDController;
 import java.util.function.Supplier;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Wrist extends SubsystemBase {
@@ -53,7 +54,7 @@ public class Wrist extends SubsystemBase {
             new MechanismLigament2d(
                 "WristShooterLigament",
                 WristConstants.kLengthMeters,
-                Units.radiansToDegrees(WristConstants.kStartAngleRad),
+                Units.radiansToDegrees(WristConstants.kStowedAngleRad),
                 4,
                 new Color8Bit(255, 0, 0)));
     m_intakeMechanismLigament =
@@ -61,7 +62,7 @@ public class Wrist extends SubsystemBase {
             new MechanismLigament2d(
                 "WristIntakeLigament",
                 WristConstants.kLengthMeters,
-                WristConstants.kStartAngleRad + 180,
+                WristConstants.kStowedAngleRad + 180,
                 4,
                 m_shooterMechanismLigament.getColor()));
 
@@ -115,7 +116,7 @@ public class Wrist extends SubsystemBase {
     }
 
     // Set initial setpoint
-    m_pidController.setGoal(WristConstants.kStartAngleRad);
+    m_pidController.setGoal(WristConstants.kStowedAngleRad);
     m_isPidEnabled = true;
 
     // Configure SysId
@@ -201,5 +202,12 @@ public class Wrist extends SubsystemBase {
   /** Returns the 3D pose of the intake for visualization. */
   private Pose3d getPose3d(double angleRad) {
     return new Pose3d(m_mechanismRootSupplier.get(), new Rotation3d(0, -angleRad, 0));
+  }
+
+  /** True if the wrist PID setpoint is the stowed position and the PID is at setpoint */
+  @AutoLogOutput(key = "Wrist/Stowed")
+  public boolean isStowed() {
+    return m_pidController.atGoal()
+        && m_pidController.getGoal().position == WristConstants.kStowedAngleRad;
   }
 }

@@ -17,6 +17,7 @@ public class FeederIOSim implements FeederIO {
   private boolean m_beambreakBroken = false;
   private double m_timeToUpdateBeambreak = 0.0;
   private boolean m_updateBeambreakFlag = false;
+  private boolean m_beambreakNextState = false;
 
   private Random m_rng = new Random();
 
@@ -32,7 +33,7 @@ public class FeederIOSim implements FeederIO {
 
     // Update the beambreak state if one of the update after delays was called
     if (m_updateBeambreakFlag && Timer.getFPGATimestamp() > m_timeToUpdateBeambreak) {
-      m_beambreakBroken = !m_beambreakBroken;
+      m_beambreakBroken = m_beambreakNextState;
       m_updateBeambreakFlag = false;
     }
     inputs.beambreakBroken = m_beambreakBroken;
@@ -51,14 +52,16 @@ public class FeederIOSim implements FeederIO {
 
   @Override
   public void setBeambreakBrokenAfterDelay() {
-    m_timeToUpdateBeambreak = Timer.getFPGATimestamp() + getRandomDouble(0.5, 1.5);
+    m_timeToUpdateBeambreak = Timer.getFPGATimestamp() + getRandomDouble(1, 2);
     m_updateBeambreakFlag = true;
+    m_beambreakNextState = true;
   }
 
   @Override
   public void setBeambreakUnbrokenAfterDelay() {
     m_timeToUpdateBeambreak = Timer.getFPGATimestamp() + getRandomDouble(0.2, 0.7);
     m_updateBeambreakFlag = true;
+    m_beambreakNextState = false;
   }
 
   private double getRandomDouble(double min, double max) {
