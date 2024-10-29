@@ -48,6 +48,7 @@ import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIO;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristIOSparkMax;
+import frc.robot.util.NoteVisualizer;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -162,6 +163,10 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    // Set suppliers for note visualizer
+    NoteVisualizer.setRobotPoseSupplier(m_swerveDrive::getPose);
+    NoteVisualizer.setWristPoseSupplier(m_wrist::getPose3d);
   }
 
   /**

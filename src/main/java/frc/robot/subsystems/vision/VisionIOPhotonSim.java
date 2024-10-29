@@ -9,6 +9,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Robot;
+import frc.robot.util.NoteModel;
 import java.io.IOException;
 import org.photonvision.PhotonCamera;
 import org.photonvision.estimation.TargetModel;

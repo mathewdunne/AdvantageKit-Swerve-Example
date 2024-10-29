@@ -157,7 +157,7 @@ public class Wrist extends SubsystemBase {
     m_intakeMechanismLigament.setAngle(Units.radiansToDegrees(m_inputs.absolutePositionRad));
 
     // Log the wrist pose
-    Logger.recordOutput("Mechanism3d/Wrist", getPose3d(m_inputs.realWorldPositionRad));
+    Logger.recordOutput("Mechanism3d/Wrist", getPose3d());
     Logger.recordOutput("Wrist/AngleSetpointRad", m_pidController.getSetpoint().position);
     Logger.recordOutput("Wrist/AngleGoalRad", m_pidController.getGoal().position);
     Logger.recordOutput("Wrist/ActualAngleRad", m_inputs.absolutePositionRad);
@@ -200,8 +200,9 @@ public class Wrist extends SubsystemBase {
   }
 
   /** Returns the 3D pose of the intake for visualization. */
-  private Pose3d getPose3d(double angleRad) {
-    return new Pose3d(m_mechanismRootSupplier.get(), new Rotation3d(0, -angleRad, 0));
+  public Pose3d getPose3d() {
+    return new Pose3d(
+        m_mechanismRootSupplier.get(), new Rotation3d(0, -m_inputs.realWorldPositionRad, 0));
   }
 
   /** True if the wrist PID setpoint is the stowed position and the PID is at setpoint */
@@ -214,6 +215,7 @@ public class Wrist extends SubsystemBase {
   /** True if the wrist PID is at its setpoint */
   @AutoLogOutput(key = "Wrist/AtSetpoint")
   public boolean atSetpoint() {
-    return m_pidController.atGoal();
+    return m_pidController.atSetpoint();
+    // atGoal wasn't working for some reason
   }
 }

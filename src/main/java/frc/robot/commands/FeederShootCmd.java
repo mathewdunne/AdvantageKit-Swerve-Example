@@ -5,11 +5,13 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.FeederConstants;
 import frc.robot.Robot;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.util.NoteVisualizer;
 import java.util.function.Supplier;
 
 public class FeederShootCmd extends Command {
@@ -55,6 +57,9 @@ public class FeederShootCmd extends Command {
   @Override
   public void end(boolean interrupted) {
     m_feeder.stop();
+    if (!m_feeder.getBeambreakBroken()) {
+      CommandScheduler.getInstance().schedule(NoteVisualizer.shoot());
+    }
   }
 
   // Returns true when the command should end.
