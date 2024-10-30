@@ -11,7 +11,6 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
 import frc.robot.util.AddVisionMeasurementCallback;
@@ -33,26 +32,9 @@ public class Vision extends SubsystemBase {
   private final AddVisionMeasurementCallback m_addVisionMeasurementCallback;
   private Supplier<Pose2d> m_getTrueSimPose;
 
-  private final PoseStrategy m_poseStrategy;
-
   public Vision(VisionIO io, AddVisionMeasurementCallback addVisionMeasurementCallback) {
     m_io = io;
     m_addVisionMeasurementCallback = addVisionMeasurementCallback;
-
-    switch (Constants.kCurrentMode) {
-      case REAL:
-        m_poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR;
-        break;
-      case SIM:
-        m_poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_RIO;
-        break;
-      case REPLAY:
-        m_poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_RIO;
-        break;
-      default:
-        m_poseStrategy = PoseStrategy.MULTI_TAG_PNP_ON_RIO;
-        break;
-    }
 
     m_photonEstimator =
         new PhotonPoseEstimator(

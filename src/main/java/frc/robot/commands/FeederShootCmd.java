@@ -43,7 +43,7 @@ public class FeederShootCmd extends Command {
   public void execute() {
     if (m_shooter.atSetpoint() && m_wrist.atSetpoint() && m_swerveAtSetpointSupplier.get()) {
       m_feeder.runAtVoltage(FeederConstants.kFeedVoltage);
-      
+
       // Simulate a note being shot by un-breaking the beambreak after a delay
       if (Robot.isSimulation()) {
         m_feeder.setBeambreakUnbrokenAfterDelay();
