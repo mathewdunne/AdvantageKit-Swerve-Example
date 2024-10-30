@@ -215,7 +215,11 @@ public class Wrist extends SubsystemBase {
   /** True if the wrist PID is at its setpoint */
   @AutoLogOutput(key = "Wrist/AtSetpoint")
   public boolean atSetpoint() {
-    return m_pidController.atSetpoint();
+    return m_pidController.getGoal().position + WristConstants.kToleranceRad
+            > m_inputs.absolutePositionRad
+        && m_inputs.absolutePositionRad
+            > m_pidController.getGoal().position - WristConstants.kToleranceRad
+        && Math.abs(m_inputs.velocityRadPerSec) < WristConstants.kToleranceRad;
     // atGoal wasn't working for some reason
   }
 }

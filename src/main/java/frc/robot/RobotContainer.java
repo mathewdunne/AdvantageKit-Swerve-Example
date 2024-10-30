@@ -19,6 +19,7 @@ import frc.robot.Constants.ModuleLocation;
 import frc.robot.commands.AimAtSpeakerCmd;
 import frc.robot.commands.AmpCmd;
 import frc.robot.commands.FeederAmpCmd;
+import frc.robot.commands.FeederEjectCmd;
 import frc.robot.commands.FeederShootCmd;
 import frc.robot.commands.IntakeCmd;
 import frc.robot.commands.SwerveDriveCmd;
@@ -275,6 +276,9 @@ public class RobotContainer {
     m_driverController
         .x()
         .onTrue(new InstantCommand(() -> m_driveCmd.setAimDriveMode(AimDriveMode.FACE_BACKWARD)));
+
+    // Eject
+    m_driverController.back().whileTrue(new FeederEjectCmd(m_feeder, m_wrist, m_arm));
   }
 
   /**

@@ -22,7 +22,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class NoteVisualizer {
   private static final double shotSpeed = 15.0; // Meters per sec
-  private static final double ejectSpeed = 2.0; // Meters per sec
+  private static final double ejectSpeed = 1.5; // Meters per sec
   private static Supplier<Pose2d> robotPoseSupplier = Pose2d::new;
   private static Supplier<Pose3d> wristPoseSupplier = Pose3d::new;
   private static final List<Translation2d> autoNotes = new ArrayList<>();
@@ -165,16 +165,15 @@ public class NoteVisualizer {
             .ignoringDisable(true));
   }
 
+  /** Ejects note out the back of the indexer */
   public static Command eject() {
     return new ScheduleCommand( // Branch off and exit immediately
         Commands.defer(
                 () -> {
                   hasNote = false;
                   final Pose3d startPose = getIndexerPose3d();
-                  System.out.println(getIndexerPose3d().getZ());
                   final Pose3d endPose =
-                      startPose.transformBy(
-                          new Transform3d(2, 0, -1 + startPose.getZ(), new Rotation3d()));
+                      startPose.transformBy(new Transform3d(-0.5, 0, 0, new Rotation3d()));
 
                   final double duration =
                       startPose.getTranslation().getDistance(endPose.getTranslation()) / ejectSpeed;
@@ -189,7 +188,7 @@ public class NoteVisualizer {
                                   }))
                       .until(() -> timer.hasElapsed(duration))
                       .finallyDo(
-                          () -> Logger.recordOutput("NoteVisualizer/EjectNotes", new Pose3d[] {}));
+                          () -> Logger.recordOutput("NoteVisualizer/ShotNotes", new Pose3d[] {}));
                 },
                 Set.of())
             .ignoringDisable(true));
