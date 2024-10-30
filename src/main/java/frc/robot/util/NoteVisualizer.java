@@ -136,6 +136,35 @@ public class NoteVisualizer {
             .ignoringDisable(true));
   }
 
+  /** Shoots note from middle of arm to just in front (roughly where amp should be) */
+  public static Command amp() {
+    return new ScheduleCommand( // Branch off and exit immediately
+        Commands.defer(
+                () -> {
+                  hasNote = false;
+                  final Pose3d startPose = getIndexerPose3d();
+                  final Pose3d endPose =
+                      startPose.transformBy(new Transform3d(0.5, 0, 0, new Rotation3d()));
+
+                  final double duration =
+                      startPose.getTranslation().getDistance(endPose.getTranslation()) / ejectSpeed;
+                  final Timer timer = new Timer();
+                  timer.start();
+                  return Commands.run(
+                          () ->
+                              Logger.recordOutput(
+                                  "NoteVisualizer/ShotNotes",
+                                  new Pose3d[] {
+                                    startPose.interpolate(endPose, timer.get() / duration)
+                                  }))
+                      .until(() -> timer.hasElapsed(duration))
+                      .finallyDo(
+                          () -> Logger.recordOutput("NoteVisualizer/ShotNotes", new Pose3d[] {}));
+                },
+                Set.of())
+            .ignoringDisable(true));
+  }
+
   public static Command eject() {
     return new ScheduleCommand( // Branch off and exit immediately
         Commands.defer(

@@ -11,6 +11,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ModuleLocation;
@@ -184,6 +185,13 @@ public class RobotContainer {
   private void configureButtonBindings() {
     m_swerveDrive.setDefaultCommand(m_driveCmd);
 
+    // Create custom triggers based on the right trigger input and arm position
+    Trigger rightTriggerArmUp =
+        new Trigger(() -> m_driverController.getRightTriggerAxis() > 0.1 && !m_arm.isStowed());
+
+    Trigger rightTriggerArmDown =
+        new Trigger(() -> m_driverController.getRightTriggerAxis() > 0.1 && m_arm.isStowed());
+
     // Toggle field oriented / robot oriented drive
     m_driverController
         .leftStick()
@@ -241,13 +249,11 @@ public class RobotContainer {
     m_driverController
         .a()
         .onTrue(new AmpCmd(m_shooter, m_feeder, m_wrist, m_arm, m_driveCmd::setAimDriveMode));
-    m_driverController.b().onTrue(new FeederAmpCmd(m_feeder, m_wrist, m_arm));
 
     // Shoot
-    m_driverController
-        .rightTrigger(0.1)
-        .whileTrue(
-            new FeederShootCmd(m_feeder, m_shooter, m_wrist, m_swerveDrive::aimedAtSetpoint));
+    rightTriggerArmDown.whileTrue(
+        new FeederShootCmd(m_feeder, m_shooter, m_wrist, m_swerveDrive::aimedAtSetpoint));
+    rightTriggerArmUp.whileTrue(new FeederAmpCmd(m_feeder, m_wrist, m_arm));
   }
 
   /**

@@ -51,7 +51,7 @@ public class FeederAmpCmd extends Command {
   public void end(boolean interrupted) {
     m_feeder.stop();
     if (!m_feeder.getBeambreakBroken() && NoteVisualizer.getHasNote()) {
-      NoteVisualizer.shoot().schedule();
+      NoteVisualizer.amp().schedule();
     }
 
     // stow the arm and wrist
