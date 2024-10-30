@@ -15,6 +15,7 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.util.NoteVisualizer;
 
 public class IntakeCmd extends Command {
   /** Creates a new IntakeCmd. */
@@ -73,6 +74,9 @@ public class IntakeCmd extends Command {
   public void end(boolean interrupted) {
     m_intake.stop();
     m_feeder.stop();
+    if (m_feeder.getBeambreakBroken()) {
+      NoteVisualizer.setHasNote(true);
+    }
   }
 
   // Returns true when the command should end.

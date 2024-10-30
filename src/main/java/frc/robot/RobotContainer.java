@@ -11,10 +11,15 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ModuleLocation;
 import frc.robot.commands.AimAtSpeakerCmd;
+import frc.robot.commands.AmpCmd;
+import frc.robot.commands.FeederAmpCmd;
+import frc.robot.commands.FeederEjectCmd;
 import frc.robot.commands.FeederShootCmd;
 import frc.robot.commands.IntakeCmd;
 import frc.robot.commands.SwerveDriveCmd;
@@ -48,6 +53,7 @@ import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.subsystems.wrist.WristIO;
 import frc.robot.subsystems.wrist.WristIOSim;
 import frc.robot.subsystems.wrist.WristIOSparkMax;
+import frc.robot.util.NoteVisualizer;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -74,7 +80,7 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> m_autoChooser;
 
   // Commands
-  private final SwerveDriveCmd m_masterDriveCmd;
+  private final SwerveDriveCmd m_driveCmd;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -153,7 +159,7 @@ public class RobotContainer {
     addSysIDRoutines(m_autoChooser);
 
     // Create master drive command
-    m_masterDriveCmd =
+    m_driveCmd =
         new SwerveDriveCmd(
             m_swerveDrive,
             () -> -m_driverController.getLeftY(),
@@ -162,6 +168,14 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    // Set suppliers for note visualizer
+    if (Robot.isSimulation()) {
+      NoteVisualizer.setRobotPoseSupplier(m_swerveDrive::getSimTruePose);
+    } else {
+      NoteVisualizer.setRobotPoseSupplier(m_swerveDrive::getPose);
+    }
+    NoteVisualizer.setWristPoseSupplier(m_wrist::getPose3d);
   }
 
   /**
@@ -171,12 +185,19 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    m_swerveDrive.setDefaultCommand(m_masterDriveCmd);
+    m_swerveDrive.setDefaultCommand(m_driveCmd);
+
+    // Create custom triggers based on the right trigger input and arm position
+    Trigger rightTriggerArmUp =
+        new Trigger(() -> m_driverController.getRightTriggerAxis() > 0.1 && !m_arm.isStowed());
+
+    Trigger rightTriggerArmDown =
+        new Trigger(() -> m_driverController.getRightTriggerAxis() > 0.1 && m_arm.isStowed());
 
     // Toggle field oriented / robot oriented drive
     m_driverController
         .leftStick()
-        .onTrue(new InstantCommand(() -> m_masterDriveCmd.toggleBaseDriveMode()));
+        .onTrue(new InstantCommand(() -> m_driveCmd.toggleBaseDriveMode()));
     // Reset robot pose to 0, 0
     m_driverController
         .rightStick()
@@ -224,13 +245,40 @@ public class RobotContainer {
                 m_arm,
                 m_driverController,
                 m_swerveDrive::getPose,
-                m_masterDriveCmd::setAimDriveMode));
+                m_driveCmd::setAimDriveMode));
+
+    // Amp
+    m_driverController
+        .a()
+        .onTrue(new AmpCmd(m_shooter, m_feeder, m_wrist, m_arm, m_driveCmd::setAimDriveMode));
 
     // Shoot
+    rightTriggerArmDown.whileTrue(
+        new FeederShootCmd(m_feeder, m_shooter, m_wrist, m_swerveDrive::aimedAtSetpoint));
+    rightTriggerArmUp.whileTrue(new FeederAmpCmd(m_feeder, m_wrist, m_arm));
+
+    // snap to amp
     m_driverController
-        .rightTrigger(0.1)
-        .whileTrue(
-            new FeederShootCmd(m_feeder, m_shooter, m_wrist, m_swerveDrive::aimedAtSetpoint));
+        .start()
+        .onTrue(new InstantCommand(() -> m_driveCmd.setAimDriveMode(AimDriveMode.FACE_AMP)));
+
+    // snap to source
+    m_driverController
+        .b()
+        .onTrue(new InstantCommand(() -> m_driveCmd.setAimDriveMode(AimDriveMode.FACE_SOURCE)));
+
+    // Face forward
+    m_driverController
+        .y()
+        .onTrue(new InstantCommand(() -> m_driveCmd.setAimDriveMode(AimDriveMode.FACE_FORWARD)));
+
+    // Face backward
+    m_driverController
+        .x()
+        .onTrue(new InstantCommand(() -> m_driveCmd.setAimDriveMode(AimDriveMode.FACE_BACKWARD)));
+
+    // Eject
+    m_driverController.back().whileTrue(new FeederEjectCmd(m_feeder, m_wrist, m_arm));
   }
 
   /**

@@ -87,7 +87,7 @@ public class Wrist extends SubsystemBase {
         m_ffModel = new ArmFeedforward(0.1, 0.05, 0.01);
         m_pidController =
             new TunableProfiledPIDController(
-                1,
+                5,
                 0,
                 1,
                 WristConstants.kToleranceRad,
@@ -100,7 +100,7 @@ public class Wrist extends SubsystemBase {
         m_ffModel = new ArmFeedforward(0.0, 3.1407, 0.79481, 0.037738);
         m_pidController =
             new TunableProfiledPIDController(
-                1,
+                5,
                 0,
                 1,
                 WristConstants.kToleranceRad,
@@ -157,7 +157,7 @@ public class Wrist extends SubsystemBase {
     m_intakeMechanismLigament.setAngle(Units.radiansToDegrees(m_inputs.absolutePositionRad));
 
     // Log the wrist pose
-    Logger.recordOutput("Mechanism3d/Wrist", getPose3d(m_inputs.realWorldPositionRad));
+    Logger.recordOutput("Mechanism3d/Wrist", getPose3d());
     Logger.recordOutput("Wrist/AngleSetpointRad", m_pidController.getSetpoint().position);
     Logger.recordOutput("Wrist/AngleGoalRad", m_pidController.getGoal().position);
     Logger.recordOutput("Wrist/ActualAngleRad", m_inputs.absolutePositionRad);
@@ -200,8 +200,9 @@ public class Wrist extends SubsystemBase {
   }
 
   /** Returns the 3D pose of the intake for visualization. */
-  private Pose3d getPose3d(double angleRad) {
-    return new Pose3d(m_mechanismRootSupplier.get(), new Rotation3d(0, -angleRad, 0));
+  public Pose3d getPose3d() {
+    return new Pose3d(
+        m_mechanismRootSupplier.get(), new Rotation3d(0, -m_inputs.realWorldPositionRad, 0));
   }
 
   /** True if the wrist PID setpoint is the stowed position and the PID is at setpoint */
@@ -214,6 +215,11 @@ public class Wrist extends SubsystemBase {
   /** True if the wrist PID is at its setpoint */
   @AutoLogOutput(key = "Wrist/AtSetpoint")
   public boolean atSetpoint() {
-    return m_pidController.atGoal();
+    return m_pidController.getGoal().position + WristConstants.kToleranceRad
+            > m_inputs.absolutePositionRad
+        && m_inputs.absolutePositionRad
+            > m_pidController.getGoal().position - WristConstants.kToleranceRad
+        && Math.abs(m_inputs.velocityRadPerSec) < WristConstants.kToleranceRad;
+    // atGoal wasn't working for some reason
   }
 }
