@@ -116,6 +116,7 @@ public final class Constants {
     public static final double kPassCloseVelocityRPM = 2800;
     public static final double kPassFarVelocityRPM = 3700;
     public static final double kPassVelocityRPM = 3300;
+    public static final double[] kAmpVoltages = {0.4 * 12, 0.2 * 12};
 
     public static final int kLeaderMotorPort = 10;
     public static final int kFollowerMotorPort = 11;
@@ -210,6 +211,7 @@ public final class Constants {
         Units.degreesToRadians(6); // 0 rad is horizontal, hardstop is slightly above
     public static final double kMaxAngleRad = Units.degreesToRadians(85); // max is almost vertical
     public static final double kStowedAngleRad = kMinAngleRad;
+    public static final double kAmpAngleRad = Units.degreesToRadians(85);
   }
 
   public static class WristConstants {
@@ -235,5 +237,6 @@ public final class Constants {
     public static final double kMinAngleRad = Units.degreesToRadians(45);
     public static final double kMaxAngleRad = Units.degreesToRadians(135);
     public static final double kStowedAngleRad = Units.degreesToRadians(67);
+    public static final double kAmpAngleRad = Units.degreesToRadians(60);
   }
 }

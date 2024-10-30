@@ -128,6 +128,15 @@ public class Shooter extends SubsystemBase {
     m_io.setVoltage(volts);
   }
 
+  /*
+   * Run both motors at separate voltages
+   * Needs to be called periodically
+   */
+  public void runSeparateVoltages(double volts1, double volts2) {
+    m_isPidEnabled = false;
+    m_io.setVoltage(volts1, volts2);
+  }
+
   /** Run closed loop at the specified velocity. */
   public void runAtVelocityRPM(double velocityRPM) {
     double velocityRadPerSec = Units.rotationsPerMinuteToRadiansPerSecond(velocityRPM);

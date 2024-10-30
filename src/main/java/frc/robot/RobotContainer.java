@@ -15,6 +15,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ModuleLocation;
 import frc.robot.commands.AimAtSpeakerCmd;
+import frc.robot.commands.AmpCmd;
+import frc.robot.commands.FeederAmpCmd;
 import frc.robot.commands.FeederShootCmd;
 import frc.robot.commands.IntakeCmd;
 import frc.robot.commands.SwerveDriveCmd;
@@ -75,7 +77,7 @@ public class RobotContainer {
   private final LoggedDashboardChooser<Command> m_autoChooser;
 
   // Commands
-  private final SwerveDriveCmd m_masterDriveCmd;
+  private final SwerveDriveCmd m_driveCmd;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -154,7 +156,7 @@ public class RobotContainer {
     addSysIDRoutines(m_autoChooser);
 
     // Create master drive command
-    m_masterDriveCmd =
+    m_driveCmd =
         new SwerveDriveCmd(
             m_swerveDrive,
             () -> -m_driverController.getLeftY(),
@@ -180,12 +182,12 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    m_swerveDrive.setDefaultCommand(m_masterDriveCmd);
+    m_swerveDrive.setDefaultCommand(m_driveCmd);
 
     // Toggle field oriented / robot oriented drive
     m_driverController
         .leftStick()
-        .onTrue(new InstantCommand(() -> m_masterDriveCmd.toggleBaseDriveMode()));
+        .onTrue(new InstantCommand(() -> m_driveCmd.toggleBaseDriveMode()));
     // Reset robot pose to 0, 0
     m_driverController
         .rightStick()
@@ -233,7 +235,13 @@ public class RobotContainer {
                 m_arm,
                 m_driverController,
                 m_swerveDrive::getPose,
-                m_masterDriveCmd::setAimDriveMode));
+                m_driveCmd::setAimDriveMode));
+
+    // Amp
+    m_driverController
+        .a()
+        .onTrue(new AmpCmd(m_shooter, m_feeder, m_wrist, m_arm, m_driveCmd::setAimDriveMode));
+    m_driverController.b().onTrue(new FeederAmpCmd(m_feeder, m_wrist, m_arm));
 
     // Shoot
     m_driverController
