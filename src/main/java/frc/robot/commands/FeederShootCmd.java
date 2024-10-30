@@ -57,7 +57,7 @@ public class FeederShootCmd extends Command {
   @Override
   public void end(boolean interrupted) {
     m_feeder.stop();
-    if (!m_feeder.getBeambreakBroken()) {
+    if (!m_feeder.getBeambreakBroken() && NoteVisualizer.getHasNote()) {
       CommandScheduler.getInstance().schedule(NoteVisualizer.shoot());
     }
   }

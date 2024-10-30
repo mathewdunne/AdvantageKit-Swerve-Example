@@ -44,6 +44,11 @@ public class NoteVisualizer {
     NoteVisualizer.hasNote = hasNote;
   }
 
+  // Getters for static fields
+  public static boolean getHasNote() {
+    return hasNote;
+  }
+
   /** Show all staged notes for alliance */
   public static void showAutoNotes() {
     if (autoNotes.isEmpty()) {
@@ -101,10 +106,6 @@ public class NoteVisualizer {
 
   /** Shoots note from middle of arm to speaker */
   public static Command shoot() {
-    // If there is no note, return a command that does nothing
-    if (!hasNote) {
-      return Commands.none();
-    }
     return new ScheduleCommand( // Branch off and exit immediately
         Commands.defer(
                 () -> {
