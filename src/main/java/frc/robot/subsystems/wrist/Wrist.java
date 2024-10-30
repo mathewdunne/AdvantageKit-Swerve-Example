@@ -87,7 +87,7 @@ public class Wrist extends SubsystemBase {
         m_ffModel = new ArmFeedforward(0.1, 0.05, 0.01);
         m_pidController =
             new TunableProfiledPIDController(
-                1,
+                5,
                 0,
                 1,
                 WristConstants.kToleranceRad,
@@ -100,7 +100,7 @@ public class Wrist extends SubsystemBase {
         m_ffModel = new ArmFeedforward(0.0, 3.1407, 0.79481, 0.037738);
         m_pidController =
             new TunableProfiledPIDController(
-                1,
+                5,
                 0,
                 1,
                 WristConstants.kToleranceRad,
