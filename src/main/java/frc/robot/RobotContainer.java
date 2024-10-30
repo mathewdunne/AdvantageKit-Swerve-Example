@@ -13,6 +13,7 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ModuleLocation;
 import frc.robot.commands.AimAtSpeakerCmd;
@@ -254,6 +255,26 @@ public class RobotContainer {
     rightTriggerArmDown.whileTrue(
         new FeederShootCmd(m_feeder, m_shooter, m_wrist, m_swerveDrive::aimedAtSetpoint));
     rightTriggerArmUp.whileTrue(new FeederAmpCmd(m_feeder, m_wrist, m_arm));
+
+    // snap to amp
+    m_driverController
+        .start()
+        .onTrue(new InstantCommand(() -> m_driveCmd.setAimDriveMode(AimDriveMode.FACE_AMP)));
+
+    // snap to source
+    m_driverController
+        .b()
+        .onTrue(new InstantCommand(() -> m_driveCmd.setAimDriveMode(AimDriveMode.FACE_SOURCE)));
+
+    // Face forward
+    m_driverController
+        .y()
+        .onTrue(new InstantCommand(() -> m_driveCmd.setAimDriveMode(AimDriveMode.FACE_FORWARD)));
+
+    // Face backward
+    m_driverController
+        .x()
+        .onTrue(new InstantCommand(() -> m_driveCmd.setAimDriveMode(AimDriveMode.FACE_BACKWARD)));
   }
 
   /**
