@@ -36,18 +36,18 @@ public class FeederShootCmd extends Command {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    // Simulate a note being shot by un-breaking the beambreak after a delay
-    if (Robot.isSimulation()) {
-      m_feeder.setBeambreakUnbrokenAfterDelay();
-    }
-  }
+  public void initialize() {}
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
     if (m_shooter.atSetpoint() && m_wrist.atSetpoint() && m_swerveAtSetpointSupplier.get()) {
       m_feeder.runAtVoltage(FeederConstants.kFeedVoltage);
+      
+      // Simulate a note being shot by un-breaking the beambreak after a delay
+      if (Robot.isSimulation()) {
+        m_feeder.setBeambreakUnbrokenAfterDelay();
+      }
     } else {
       m_feeder.stop();
     }
