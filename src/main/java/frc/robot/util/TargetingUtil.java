@@ -3,6 +3,7 @@ package frc.robot.util;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants;
@@ -122,5 +123,15 @@ public class TargetingUtil {
       // far shot
       return ShooterConstants.kShootFarVelocityRPM;
     }
+  }
+
+  /*
+   * Returns the error angle in radians to the closest note
+   */
+  public static double getAngleToNote(double pitch, double yaw) {
+    double angle = yaw + 0.391 * pitch + 0.478;
+    double radians = Units.degreesToRadians(angle);
+    Logger.recordOutput("Vision/AngleToNote", radians);
+    return radians;
   }
 }

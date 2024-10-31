@@ -156,7 +156,8 @@ public final class Constants {
     FACE_BACKWARD,
     FACE_AMP,
     FACE_SOURCE,
-    LOB_PASS
+    LOB_PASS,
+    TRACK_NOTE,
   }
 
   public static class AimLockConstants {

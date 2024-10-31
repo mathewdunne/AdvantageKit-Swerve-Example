@@ -85,13 +85,13 @@ public class VisionIOPhotonSim implements VisionIO {
 
   @Override
   public void updateInputs(VisionIOInputs inputs) {
-    PhotonPipelineResult result = m_shooterCamera.getLatestResult();
-    inputs.apriltagCamTimestamp = result.getTimestampSeconds();
-    inputs.apriltagCamPipelineResult = VisionIOInputs.serializePipelineResult(result);
+    PhotonPipelineResult resultShooter = m_shooterCamera.getLatestResult();
+    inputs.apriltagCamTimestamp = resultShooter.getTimestampSeconds();
+    inputs.apriltagCamPipelineResult = VisionIOInputs.serializePipelineResult(resultShooter);
 
-    result = m_intakeCamera.getLatestResult();
-    inputs.intakeCamTimestamp = result.getTimestampSeconds();
-    inputs.intakeCamPipelineResult = VisionIOInputs.serializePipelineResult(result);
+    PhotonPipelineResult resultIntake = m_intakeCamera.getLatestResult();
+    inputs.intakeCamTimestamp = resultIntake.getTimestampSeconds();
+    inputs.intakeCamPipelineResult = VisionIOInputs.serializePipelineResult(resultIntake);
   }
 
   @Override

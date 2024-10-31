@@ -234,6 +234,27 @@ public class RobotContainer {
         .rightBumper()
         .whileTrue(new IntakeCmd(m_intake, m_feeder, m_wrist, m_arm, m_driverController));
 
+    // Track Note
+    m_driverController
+        .leftBumper()
+        .whileTrue(
+            new InstantCommand(
+                () -> {
+                  m_driveCmd.setAimDriveMode(AimDriveMode.TRACK_NOTE);
+                  m_driveCmd.setRobotOriented();
+                }))
+        .onFalse(
+            new InstantCommand(
+                () -> {
+                  m_driveCmd.setAimDriveMode(AimDriveMode.NONE);
+                  m_driveCmd.setFieldOriented();
+                }));
+
+    // move to pose temp
+    m_driverController
+        .povDown()
+        .whileTrue(new InstantCommand(() -> m_swerveDrive.moveToTestPose()));
+
     // Aim for speaker shot
     m_driverController
         .leftTrigger(0.1)

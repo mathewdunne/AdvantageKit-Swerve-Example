@@ -10,6 +10,7 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
@@ -51,7 +52,7 @@ public class Vision extends SubsystemBase {
     Logger.processInputs("Vision", m_inputs);
 
     // Check for new apriltag data
-    PhotonPipelineResult result =
+    PhotonPipelineResult aprilTagResult =
         VisionIOInputs.deserializePipelineResult(
             m_inputs.apriltagCamPipelineResult, m_inputs.apriltagCamTimestamp);
 
@@ -61,13 +62,13 @@ public class Vision extends SubsystemBase {
       m_lastEstTimestampApriltags = latestTimestamp;
 
       // Update the photonEstimator with the latest result
-      Optional<EstimatedRobotPose> estimatedPose = m_photonEstimator.update(result);
+      Optional<EstimatedRobotPose> estimatedPose = m_photonEstimator.update(aprilTagResult);
 
       // Handle the estimated pose (e.g., feed it into a pose estimator or odometry)
       if (estimatedPose.isPresent()) {
         EstimatedRobotPose estPose = estimatedPose.get();
         Pose2d robotPose = estPose.estimatedPose.toPose2d();
-        Matrix<N3, N1> estStdDevs = getEstimationStdDevs(robotPose, result);
+        Matrix<N3, N1> estStdDevs = getEstimationStdDevs(robotPose, aprilTagResult);
         m_addVisionMeasurementCallback.execute(robotPose, latestTimestamp, estStdDevs);
 
         Logger.recordOutput("Vision/VisionEstimatedPose", estPose.estimatedPose.toPose2d());
@@ -75,7 +76,7 @@ public class Vision extends SubsystemBase {
 
       // Log the detected AprilTags
       Pose3d[] allTagPoses =
-          result.getTargets().stream()
+          aprilTagResult.getTargets().stream()
               .filter(target -> target.getFiducialId() != -1)
               .map(target -> VisionConstants.kTagLayout.getTagPose(target.getFiducialId()))
               .filter(Optional::isPresent)
@@ -83,6 +84,19 @@ public class Vision extends SubsystemBase {
               .toArray(Pose3d[]::new);
 
       Logger.recordOutput("Vision/AllTagPoses", allTagPoses);
+
+      // Log pitch and yaw of all detected notes
+      PhotonPipelineResult noteResult =
+          VisionIOInputs.deserializePipelineResult(
+              m_inputs.intakeCamPipelineResult, m_inputs.intakeCamTimestamp);
+      double[] pitches = new double[noteResult.getTargets().size()];
+      double[] yaws = new double[noteResult.getTargets().size()];
+      for (int i = 0; i < noteResult.getTargets().size(); i++) {
+        pitches[i] = Units.degreesToRadians(noteResult.getTargets().get(i).getPitch());
+        yaws[i] = Units.degreesToRadians(noteResult.getTargets().get(i).getYaw());
+      }
+      Logger.recordOutput("Vision/IntakeCamPitches", pitches);
+      Logger.recordOutput("Vision/IntakeCamYaws", yaws);
     }
   }
 

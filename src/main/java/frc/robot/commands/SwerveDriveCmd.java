@@ -119,7 +119,8 @@ public class SwerveDriveCmd extends Command {
           ChassisSpeeds.fromFieldRelativeSpeeds(vx, vy, omegaRadiansPerSec, robotRotation);
     } else {
       // Robot-oriented control
-      chassisSpeeds = new ChassisSpeeds(vx, vy, omegaRadiansPerSec);
+      // Negative x so intake is forward
+      chassisSpeeds = new ChassisSpeeds(-vx, vy, omegaRadiansPerSec);
     }
 
     // Send the calculated speeds to the swerve subsystem
@@ -145,6 +146,20 @@ public class SwerveDriveCmd extends Command {
     } else {
       m_baseDriveMode = BaseDriveMode.FIELD_ORIENTED;
     }
+  }
+
+  /*
+   * Sets to robot oriented
+   */
+  public void setRobotOriented() {
+    m_baseDriveMode = BaseDriveMode.ROBOT_ORIENTED;
+  }
+
+  /*
+   * Sets to field oriented
+   */
+  public void setFieldOriented() {
+    m_baseDriveMode = BaseDriveMode.FIELD_ORIENTED;
   }
 
   /*
