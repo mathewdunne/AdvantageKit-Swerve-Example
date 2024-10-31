@@ -8,9 +8,9 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.vision.VisionIO.VisionIOInputs;
@@ -22,6 +22,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class Vision extends SubsystemBase {
   private final VisionIO m_io;
@@ -84,19 +85,6 @@ public class Vision extends SubsystemBase {
               .toArray(Pose3d[]::new);
 
       Logger.recordOutput("Vision/AllTagPoses", allTagPoses);
-
-      // Log pitch and yaw of all detected notes
-      PhotonPipelineResult noteResult =
-          VisionIOInputs.deserializePipelineResult(
-              m_inputs.intakeCamPipelineResult, m_inputs.intakeCamTimestamp);
-      double[] pitches = new double[noteResult.getTargets().size()];
-      double[] yaws = new double[noteResult.getTargets().size()];
-      for (int i = 0; i < noteResult.getTargets().size(); i++) {
-        pitches[i] = Units.degreesToRadians(noteResult.getTargets().get(i).getPitch());
-        yaws[i] = Units.degreesToRadians(noteResult.getTargets().get(i).getYaw());
-      }
-      Logger.recordOutput("Vision/IntakeCamPitches", pitches);
-      Logger.recordOutput("Vision/IntakeCamYaws", yaws);
     }
   }
 
@@ -132,5 +120,18 @@ public class Vision extends SubsystemBase {
     else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
 
     return estStdDevs;
+  }
+
+  /*
+   * Returns the pitch and yaw of the closest note as x and y values respectively
+   */
+  public Optional<Translation2d> getClosestNote() {
+    PhotonPipelineResult noteResult =
+        VisionIOInputs.deserializePipelineResult(
+            m_inputs.intakeCamPipelineResult, m_inputs.intakeCamTimestamp);
+    if (noteResult.getTargets().isEmpty()) return Optional.empty();
+
+    PhotonTrackedTarget closestNote = noteResult.getBestTarget();
+    return Optional.of(new Translation2d(closestNote.getPitch(), closestNote.getYaw()));
   }
 }

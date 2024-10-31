@@ -164,7 +164,8 @@ public class RobotContainer {
             m_swerveDrive,
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
-            () -> -m_driverController.getRightX());
+            () -> -m_driverController.getRightX(),
+            () -> m_vision.getClosestNote());
 
     // Configure the button bindings
     configureButtonBindings();
@@ -249,11 +250,6 @@ public class RobotContainer {
                   m_driveCmd.setAimDriveMode(AimDriveMode.NONE);
                   m_driveCmd.setFieldOriented();
                 }));
-
-    // move to pose temp
-    m_driverController
-        .povDown()
-        .whileTrue(new InstantCommand(() -> m_swerveDrive.moveToTestPose()));
 
     // Aim for speaker shot
     m_driverController

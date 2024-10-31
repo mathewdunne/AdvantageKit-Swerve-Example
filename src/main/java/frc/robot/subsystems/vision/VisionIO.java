@@ -28,16 +28,16 @@ public interface VisionIO {
     private static final APacketSerde serde = new APacketSerde();
 
     public void toLog(LogTable table) {
-      table.put("Timestamp", apriltagCamTimestamp);
+      table.put("AprilTagCamTimestamp", apriltagCamTimestamp);
       table.put("AprilTagCamPipelineResult", apriltagCamPipelineResult);
-      table.put("Timestamp", intakeCamTimestamp);
+      table.put("IntakeCamTimestamp", intakeCamTimestamp);
       table.put("IntakeCamPipelineResult", intakeCamPipelineResult);
     }
 
     public void fromLog(LogTable table) {
-      apriltagCamTimestamp = table.get("Timestamp", apriltagCamTimestamp);
+      apriltagCamTimestamp = table.get("AprilTagCamTimestamp", apriltagCamTimestamp);
       apriltagCamPipelineResult = table.get("AprilTagCamPipelineResult", apriltagCamPipelineResult);
-      intakeCamTimestamp = table.get("Timestamp", intakeCamTimestamp);
+      intakeCamTimestamp = table.get("IntakeCamTimestamp", intakeCamTimestamp);
       intakeCamPipelineResult = table.get("IntakeCamPipelineResult", intakeCamPipelineResult);
     }
 

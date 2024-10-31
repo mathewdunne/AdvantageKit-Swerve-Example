@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -15,7 +16,9 @@ import frc.robot.Constants.BaseDriveMode;
 import frc.robot.Constants.ControllerConstants;
 import frc.robot.subsystems.drive.SwerveDrive;
 import frc.robot.util.TargetingUtil;
+import java.util.Optional;
 import java.util.function.DoubleSupplier;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.AutoLogOutput;
 
 public class SwerveDriveCmd extends Command {
@@ -24,6 +27,7 @@ public class SwerveDriveCmd extends Command {
   private final DoubleSupplier m_xSupplier;
   private final DoubleSupplier m_ySupplier;
   private final DoubleSupplier m_omegaSupplier;
+  private final Supplier<Optional<Translation2d>> m_noteAngleSupplier;
 
   @AutoLogOutput(key = "Drive/BaseMode")
   private BaseDriveMode m_baseDriveMode;
@@ -36,11 +40,13 @@ public class SwerveDriveCmd extends Command {
       SwerveDrive SwerveDrive,
       DoubleSupplier xSupplier,
       DoubleSupplier ySupplier,
-      DoubleSupplier omegaSupplier) {
+      DoubleSupplier omegaSupplier,
+      Supplier<Optional<Translation2d>> noteAngleSupplier) {
     m_swerveDrive = SwerveDrive;
     m_xSupplier = xSupplier;
     m_ySupplier = ySupplier;
     m_omegaSupplier = omegaSupplier;
+    m_noteAngleSupplier = noteAngleSupplier;
 
     m_baseDriveMode = BaseDriveMode.FIELD_ORIENTED;
     m_aimDriveMode = AimDriveMode.NONE;
@@ -94,6 +100,10 @@ public class SwerveDriveCmd extends Command {
     if (m_aimDriveMode == AimDriveMode.NONE) {
       // Manual control of omega
       omegaRadiansPerSec = omega * maxAngularSpeed;
+    } else if (m_aimDriveMode == AimDriveMode.TRACK_NOTE) {
+      // Track note mode - set PID goal to 0 (in line with the note)
+      double angleToNote = TargetingUtil.getAngleToNote(m_noteAngleSupplier);
+      omegaRadiansPerSec = m_swerveDrive.getAimLockPID().calculate(angleToNote, 0);
     } else {
       // Aim lock mode - use PID controller to compute omega
       double targetAngle = TargetingUtil.getAngleToTarget(m_swerveDrive.getPose(), m_aimDriveMode);
