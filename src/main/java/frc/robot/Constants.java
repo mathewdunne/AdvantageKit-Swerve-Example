@@ -141,6 +141,9 @@ public final class Constants {
     public static final int kMotorPort = 16;
     public static final int kCurrentLimit = 30;
     public static final double kCurrentThreshold = 18.0;
+
+    // Location of the intake relative to the robot
+    public static final Transform3d kRobotToIntake = new Transform3d(-0.35, 0, 0, new Rotation3d());
   }
 
   public static enum BaseDriveMode {

@@ -233,7 +233,9 @@ public class RobotContainer {
     // Intake
     m_driverController
         .rightBumper()
-        .whileTrue(new IntakeCmd(m_intake, m_feeder, m_wrist, m_arm, m_driverController));
+        .whileTrue(
+            new IntakeCmd(
+                m_intake, m_feeder, m_wrist, m_arm, m_driverController, m_swerveDrive::getPose));
 
     // Track Note
     m_driverController

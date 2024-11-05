@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -15,7 +17,10 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.wrist.Wrist;
+import frc.robot.util.NoteModel;
 import frc.robot.util.NoteVisualizer;
+import java.util.function.Supplier;
+import org.littletonrobotics.junction.Logger;
 
 public class IntakeCmd extends Command {
   /** Creates a new IntakeCmd. */
@@ -25,18 +30,25 @@ public class IntakeCmd extends Command {
   private final Wrist m_wrist;
   private final Arm m_arm;
   private final CommandGenericHID m_controller;
+  private final Supplier<Pose2d> m_poseSupplier;
 
   private double m_timer = 0;
   private final double m_rumbleDuration = 0.2;
   private final double m_rumbleCooldown = 3.0;
 
   public IntakeCmd(
-      Intake intake, Feeder feeder, Wrist wrist, Arm arm, CommandGenericHID controller) {
+      Intake intake,
+      Feeder feeder,
+      Wrist wrist,
+      Arm arm,
+      CommandGenericHID controller,
+      Supplier<Pose2d> poseSupplier) {
     m_intake = intake;
     m_feeder = feeder;
     m_wrist = wrist;
     m_arm = arm;
     m_controller = controller;
+    m_poseSupplier = poseSupplier;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_intake, m_feeder);
@@ -47,11 +59,6 @@ public class IntakeCmd extends Command {
   public void initialize() {
     m_intake.runAtVoltage(IntakeConstants.kIntakeVoltage);
     m_feeder.runAtVoltage(FeederConstants.kIntakeVoltage);
-
-    // Simulate a note being intaked by breaking the beambreak after a delay
-    if (Robot.isSimulation()) {
-      m_feeder.setBeambreakBrokenAfterDelay();
-    }
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -66,6 +73,25 @@ public class IntakeCmd extends Command {
     } else {
       // turn off rumble
       m_controller.getHID().setRumble(RumbleType.kBothRumble, 0);
+    }
+
+    // only allow sim intake if the robot is near a note
+    if (Robot.isSimulation()) {
+      Pose3d intakePose =
+          new Pose3d(m_poseSupplier.get()).transformBy(IntakeConstants.kRobotToIntake);
+      boolean nearNote = false;
+      for (int i = 0; i < NoteModel.getNotePositions().size(); i++) {
+        if (intakePose
+                .getTranslation()
+                .getDistance(NoteModel.getNotePositions().get(i).getTranslation())
+            < 0.5) {
+          nearNote = true;
+          // Simulate a note being intaked by breaking the beambreak after a delay
+          m_feeder.setBeambreakBrokenAfterDelay();
+          break;
+        }
+      }
+      Logger.recordOutput("Intake/SimNearNote", nearNote);
     }
   }
 
