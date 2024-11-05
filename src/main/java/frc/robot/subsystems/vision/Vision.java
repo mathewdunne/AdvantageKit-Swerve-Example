@@ -134,4 +134,11 @@ public class Vision extends SubsystemBase {
     PhotonTrackedTarget closestNote = noteResult.getBestTarget();
     return Optional.of(new Translation2d(closestNote.getPitch(), closestNote.getYaw()));
   }
+
+  /** Removes a note from the simulation world */
+  public void removeNoteFromSimulation(int noteIndex) {
+    if (m_io instanceof VisionIOPhotonSim) {
+      ((VisionIOPhotonSim) m_io).removeNoteFromSimulation(noteIndex);
+    }
+  }
 }

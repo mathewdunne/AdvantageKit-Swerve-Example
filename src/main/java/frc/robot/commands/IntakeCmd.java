@@ -19,6 +19,7 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.util.NoteVisualizer;
+import frc.robot.util.RemoveSimNoteCallback;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -31,6 +32,7 @@ public class IntakeCmd extends Command {
   private final Arm m_arm;
   private final CommandGenericHID m_controller;
   private final Supplier<Pose2d> m_poseSupplier;
+  private final RemoveSimNoteCallback m_removeSimNoteCallback;
 
   private double m_timer = 0;
   private final double m_rumbleDuration = 0.2;
@@ -42,13 +44,15 @@ public class IntakeCmd extends Command {
       Wrist wrist,
       Arm arm,
       CommandGenericHID controller,
-      Supplier<Pose2d> poseSupplier) {
+      Supplier<Pose2d> poseSupplier,
+      RemoveSimNoteCallback removeSimNoteCallback) {
     m_intake = intake;
     m_feeder = feeder;
     m_wrist = wrist;
     m_arm = arm;
     m_controller = controller;
     m_poseSupplier = poseSupplier;
+    m_removeSimNoteCallback = removeSimNoteCallback;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_intake, m_feeder);
@@ -90,6 +94,7 @@ public class IntakeCmd extends Command {
 
           // remove the note from the field
           NoteVisualizer.takeFieldNote(i);
+          m_removeSimNoteCallback.execute(i);
           break;
         }
       }
