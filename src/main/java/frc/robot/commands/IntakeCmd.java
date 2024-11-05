@@ -38,6 +38,8 @@ public class IntakeCmd extends Command {
   private final double m_rumbleDuration = 0.2;
   private final double m_rumbleCooldown = 3.0;
 
+  private int m_noteIndex = -1;
+
   public IntakeCmd(
       Intake intake,
       Feeder feeder,
@@ -89,12 +91,9 @@ public class IntakeCmd extends Command {
         if (notePose != null
             && intakePose.getTranslation().toTranslation2d().getDistance(notePose) < 0.5) {
           nearNote = true;
+          m_noteIndex = i;
           // Simulate a note being intaked by breaking the beambreak after a delay
           m_feeder.setBeambreakBrokenAfterDelay();
-
-          // remove the note from the field
-          NoteVisualizer.takeFieldNote(i);
-          m_removeSimNoteCallback.execute(i);
           break;
         }
       }
@@ -109,6 +108,13 @@ public class IntakeCmd extends Command {
     m_feeder.stop();
     if (m_feeder.getBeambreakBroken()) {
       NoteVisualizer.setHasNote(true);
+
+      // remove the note from the field
+      if (m_noteIndex != -1) {
+        NoteVisualizer.takeFieldNote(m_noteIndex);
+        m_removeSimNoteCallback.execute(m_noteIndex);
+        m_noteIndex = -1;
+      }
     }
     Logger.recordOutput("Intake/SimNearNote", false);
   }
