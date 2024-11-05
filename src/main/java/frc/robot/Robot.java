@@ -15,6 +15,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.commands.IntakeCmd;
+import frc.robot.commands.PreSpinShooterCmd;
 import frc.robot.util.NoteVisualizer;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -123,6 +125,23 @@ public class Robot extends LoggedRobot {
       m_autonomousCommand.schedule();
     }
 
+    // set default commands for shooter and intake
+    m_robotContainer
+        .getShooter()
+        .setDefaultCommand(
+            new PreSpinShooterCmd(m_robotContainer.getShooter(), m_robotContainer::getRobotPose));
+    m_robotContainer
+        .getIntake()
+        .setDefaultCommand(
+            new IntakeCmd(
+                m_robotContainer.getIntake(),
+                m_robotContainer.getFeeder(),
+                m_robotContainer.getWrist(),
+                m_robotContainer.getArm(),
+                m_robotContainer.getController(),
+                m_robotContainer::getRobotPose,
+                m_robotContainer.getVision()::removeNoteFromSimulation));
+
     // Reset NoteVisualizer
     NoteVisualizer.resetFieldNotes();
     NoteVisualizer.showFieldNotes();
@@ -132,6 +151,14 @@ public class Robot extends LoggedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {}
+
+  /** This function is called once when autonomous ends */
+  @Override
+  public void autonomousExit() {
+    // Clear default commands for shooter and intake
+    m_robotContainer.getShooter().setDefaultCommand(null);
+    m_robotContainer.getIntake().setDefaultCommand(null);
+  }
 
   /** This function is called once when teleop is enabled. */
   @Override

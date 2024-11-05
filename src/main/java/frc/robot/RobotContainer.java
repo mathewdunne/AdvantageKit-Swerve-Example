@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.XboxController;
@@ -357,5 +358,38 @@ public class RobotContainer {
         "Wrist SysId (Dynamic Forward)", m_wrist.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
         "Wrist SysId (Dynamic Reverse)", m_wrist.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+  }
+
+  // Getters
+  public Shooter getShooter() {
+    return m_shooter;
+  }
+
+  public Intake getIntake() {
+    return m_intake;
+  }
+
+  public Feeder getFeeder() {
+    return m_feeder;
+  }
+
+  public Pose2d getRobotPose() {
+    return m_swerveDrive.getPose();
+  }
+
+  public Vision getVision() {
+    return m_vision;
+  }
+
+  public CommandXboxController getController() {
+    return m_driverController;
+  }
+
+  public Wrist getWrist() {
+    return m_wrist;
+  }
+
+  public Arm getArm() {
+    return m_arm;
   }
 }
