@@ -29,6 +29,8 @@ public class VisionIOPhotonSim implements VisionIO {
   private final VisionSystemSim m_visionSimWorldApriltags;
   private final VisionSystemSim m_visionSimWorldGamePieces;
 
+  private final VisionTargetSim[] m_noteTargets;
+
   // Simulated camera streams are CPU intensive and can be disabled when not needed
   boolean renderSim = true;
 
@@ -44,11 +46,11 @@ public class VisionIOPhotonSim implements VisionIO {
     // Different simulated world with game piece targets
     m_visionSimWorldGamePieces = new VisionSystemSim("gamePieces");
     TargetModel noteModel = NoteModel.getNoteModel();
-    VisionTargetSim[] noteTargets = new VisionTargetSim[NoteModel.getNotePositions().size()];
-    for (int i = 0; i < noteTargets.length; i++) {
-      noteTargets[i] = new VisionTargetSim(NoteModel.getNotePositions().get(i), noteModel);
+    m_noteTargets = new VisionTargetSim[NoteModel.getNotePositions().size()];
+    for (int i = 0; i < m_noteTargets.length; i++) {
+      m_noteTargets[i] = new VisionTargetSim(NoteModel.getNotePositions().get(i), noteModel);
     }
-    m_visionSimWorldGamePieces.addVisionTargets("note", noteTargets);
+    m_visionSimWorldGamePieces.addVisionTargets("note", m_noteTargets);
 
     // Create simulated camera properties. These can be set to mimic your actual camera.
     SimCameraProperties shooterCameraProps;
@@ -85,13 +87,13 @@ public class VisionIOPhotonSim implements VisionIO {
 
   @Override
   public void updateInputs(VisionIOInputs inputs) {
-    PhotonPipelineResult result = m_shooterCamera.getLatestResult();
-    inputs.apriltagCamTimestamp = result.getTimestampSeconds();
-    inputs.apriltagCamPipelineResult = VisionIOInputs.serializePipelineResult(result);
+    PhotonPipelineResult resultShooter = m_shooterCamera.getLatestResult();
+    inputs.apriltagCamTimestamp = resultShooter.getTimestampSeconds();
+    inputs.apriltagCamPipelineResult = VisionIOInputs.serializePipelineResult(resultShooter);
 
-    result = m_intakeCamera.getLatestResult();
-    inputs.intakeCamTimestamp = result.getTimestampSeconds();
-    inputs.intakeCamPipelineResult = VisionIOInputs.serializePipelineResult(result);
+    PhotonPipelineResult resultIntake = m_intakeCamera.getLatestResult();
+    inputs.intakeCamTimestamp = resultIntake.getTimestampSeconds();
+    inputs.intakeCamPipelineResult = VisionIOInputs.serializePipelineResult(resultIntake);
   }
 
   @Override
@@ -106,5 +108,10 @@ public class VisionIOPhotonSim implements VisionIO {
       m_visionSimWorldApriltags.update(simTruePose);
       m_visionSimWorldGamePieces.update(simTruePose);
     }
+  }
+
+  /** Removes a note from the simulation world */
+  public void removeNoteFromSimulation(int noteIndex) {
+    m_visionSimWorldGamePieces.removeVisionTargets(m_noteTargets[noteIndex]);
   }
 }

@@ -185,19 +185,26 @@ public class NoteModel {
 
   public static List<Pose3d> getNotePositions() {
     List<Pose3d> notePositions = new ArrayList<>();
+    // blue side
     notePositions.add(new Pose3d(2.90, 4.11, 0, new Rotation3d()));
     notePositions.add(new Pose3d(2.90, 5.56, 0, new Rotation3d()));
     notePositions.add(new Pose3d(2.90, 7.01, 0, new Rotation3d()));
 
+    // middle
     notePositions.add(new Pose3d(8.27, 4.11, 0, new Rotation3d()));
     notePositions.add(new Pose3d(8.27, 5.79, 0, new Rotation3d()));
     notePositions.add(new Pose3d(8.27, 7.47, 0, new Rotation3d()));
     notePositions.add(new Pose3d(8.27, 2.43, 0, new Rotation3d()));
     notePositions.add(new Pose3d(8.27, 0.75, 0, new Rotation3d()));
 
+    // red side
     notePositions.add(new Pose3d(13.64, 4.11, 0, new Rotation3d()));
     notePositions.add(new Pose3d(13.64, 5.56, 0, new Rotation3d()));
     notePositions.add(new Pose3d(13.64, 7.01, 0, new Rotation3d()));
+
+    // sources (index 11 and 12)
+    notePositions.add(new Pose3d(0.98, 0.87, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(15.56, 0.87, 0, new Rotation3d()));
     return notePositions;
   }
 }

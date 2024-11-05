@@ -25,7 +25,7 @@ public class NoteVisualizer {
   private static final double ejectSpeed = 1.5; // Meters per sec
   private static Supplier<Pose2d> robotPoseSupplier = Pose2d::new;
   private static Supplier<Pose3d> wristPoseSupplier = Pose3d::new;
-  private static final List<Translation2d> autoNotes = new ArrayList<>();
+  private static final List<Translation2d> fieldNotes = new ArrayList<>();
   private static boolean hasNote = false;
 
   private static final Translation3d blueSpeaker = new Translation3d(0.225, 5.55, 2.1);
@@ -49,15 +49,21 @@ public class NoteVisualizer {
     return hasNote;
   }
 
+  public static List<Translation2d> getFieldNotes() {
+    // return all notes
+    // result needs to be checked for nulls
+    return fieldNotes;
+  }
+
   /** Show all staged notes for alliance */
-  public static void showAutoNotes() {
-    if (autoNotes.isEmpty()) {
-      Logger.recordOutput("NoteVisualizer/StagedNotes", new Pose3d[] {});
+  public static void showFieldNotes() {
+    if (fieldNotes.isEmpty()) {
+      Logger.recordOutput("NoteVisualizer/FieldNotes", new Pose3d[] {});
     }
     // Show auto notes
-    Stream<Translation2d> presentNotes = autoNotes.stream().filter(Objects::nonNull);
+    Stream<Translation2d> presentNotes = fieldNotes.stream().filter(Objects::nonNull);
     Logger.recordOutput(
-        "NoteVisualizer/StagedNotes",
+        "NoteVisualizer/FieldNotes",
         presentNotes
             .map(
                 translation ->
@@ -69,30 +75,29 @@ public class NoteVisualizer {
             .toArray(Pose3d[]::new));
   }
 
-  public static void clearAutoNotes() {
-    autoNotes.clear();
+  public static void clearFieldNotes() {
+    fieldNotes.clear();
   }
 
   /** Add all notes to be shown at the beginning of auto */
-  public static void resetAutoNotes() {
-    clearAutoNotes();
+  public static void resetFieldNotes() {
+    clearFieldNotes();
     List<Pose3d> notePoses = NoteModel.getNotePositions();
     for (int i = 0; i < notePoses.size(); i++) {
-      autoNotes.add(i, notePoses.get(i).toPose2d().getTranslation());
+      fieldNotes.add(i, notePoses.get(i).toPose2d().getTranslation());
     }
     Logger.recordOutput("NoteVisualizer/ShotNotes", new Pose3d[] {});
   }
 
   /**
-   * Take note from staged note
+   * Take note from field notes
    *
-   * @param note Number of note starting with 0 - 2 being spike notes going from amp to source side
-   *     <br>
-   *     and 3 - 7 being centerline notes going from amp to source side.
+   * @param note Index of note
    */
-  public static void takeAutoNote(int note) {
-    autoNotes.set(note, null);
-    hasNote = true;
+  public static void takeFieldNote(int note) {
+    fieldNotes.set(note, null);
+    // refresh the notes shown on the field
+    NoteVisualizer.showFieldNotes();
   }
 
   /** Shows the currently held note if there is one */

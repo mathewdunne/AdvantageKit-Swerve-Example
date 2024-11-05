@@ -3,6 +3,7 @@ package frc.robot.util;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import frc.robot.Constants;
@@ -10,6 +11,8 @@ import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.ShooterConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Constants.WristConstants;
+import java.util.Optional;
+import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
 public class TargetingUtil {
@@ -122,5 +125,24 @@ public class TargetingUtil {
       // far shot
       return ShooterConstants.kShootFarVelocityRPM;
     }
+  }
+
+  /*
+   * Returns the error angle in radians to the closest note
+   */
+  public static double getAngleToNote(Supplier<Optional<Translation2d>> getClosestNote) {
+    Optional<Translation2d> closestNote = getClosestNote.get();
+    if (closestNote.isEmpty()) return 0.0;
+
+    double pitch = closestNote.get().getX();
+    double yaw = closestNote.get().getY();
+
+    // return 0 if the note is too far away to prevent weird behaviour when a close note is right
+    // under the bumper
+    if (pitch > 5.0) return 0.0;
+    double angle = yaw + 0.391 * pitch + 0.478;
+    double radians = Units.degreesToRadians(angle);
+    Logger.recordOutput("Vision/AngleToNote", radians);
+    return radians;
   }
 }

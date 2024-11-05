@@ -164,7 +164,8 @@ public class RobotContainer {
             m_swerveDrive,
             () -> -m_driverController.getLeftY(),
             () -> -m_driverController.getLeftX(),
-            () -> -m_driverController.getRightX());
+            () -> -m_driverController.getRightX(),
+            () -> m_vision.getClosestNote());
 
     // Configure the button bindings
     configureButtonBindings();
@@ -232,7 +233,31 @@ public class RobotContainer {
     // Intake
     m_driverController
         .rightBumper()
-        .whileTrue(new IntakeCmd(m_intake, m_feeder, m_wrist, m_arm, m_driverController));
+        .whileTrue(
+            new IntakeCmd(
+                m_intake,
+                m_feeder,
+                m_wrist,
+                m_arm,
+                m_driverController,
+                m_swerveDrive::getPose,
+                m_vision::removeNoteFromSimulation));
+
+    // Track Note
+    m_driverController
+        .leftBumper()
+        .whileTrue(
+            new InstantCommand(
+                () -> {
+                  m_driveCmd.setAimDriveMode(AimDriveMode.TRACK_NOTE);
+                  m_driveCmd.setRobotOriented();
+                }))
+        .onFalse(
+            new InstantCommand(
+                () -> {
+                  m_driveCmd.setAimDriveMode(AimDriveMode.NONE);
+                  m_driveCmd.setFieldOriented();
+                }));
 
     // Aim for speaker shot
     m_driverController

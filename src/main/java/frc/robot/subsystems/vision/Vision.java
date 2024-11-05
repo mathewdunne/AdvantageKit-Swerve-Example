@@ -8,6 +8,7 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -21,6 +22,7 @@ import org.photonvision.EstimatedRobotPose;
 import org.photonvision.PhotonPoseEstimator;
 import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
+import org.photonvision.targeting.PhotonTrackedTarget;
 
 public class Vision extends SubsystemBase {
   private final VisionIO m_io;
@@ -51,7 +53,7 @@ public class Vision extends SubsystemBase {
     Logger.processInputs("Vision", m_inputs);
 
     // Check for new apriltag data
-    PhotonPipelineResult result =
+    PhotonPipelineResult aprilTagResult =
         VisionIOInputs.deserializePipelineResult(
             m_inputs.apriltagCamPipelineResult, m_inputs.apriltagCamTimestamp);
 
@@ -61,13 +63,13 @@ public class Vision extends SubsystemBase {
       m_lastEstTimestampApriltags = latestTimestamp;
 
       // Update the photonEstimator with the latest result
-      Optional<EstimatedRobotPose> estimatedPose = m_photonEstimator.update(result);
+      Optional<EstimatedRobotPose> estimatedPose = m_photonEstimator.update(aprilTagResult);
 
       // Handle the estimated pose (e.g., feed it into a pose estimator or odometry)
       if (estimatedPose.isPresent()) {
         EstimatedRobotPose estPose = estimatedPose.get();
         Pose2d robotPose = estPose.estimatedPose.toPose2d();
-        Matrix<N3, N1> estStdDevs = getEstimationStdDevs(robotPose, result);
+        Matrix<N3, N1> estStdDevs = getEstimationStdDevs(robotPose, aprilTagResult);
         m_addVisionMeasurementCallback.execute(robotPose, latestTimestamp, estStdDevs);
 
         Logger.recordOutput("Vision/VisionEstimatedPose", estPose.estimatedPose.toPose2d());
@@ -75,7 +77,7 @@ public class Vision extends SubsystemBase {
 
       // Log the detected AprilTags
       Pose3d[] allTagPoses =
-          result.getTargets().stream()
+          aprilTagResult.getTargets().stream()
               .filter(target -> target.getFiducialId() != -1)
               .map(target -> VisionConstants.kTagLayout.getTagPose(target.getFiducialId()))
               .filter(Optional::isPresent)
@@ -118,5 +120,25 @@ public class Vision extends SubsystemBase {
     else estStdDevs = estStdDevs.times(1 + (avgDist * avgDist / 30));
 
     return estStdDevs;
+  }
+
+  /*
+   * Returns the pitch and yaw of the closest note as x and y values respectively
+   */
+  public Optional<Translation2d> getClosestNote() {
+    PhotonPipelineResult noteResult =
+        VisionIOInputs.deserializePipelineResult(
+            m_inputs.intakeCamPipelineResult, m_inputs.intakeCamTimestamp);
+    if (noteResult.getTargets().isEmpty()) return Optional.empty();
+
+    PhotonTrackedTarget closestNote = noteResult.getBestTarget();
+    return Optional.of(new Translation2d(closestNote.getPitch(), closestNote.getYaw()));
+  }
+
+  /** Removes a note from the simulation world */
+  public void removeNoteFromSimulation(int noteIndex) {
+    if (m_io instanceof VisionIOPhotonSim) {
+      ((VisionIOPhotonSim) m_io).removeNoteFromSimulation(noteIndex);
+    }
   }
 }

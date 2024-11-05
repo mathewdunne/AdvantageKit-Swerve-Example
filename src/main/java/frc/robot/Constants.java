@@ -141,6 +141,9 @@ public final class Constants {
     public static final int kMotorPort = 16;
     public static final int kCurrentLimit = 30;
     public static final double kCurrentThreshold = 18.0;
+
+    // Location of the intake relative to the robot
+    public static final Transform3d kRobotToIntake = new Transform3d(-0.35, 0, 0, new Rotation3d());
   }
 
   public static enum BaseDriveMode {
@@ -156,7 +159,8 @@ public final class Constants {
     FACE_BACKWARD,
     FACE_AMP,
     FACE_SOURCE,
-    LOB_PASS
+    LOB_PASS,
+    TRACK_NOTE,
   }
 
   public static class AimLockConstants {
@@ -176,7 +180,7 @@ public final class Constants {
     public static final String kIntakeCameraName = "silverIntakeCamera";
     public static final Transform3d kRobotToIntakeCam =
         new Transform3d(
-            new Translation3d(-0.24, -0.25, 0.5),
+            new Translation3d(-0.24, -0.2, 0.5),
             new Rotation3d(0, Units.degreesToRadians(15), Units.degreesToRadians(180)));
 
     // The layout of the AprilTags on the field

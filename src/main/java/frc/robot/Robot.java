@@ -124,8 +124,8 @@ public class Robot extends LoggedRobot {
     }
 
     // Reset NoteVisualizer
-    NoteVisualizer.resetAutoNotes();
-    NoteVisualizer.showAutoNotes();
+    NoteVisualizer.resetFieldNotes();
+    NoteVisualizer.showFieldNotes();
     NoteVisualizer.setHasNote(true);
   }
 
@@ -145,8 +145,8 @@ public class Robot extends LoggedRobot {
     }
 
     // Reset NoteVisualizer
-    NoteVisualizer.resetAutoNotes();
-    NoteVisualizer.showAutoNotes();
+    NoteVisualizer.resetFieldNotes();
+    NoteVisualizer.showFieldNotes();
   }
 
   /** This function is called periodically during operator control. */
