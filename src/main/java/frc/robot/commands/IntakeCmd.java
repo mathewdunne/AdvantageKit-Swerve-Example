@@ -6,6 +6,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,7 +18,6 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.wrist.Wrist;
-import frc.robot.util.NoteModel;
 import frc.robot.util.NoteVisualizer;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
@@ -80,14 +80,16 @@ public class IntakeCmd extends Command {
       Pose3d intakePose =
           new Pose3d(m_poseSupplier.get()).transformBy(IntakeConstants.kRobotToIntake);
       boolean nearNote = false;
-      for (int i = 0; i < NoteModel.getNotePositions().size(); i++) {
-        if (intakePose
-                .getTranslation()
-                .getDistance(NoteModel.getNotePositions().get(i).getTranslation())
-            < 0.5) {
+      for (int i = 0; i < NoteVisualizer.getFieldNotes().size(); i++) {
+        Translation2d notePose = NoteVisualizer.getFieldNotes().get(i);
+        if (notePose != null
+            && intakePose.getTranslation().toTranslation2d().getDistance(notePose) < 0.5) {
           nearNote = true;
           // Simulate a note being intaked by breaking the beambreak after a delay
           m_feeder.setBeambreakBrokenAfterDelay();
+
+          // remove the note from the field
+          NoteVisualizer.takeFieldNote(i);
           break;
         }
       }
@@ -103,6 +105,7 @@ public class IntakeCmd extends Command {
     if (m_feeder.getBeambreakBroken()) {
       NoteVisualizer.setHasNote(true);
     }
+    Logger.recordOutput("Intake/SimNearNote", false);
   }
 
   // Returns true when the command should end.

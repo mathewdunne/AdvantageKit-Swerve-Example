@@ -49,6 +49,12 @@ public class NoteVisualizer {
     return hasNote;
   }
 
+  public static List<Translation2d> getFieldNotes() {
+    // return all notes
+    // result needs to be checked for nulls
+    return fieldNotes;
+  }
+
   /** Show all staged notes for alliance */
   public static void showFieldNotes() {
     if (fieldNotes.isEmpty()) {
@@ -84,15 +90,14 @@ public class NoteVisualizer {
   }
 
   /**
-   * Take note from staged note
+   * Take note from field notes
    *
-   * @param note Number of note starting with 0 - 2 being spike notes going from amp to source side
-   *     <br>
-   *     and 3 - 7 being centerline notes going from amp to source side.
+   * @param note Index of note
    */
   public static void takeFieldNote(int note) {
     fieldNotes.set(note, null);
-    hasNote = true;
+    // refresh the notes shown on the field
+    NoteVisualizer.showFieldNotes();
   }
 
   /** Shows the currently held note if there is one */
