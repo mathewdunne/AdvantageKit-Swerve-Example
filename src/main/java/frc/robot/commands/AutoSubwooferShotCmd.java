@@ -4,7 +4,6 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.FeederConstants;
 import frc.robot.Constants.WristConstants;
@@ -17,10 +16,6 @@ public class AutoSubwooferShotCmd extends Command {
 
   private final Feeder m_feeder;
   private final Wrist m_wrist;
-
-  double m_timerStart = 0;
-  boolean m_timerFinished = false;
-  double m_delay = 0.2;
 
   /** Creates a new AutoSubwooferShot. */
   public AutoSubwooferShotCmd(Feeder feeder, Wrist wrist) {
@@ -42,15 +37,7 @@ public class AutoSubwooferShotCmd extends Command {
   public void execute() {
     // wait for wrist to reach setpoint
     if (m_wrist.atSetpoint()) {
-      if (m_timerStart == 0) {
-        m_timerStart = Timer.getFPGATimestamp();
-      } else if (Timer.getFPGATimestamp() - m_timerStart > m_delay) {
-        m_timerFinished = true;
-      }
-    }
-
-    // run feeder
-    if (m_timerFinished) {
+      // run feeder
       m_feeder.runAtVoltage(FeederConstants.kFeedVoltage);
 
       // Simulate a note being shot by un-breaking the beambreak after a delay
@@ -68,10 +55,6 @@ public class AutoSubwooferShotCmd extends Command {
     if (!m_feeder.getBeambreakBroken() && NoteVisualizer.getHasNote()) {
       NoteVisualizer.shoot().schedule();
     }
-
-    // reset timer
-    m_timerStart = 0;
-    m_timerFinished = false;
   }
 
   // Returns true when the command should end.

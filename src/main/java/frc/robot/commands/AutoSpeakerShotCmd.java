@@ -13,6 +13,7 @@ import frc.robot.Constants.WristConstants;
 import frc.robot.Robot;
 import frc.robot.subsystems.drive.SwerveDrive;
 import frc.robot.subsystems.feeder.Feeder;
+import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.shooter.Shooter;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.util.NoteVisualizer;
@@ -24,19 +25,27 @@ public class AutoSpeakerShotCmd extends Command {
   private final Wrist m_wrist;
   private final Shooter m_shooter;
   private final Feeder m_feeder;
+  private final Intake m_intake;
 
-  double m_timerStart = 0;
-  boolean m_timerFinished = false;
-  double m_delay = 0.2;
+  // Delay for stuff to settle before shooting
+  double m_dwellStart = 0;
+  boolean m_dwellFinished = false;
+  double m_dwellDuration = 0.2;
+
+  // Timeout if we don't have a note
+  double m_noNoteDwellStart = 0;
+  double m_noNoteDwellDuration = 2.0;
 
   boolean m_hadNote = false;
 
   /** Creates a new AutoSpeakerShotCmd. */
-  public AutoSpeakerShotCmd(SwerveDrive swerveDrive, Wrist wrist, Shooter shooter, Feeder feeder) {
+  public AutoSpeakerShotCmd(
+      SwerveDrive swerveDrive, Wrist wrist, Shooter shooter, Feeder feeder, Intake intake) {
     m_swerveDrive = swerveDrive;
     m_wrist = wrist;
     m_shooter = shooter;
     m_feeder = feeder;
+    m_intake = intake;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_wrist, m_swerveDrive, m_feeder);
@@ -65,22 +74,31 @@ public class AutoSpeakerShotCmd extends Command {
     double distanceToTarget = TargetingUtil.getDistanceToSpeaker(m_swerveDrive.getPose());
     m_wrist.setAngleSetpoint(TargetingUtil.getWristAngle(distanceToTarget));
 
-    // Wait for timer after reaching setpoints
+    // Wait for dwell after reaching setpoints
     if (m_swerveDrive.aimedAtSetpoint() && m_wrist.atSetpoint() && m_shooter.atSetpoint()) {
-      if (m_timerStart == 0) {
-        m_timerStart = Timer.getFPGATimestamp();
-      } else if (Timer.getFPGATimestamp() - m_timerStart > m_delay) {
-        m_timerFinished = true;
+      if (m_dwellStart == 0) {
+        m_dwellStart = Timer.getFPGATimestamp();
+      } else if (Timer.getFPGATimestamp() - m_dwellStart > m_dwellDuration) {
+        m_dwellFinished = true;
       }
     }
 
     // run feeder
-    if (m_timerFinished) {
+    if (m_dwellFinished) {
       m_feeder.runAtVoltage(FeederConstants.kFeedVoltage);
 
       // Simulate a note being shot by un-breaking the beambreak after a delay
       if (Robot.isSimulation()) {
         m_feeder.setBeambreakUnbrokenAfterDelay();
+      }
+    }
+
+    // timeout if we don't have a note
+    if (!m_intake.hasNote() && !m_feeder.getBeambreakBroken()) {
+      if (m_noNoteDwellStart == 0) {
+        m_noNoteDwellStart = Timer.getFPGATimestamp();
+      } else if (Timer.getFPGATimestamp() - m_noNoteDwellStart > m_noNoteDwellDuration) {
+        m_hadNote = true; // setting hadNote to true will end the command
       }
     }
   }
@@ -95,10 +113,11 @@ public class AutoSpeakerShotCmd extends Command {
       NoteVisualizer.shoot().schedule();
     }
 
-    // reset timer
-    m_timerStart = 0;
-    m_timerFinished = false;
+    // reset dwells
+    m_dwellStart = 0;
+    m_dwellFinished = false;
     m_hadNote = false;
+    m_noNoteDwellStart = 0;
   }
 
   // Returns true when the command should end.
