@@ -5,7 +5,9 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.FeederConstants;
+import frc.robot.Constants.WristConstants;
 import frc.robot.Robot;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.feeder.Feeder;
@@ -53,7 +55,8 @@ public class FeederAmpCmd extends Command {
     }
 
     // stow the arm and wrist
-    new StowArmWristCmd(m_arm, m_wrist).schedule();
+    m_arm.setAngleSetpoint(ArmConstants.kStowedAngleRad);
+    m_wrist.setAngleSetpoint(WristConstants.kStowedAngleRad);
   }
 
   // Returns true when the command should end.

@@ -350,6 +350,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /** Gets whether or not the AimLock PID is at its setpoint */
+  @AutoLogOutput(key = "Odometry/AimedAtSetpoint")
   public boolean aimedAtSetpoint() {
     return m_aimLockPID.atSetpoint();
   }

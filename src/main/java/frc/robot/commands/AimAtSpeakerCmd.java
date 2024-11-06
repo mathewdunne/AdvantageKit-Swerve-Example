@@ -9,6 +9,8 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import frc.robot.Constants;
+import frc.robot.Constants.ArmConstants;
+import frc.robot.Constants.WristConstants;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.shooter.Shooter;
@@ -80,7 +82,8 @@ public class AimAtSpeakerCmd extends Command {
     m_setAimDriveModeCallback.execute(Constants.AimDriveMode.NONE);
     m_controller.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 0);
     m_shooter.stop();
-    new StowArmWristCmd(m_arm, m_wrist).schedule();
+    m_arm.setAngleSetpoint(ArmConstants.kStowedAngleRad);
+    m_wrist.setAngleSetpoint(WristConstants.kStowedAngleRad);
   }
 
   // Returns true when the command should end.

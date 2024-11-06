@@ -13,11 +13,14 @@
 
 package frc.robot;
 
+import edu.wpi.first.math.geometry.Pose3d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.commands.IntakeCmd;
-import frc.robot.commands.PreSpinShooterCmd;
+import frc.robot.Constants.FeederConstants;
+import frc.robot.Constants.IntakeConstants;
 import frc.robot.util.NoteVisualizer;
+import frc.robot.util.TargetingUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -120,27 +123,15 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    // schedule the autonomous command (example)
+    // set beambreak broken if in simulation
+    if (Constants.kCurrentMode == Constants.Mode.SIM) {
+      m_robotContainer.getFeeder().setBeambreakBroken();
+    }
+
+    // schedule the autonomous command
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
-
-    // set default commands for shooter and intake
-    m_robotContainer
-        .getShooter()
-        .setDefaultCommand(
-            new PreSpinShooterCmd(m_robotContainer.getShooter(), m_robotContainer::getRobotPose));
-    m_robotContainer
-        .getIntake()
-        .setDefaultCommand(
-            new IntakeCmd(
-                m_robotContainer.getIntake(),
-                m_robotContainer.getFeeder(),
-                m_robotContainer.getWrist(),
-                m_robotContainer.getArm(),
-                m_robotContainer.getController(),
-                m_robotContainer::getRobotPose,
-                m_robotContainer.getVision()::removeNoteFromSimulation));
 
     // Reset NoteVisualizer
     NoteVisualizer.resetFieldNotes();
@@ -150,14 +141,48 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+    // spin shooter
+    double rpm =
+        TargetingUtil.getShooterRPM(
+            TargetingUtil.getDistanceToSpeaker(m_robotContainer.getRobotPose()));
+    m_robotContainer.getShooter().runAtVelocityRPM(rpm);
 
-  /** This function is called once when autonomous ends */
-  @Override
-  public void autonomousExit() {
-    // Clear default commands for shooter and intake
-    m_robotContainer.getShooter().setDefaultCommand(null);
-    m_robotContainer.getIntake().setDefaultCommand(null);
+    // run intake
+    if (!m_robotContainer.getFeeder().getBeambreakBroken()) {
+      m_robotContainer.getIntake().runAtVoltage(IntakeConstants.kIntakeVoltage);
+      m_robotContainer.getFeeder().runAtVoltage(FeederConstants.kIntakeVoltage);
+    } else {
+      // stop intake and feeder
+      m_robotContainer.getIntake().stop();
+      // only manually stop feeder if wrist is stowed so that it can run when shooting
+      if (m_robotContainer.getWrist().isStowed()) {
+        m_robotContainer.getFeeder().stop();
+      }
+    }
+
+    // sim intake if the robot is near a note
+    if (Robot.isSimulation() && !m_robotContainer.getFeeder().getBeambreakBroken()) {
+      Pose3d intakePose =
+          new Pose3d(m_robotContainer.getRobotPose()).transformBy(IntakeConstants.kRobotToIntake);
+      boolean nearNote = false;
+      for (int i = 0; i < NoteVisualizer.getFieldNotes().size(); i++) {
+        Translation2d notePose = NoteVisualizer.getFieldNotes().get(i);
+        if (notePose != null
+            && intakePose.getTranslation().toTranslation2d().getDistance(notePose) < 0.5) {
+          nearNote = true;
+          // Simulate a note being intaked by breaking the beambreak after a delay
+          m_robotContainer.getFeeder().setBeambreakBrokenAfterDelay();
+
+          // remove the note from the field
+          NoteVisualizer.setHasNote(true);
+          NoteVisualizer.takeFieldNote(i);
+          m_robotContainer.getVision().removeNoteFromSimulation(i);
+          break;
+        }
+      }
+      Logger.recordOutput("Intake/SimNearNote", nearNote);
+    }
   }
 
   /** This function is called once when teleop is enabled. */

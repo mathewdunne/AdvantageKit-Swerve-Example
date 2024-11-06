@@ -70,4 +70,11 @@ public class Feeder extends SubsystemBase {
       ((FeederIOSim) m_io).setBeambreakUnbrokenAfterDelay();
     }
   }
+
+  /** Sets the beambreak to be broken immediately in simulation */
+  public void setBeambreakBroken() {
+    if (m_io instanceof FeederIOSim) {
+      ((FeederIOSim) m_io).setBeambreakBroken();
+    }
+  }
 }

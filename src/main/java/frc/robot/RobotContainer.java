@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.RobotController;
@@ -19,6 +20,8 @@ import frc.robot.Constants.ControllerConstants;
 import frc.robot.Constants.ModuleLocation;
 import frc.robot.commands.AimAtSpeakerCmd;
 import frc.robot.commands.AmpCmd;
+import frc.robot.commands.AutoSpeakerShotCmd;
+import frc.robot.commands.AutoSubwooferShotCmd;
 import frc.robot.commands.FeederAmpCmd;
 import frc.robot.commands.FeederEjectCmd;
 import frc.robot.commands.FeederShootCmd;
@@ -147,18 +150,6 @@ public class RobotContainer {
         break;
     }
 
-    // Set up auto routines
-    // NamedCommands.registerCommand(
-    //     "Run Shooter",
-    //     Commands.startEnd(
-    //             () -> m_shooter.runVelocity(m_ShooterSpeedInput.get()), m_shooter::stop,
-    // m_shooter)
-    //         .withTimeout(5.0));
-    m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
-    // Set up SysId routines
-    addSysIDRoutines(m_autoChooser);
-
     // Create master drive command
     m_driveCmd =
         new SwerveDriveCmd(
@@ -167,6 +158,16 @@ public class RobotContainer {
             () -> -m_driverController.getLeftX(),
             () -> -m_driverController.getRightX(),
             () -> m_vision.getClosestNote());
+
+    // Set up auto routines
+    NamedCommands.registerCommand(
+        "shoot", new AutoSpeakerShotCmd(m_swerveDrive, m_wrist, m_shooter, m_feeder));
+    NamedCommands.registerCommand("subwooferShot", new AutoSubwooferShotCmd(m_feeder, m_wrist));
+
+    m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
+
+    // Set up SysId routines
+    addSysIDRoutines(m_autoChooser);
 
     // Configure the button bindings
     configureButtonBindings();
