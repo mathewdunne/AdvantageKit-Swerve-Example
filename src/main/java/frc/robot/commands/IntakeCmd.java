@@ -110,8 +110,8 @@ public class IntakeCmd extends Command {
       NoteVisualizer.setHasNote(true);
 
       // remove the note from the field
-      // index 11 and 12 are source, don't remove them
-      if (m_noteIndex != -1 && m_noteIndex <= 10) {
+      // index 0 and 1 are source, don't remove them
+      if (m_noteIndex != -1 && m_noteIndex > 1) {
         NoteVisualizer.takeFieldNote(m_noteIndex);
         m_removeSimNoteCallback.execute(m_noteIndex);
         m_noteIndex = -1;
