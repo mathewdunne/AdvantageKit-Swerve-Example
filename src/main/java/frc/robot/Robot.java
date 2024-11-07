@@ -168,7 +168,8 @@ public class Robot extends LoggedRobot {
     }
 
     // sim intake if the robot is near a note
-    if (Robot.isSimulation() && !m_robotContainer.getFeeder().getBeambreakBroken()) {
+    if (Constants.kCurrentMode == Constants.Mode.SIM
+        && !m_robotContainer.getFeeder().getBeambreakBroken()) {
       Pose3d intakePose =
           new Pose3d(m_robotContainer.getRobotPose()).transformBy(IntakeConstants.kRobotToIntake);
       boolean nearNote = false;

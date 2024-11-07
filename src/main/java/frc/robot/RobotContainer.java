@@ -177,7 +177,7 @@ public class RobotContainer {
     configureButtonBindings();
 
     // Set suppliers for note visualizer
-    if (Robot.isSimulation()) {
+    if (Constants.kCurrentMode == Constants.Mode.SIM) {
       NoteVisualizer.setRobotPoseSupplier(m_swerveDrive::getSimTruePose);
     } else {
       NoteVisualizer.setRobotPoseSupplier(m_swerveDrive::getPose);

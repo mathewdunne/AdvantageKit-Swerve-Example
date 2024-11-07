@@ -9,8 +9,8 @@ import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
+import frc.robot.Constants;
 import frc.robot.Constants.VisionConstants;
-import frc.robot.Robot;
 import frc.robot.util.NoteModel;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -109,7 +109,7 @@ public class VisionIOPhotonSim implements VisionIO {
   /** Updates the simulation with the true robot pose. Must be called from a subsystem */
   @Override
   public void simulationPeriodic(Pose2d simTruePose) {
-    if (Robot.isSimulation()) {
+    if (Constants.kCurrentMode == Constants.Mode.SIM) {
       m_visionSimWorldApriltags.update(simTruePose);
       m_visionSimWorldGamePieces.update(simTruePose);
     }

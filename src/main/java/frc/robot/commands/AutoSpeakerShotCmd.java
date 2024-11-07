@@ -7,10 +7,10 @@ package frc.robot.commands;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.Constants.AimDriveMode;
 import frc.robot.Constants.FeederConstants;
 import frc.robot.Constants.WristConstants;
-import frc.robot.Robot;
 import frc.robot.subsystems.drive.SwerveDrive;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
@@ -88,7 +88,7 @@ public class AutoSpeakerShotCmd extends Command {
       m_feeder.runAtVoltage(FeederConstants.kFeedVoltage);
 
       // Simulate a note being shot by un-breaking the beambreak after a delay
-      if (Robot.isSimulation()) {
+      if (Constants.kCurrentMode == Constants.Mode.SIM) {
         m_feeder.setBeambreakUnbrokenAfterDelay();
       }
     }

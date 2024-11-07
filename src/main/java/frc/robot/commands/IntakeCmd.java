@@ -11,9 +11,9 @@ import edu.wpi.first.wpilibj.GenericHID.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
+import frc.robot.Constants;
 import frc.robot.Constants.FeederConstants;
 import frc.robot.Constants.IntakeConstants;
-import frc.robot.Robot;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
@@ -82,7 +82,7 @@ public class IntakeCmd extends Command {
     }
 
     // only allow sim intake if the robot is near a note
-    if (Robot.isSimulation()) {
+    if (Constants.kCurrentMode == Constants.Mode.SIM) {
       Pose3d intakePose =
           new Pose3d(m_poseSupplier.get()).transformBy(IntakeConstants.kRobotToIntake);
       boolean nearNote = false;
