@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.ScheduleCommand;
+import frc.robot.Constants;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -22,7 +23,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class NoteVisualizer {
   private static final double shotSpeed = 15.0; // Meters per sec
-  private static final double ejectSpeed = 1.5; // Meters per sec
+  private static final double ejectSpeed = 2; // Meters per sec
   private static Supplier<Pose2d> robotPoseSupplier = Pose2d::new;
   private static Supplier<Pose3d> wristPoseSupplier = Pose3d::new;
   private static final List<Translation2d> fieldNotes = new ArrayList<>();
@@ -171,14 +172,14 @@ public class NoteVisualizer {
   }
 
   /** Ejects note out the back of the indexer */
-  public static Command eject() {
+  public static Command eject(VisionSimNoteCallback visionSimNoteCallback) {
     return new ScheduleCommand( // Branch off and exit immediately
         Commands.defer(
                 () -> {
                   hasNote = false;
                   final Pose3d startPose = getIndexerPose3d();
                   final Pose3d endPose =
-                      startPose.transformBy(new Transform3d(-0.5, 0, 0, new Rotation3d()));
+                      startPose.transformBy(new Transform3d(-0.6, 0, 0, new Rotation3d()));
 
                   final double duration =
                       startPose.getTranslation().getDistance(endPose.getTranslation()) / ejectSpeed;
@@ -193,7 +194,17 @@ public class NoteVisualizer {
                                   }))
                       .until(() -> timer.hasElapsed(duration))
                       .finallyDo(
-                          () -> Logger.recordOutput("NoteVisualizer/ShotNotes", new Pose3d[] {}));
+                          () -> {
+                            Logger.recordOutput("NoteVisualizer/ShotNotes", new Pose3d[] {});
+                            // Put note on the field where it was ejected
+                            fieldNotes.add(endPose.getTranslation().toTranslation2d());
+                            NoteVisualizer.showFieldNotes();
+
+                            // Add it to the vision simulation
+                            if (Constants.kCurrentMode == Constants.Mode.SIM) {
+                              visionSimNoteCallback.execute(endPose);
+                            }
+                          });
                 },
                 Set.of())
             .ignoringDisable(true));

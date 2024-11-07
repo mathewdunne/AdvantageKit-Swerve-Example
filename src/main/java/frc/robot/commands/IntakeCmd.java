@@ -19,7 +19,7 @@ import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.intake.Intake;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.util.NoteVisualizer;
-import frc.robot.util.RemoveSimNoteCallback;
+import frc.robot.util.VisionSimNoteCallback;
 import java.util.function.Supplier;
 import org.littletonrobotics.junction.Logger;
 
@@ -32,7 +32,7 @@ public class IntakeCmd extends Command {
   private final Arm m_arm;
   private final CommandGenericHID m_controller;
   private final Supplier<Pose2d> m_poseSupplier;
-  private final RemoveSimNoteCallback m_removeSimNoteCallback;
+  private final VisionSimNoteCallback m_visionSimNoteCallback;
 
   private double m_timer = 0;
   private final double m_rumbleDuration = 0.2;
@@ -47,14 +47,14 @@ public class IntakeCmd extends Command {
       Arm arm,
       CommandGenericHID controller,
       Supplier<Pose2d> poseSupplier,
-      RemoveSimNoteCallback removeSimNoteCallback) {
+      VisionSimNoteCallback removeSimNoteCallback) {
     m_intake = intake;
     m_feeder = feeder;
     m_wrist = wrist;
     m_arm = arm;
     m_controller = controller;
     m_poseSupplier = poseSupplier;
-    m_removeSimNoteCallback = removeSimNoteCallback;
+    m_visionSimNoteCallback = removeSimNoteCallback;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_intake, m_feeder);
@@ -113,7 +113,7 @@ public class IntakeCmd extends Command {
       // index 0 and 1 are source, don't remove them
       if (m_noteIndex != -1 && m_noteIndex > 1) {
         NoteVisualizer.takeFieldNote(m_noteIndex);
-        m_removeSimNoteCallback.execute(m_noteIndex);
+        m_visionSimNoteCallback.execute(m_noteIndex);
         m_noteIndex = -1;
       }
     }

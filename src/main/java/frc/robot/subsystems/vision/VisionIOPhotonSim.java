@@ -5,12 +5,16 @@
 package frc.robot.subsystems.vision;
 
 import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Rotation3d;
 import edu.wpi.first.math.util.Units;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.Robot;
 import frc.robot.util.NoteModel;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.photonvision.PhotonCamera;
 import org.photonvision.estimation.TargetModel;
 import org.photonvision.simulation.PhotonCameraSim;
@@ -29,7 +33,7 @@ public class VisionIOPhotonSim implements VisionIO {
   private final VisionSystemSim m_visionSimWorldApriltags;
   private final VisionSystemSim m_visionSimWorldGamePieces;
 
-  private final VisionTargetSim[] m_noteTargets;
+  private final List<VisionTargetSim> m_noteTargets;
 
   // Simulated camera streams are CPU intensive and can be disabled when not needed
   boolean renderSim = true;
@@ -46,11 +50,12 @@ public class VisionIOPhotonSim implements VisionIO {
     // Different simulated world with game piece targets
     m_visionSimWorldGamePieces = new VisionSystemSim("gamePieces");
     TargetModel noteModel = NoteModel.getNoteModel();
-    m_noteTargets = new VisionTargetSim[NoteModel.getNotePositions().size()];
-    for (int i = 0; i < m_noteTargets.length; i++) {
-      m_noteTargets[i] = new VisionTargetSim(NoteModel.getNotePositions().get(i), noteModel);
+    m_noteTargets = new ArrayList<>();
+    for (int i = 0; i < NoteModel.getNotePositions().size(); i++) {
+      m_noteTargets.add(new VisionTargetSim(NoteModel.getNotePositions().get(i), noteModel));
     }
-    m_visionSimWorldGamePieces.addVisionTargets("note", m_noteTargets);
+    m_visionSimWorldGamePieces.addVisionTargets(
+        "note", m_noteTargets.toArray(new VisionTargetSim[0]));
 
     // Create simulated camera properties. These can be set to mimic your actual camera.
     SimCameraProperties shooterCameraProps;
@@ -110,8 +115,35 @@ public class VisionIOPhotonSim implements VisionIO {
     }
   }
 
-  /** Removes a note from the simulation world */
-  public void removeNoteFromSimulation(int noteIndex) {
-    m_visionSimWorldGamePieces.removeVisionTargets(m_noteTargets[noteIndex]);
+  /*
+   * Adds or removes a note from the simulation world
+   * @param param - Integer index to remove a note, or Pose3d to add a note
+   */
+  public void manageNotesInSimulation(Object param) {
+    // remove a note
+    if (param instanceof Integer) {
+      int index = (Integer) param;
+      if (index >= 0 && index < m_noteTargets.size()) {
+        VisionTargetSim targetToRemove = m_noteTargets.get(index);
+        m_visionSimWorldGamePieces.removeVisionTargets(targetToRemove);
+      } else {
+        System.out.println("[VisionSim] Invalid index for removal.");
+      }
+
+      // add a note
+    } else if (param instanceof Pose3d) {
+      Pose3d notePose = (Pose3d) param;
+      VisionTargetSim noteModel =
+          new VisionTargetSim(
+              new Pose3d(
+                  notePose.getX(), notePose.getY(), Units.inchesToMeters(1.0), new Rotation3d()),
+              NoteModel.getNoteModel());
+      m_noteTargets.add(noteModel);
+      m_visionSimWorldGamePieces.addVisionTargets("note", noteModel);
+
+      // error
+    } else {
+      System.out.println("[VisionSim] Invalid parameter type for manageNotesInSimulation");
+    }
   }
 }

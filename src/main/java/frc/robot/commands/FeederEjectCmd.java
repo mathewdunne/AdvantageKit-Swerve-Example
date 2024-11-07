@@ -12,21 +12,25 @@ import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.wrist.Wrist;
 import frc.robot.util.NoteVisualizer;
+import frc.robot.util.VisionSimNoteCallback;
 
 public class FeederEjectCmd extends Command {
 
   private final Feeder m_feeder;
   private final Wrist m_wrist;
   private final Arm m_arm;
+  private final VisionSimNoteCallback m_visionSimNoteCallback;
 
   private boolean m_showedVisualizer = false;
 
   /** Creates a new FeederEjectCmd. */
-  public FeederEjectCmd(Feeder feeder, Wrist wrist, Arm arm) {
+  public FeederEjectCmd(
+      Feeder feeder, Wrist wrist, Arm arm, VisionSimNoteCallback visionSimNoteCallback) {
 
     m_feeder = feeder;
     m_wrist = wrist;
     m_arm = arm;
+    m_visionSimNoteCallback = visionSimNoteCallback;
 
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(m_feeder, m_wrist);
@@ -51,7 +55,7 @@ public class FeederEjectCmd extends Command {
 
       // Show a note ejecting
       if (!m_showedVisualizer && NoteVisualizer.getHasNote()) {
-        NoteVisualizer.eject().schedule();
+        NoteVisualizer.eject(m_visionSimNoteCallback).schedule();
         m_showedVisualizer = true;
       }
     } else {

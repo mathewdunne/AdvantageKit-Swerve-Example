@@ -177,7 +177,7 @@ public class Robot extends LoggedRobot {
           // remove the note from the field
           NoteVisualizer.setHasNote(true);
           NoteVisualizer.takeFieldNote(i);
-          m_robotContainer.getVision().removeNoteFromSimulation(i);
+          m_robotContainer.getVision().manageNotesInSimulation(i);
           break;
         }
       }

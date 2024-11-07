@@ -243,7 +243,7 @@ public class RobotContainer {
                 m_arm,
                 m_driverController,
                 m_swerveDrive::getPose,
-                m_vision::removeNoteFromSimulation));
+                m_vision::manageNotesInSimulation));
 
     // Track Note
     m_driverController
@@ -305,7 +305,9 @@ public class RobotContainer {
         .onTrue(new InstantCommand(() -> m_driveCmd.setAimDriveMode(AimDriveMode.FACE_BACKWARD)));
 
     // Eject
-    m_driverController.back().whileTrue(new FeederEjectCmd(m_feeder, m_wrist, m_arm));
+    m_driverController
+        .back()
+        .whileTrue(new FeederEjectCmd(m_feeder, m_wrist, m_arm, m_vision::manageNotesInSimulation));
   }
 
   /**
