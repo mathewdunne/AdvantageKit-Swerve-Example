@@ -163,6 +163,10 @@ public class RobotContainer {
     NamedCommands.registerCommand(
         "shoot", new AutoSpeakerShotCmd(m_swerveDrive, m_wrist, m_shooter, m_feeder, m_intake));
     NamedCommands.registerCommand("subwooferShot", new AutoSubwooferShotCmd(m_feeder, m_wrist));
+    NamedCommands.registerCommand(
+        "eject",
+        new FeederEjectCmd(m_feeder, m_wrist, m_arm, m_vision::manageNotesInSimulation)
+            .withTimeout(1));
 
     m_autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 

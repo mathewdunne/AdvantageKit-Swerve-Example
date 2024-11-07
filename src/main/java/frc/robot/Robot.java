@@ -15,6 +15,7 @@ package frc.robot;
 
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.Constants.FeederConstants;
@@ -37,6 +38,11 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
+
+  // timer for simulating intake in auto
+  private double m_noteIntakeStartTime = 0;
+  private double m_nearNoteTimerDuration = 0.5;
+  private int m_nearNoteIndex = -1;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -171,17 +177,28 @@ public class Robot extends LoggedRobot {
         if (notePose != null
             && intakePose.getTranslation().toTranslation2d().getDistance(notePose) < 0.5) {
           nearNote = true;
-          // Simulate a note being intaked by breaking the beambreak after a delay
-          m_robotContainer.getFeeder().setBeambreakBrokenAfterDelay();
-
-          // remove the note from the field
-          NoteVisualizer.setHasNote(true);
-          NoteVisualizer.takeFieldNote(i);
-          m_robotContainer.getVision().manageNotesInSimulation(i);
+          m_nearNoteIndex = i;
           break;
         }
       }
       Logger.recordOutput("Intake/SimNearNote", nearNote);
+
+      if (nearNote) {
+        if (m_noteIntakeStartTime == 0) {
+          m_noteIntakeStartTime = Timer.getFPGATimestamp();
+        } else if (Timer.getFPGATimestamp() - m_noteIntakeStartTime >= m_nearNoteTimerDuration) {
+          // Simulate a note being intaked by breaking the beambreak after a delay
+          m_robotContainer.getFeeder().setBeambreakBroken();
+
+          // remove the note from the field
+          NoteVisualizer.setHasNote(true);
+          NoteVisualizer.takeFieldNote(m_nearNoteIndex);
+          m_robotContainer.getVision().manageNotesInSimulation(m_nearNoteIndex);
+          m_nearNoteIndex = -1;
+        }
+      } else {
+        m_noteIntakeStartTime = 0;
+      }
     }
   }
 
