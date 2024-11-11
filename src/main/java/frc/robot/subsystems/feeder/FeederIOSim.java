@@ -65,9 +65,14 @@ public class FeederIOSim implements FeederIO {
     if (!m_beambreakBroken || m_updateBeambreakFlag) {
       return;
     }
-    m_timeToUpdateBeambreak = Timer.getFPGATimestamp() + getRandomDouble(0.2, 0.7);
+    m_timeToUpdateBeambreak = Timer.getFPGATimestamp() + getRandomDouble(0.1, 0.4);
     m_updateBeambreakFlag = true;
     m_beambreakNextState = false;
+  }
+
+  /** Set the state of the beambreak to broken immediately */
+  public void setBeambreakBroken() {
+    m_beambreakBroken = true;
   }
 
   public void cancelSetBeambreak() {

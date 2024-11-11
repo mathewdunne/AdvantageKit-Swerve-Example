@@ -297,14 +297,15 @@ public class SwerveDrive extends SubsystemBase {
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
     m_poseEstimator.resetPosition(m_rawGyroRotation, getModulePositions(), pose);
+
+    if (Constants.kCurrentMode == Constants.Mode.SIM) {
+      m_simTruePose = pose;
+    }
   }
 
   /** Resets the current odometry pose (0, 0) */
   public void resetOdometry() {
     setPose(new Pose2d());
-    if (Constants.kCurrentMode == Constants.Mode.SIM) {
-      m_simTruePose = new Pose2d();
-    }
   }
 
   /**
@@ -349,6 +350,7 @@ public class SwerveDrive extends SubsystemBase {
   }
 
   /** Gets whether or not the AimLock PID is at its setpoint */
+  @AutoLogOutput(key = "Odometry/AimedAtSetpoint")
   public boolean aimedAtSetpoint() {
     return m_aimLockPID.atSetpoint();
   }

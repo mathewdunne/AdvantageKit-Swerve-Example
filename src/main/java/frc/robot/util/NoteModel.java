@@ -185,6 +185,10 @@ public class NoteModel {
 
   public static List<Pose3d> getNotePositions() {
     List<Pose3d> notePositions = new ArrayList<>();
+    // sources (index 0 and 1)
+    notePositions.add(new Pose3d(0.98, 0.87, 0, new Rotation3d()));
+    notePositions.add(new Pose3d(15.56, 0.87, 0, new Rotation3d()));
+
     // blue side
     notePositions.add(new Pose3d(2.90, 4.11, 0, new Rotation3d()));
     notePositions.add(new Pose3d(2.90, 5.56, 0, new Rotation3d()));
@@ -202,9 +206,6 @@ public class NoteModel {
     notePositions.add(new Pose3d(13.64, 5.56, 0, new Rotation3d()));
     notePositions.add(new Pose3d(13.64, 7.01, 0, new Rotation3d()));
 
-    // sources (index 11 and 12)
-    notePositions.add(new Pose3d(0.98, 0.87, 0, new Rotation3d()));
-    notePositions.add(new Pose3d(15.56, 0.87, 0, new Rotation3d()));
     return notePositions;
   }
 }

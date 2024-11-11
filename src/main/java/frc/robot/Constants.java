@@ -242,5 +242,6 @@ public final class Constants {
     public static final double kMaxAngleRad = Units.degreesToRadians(135);
     public static final double kStowedAngleRad = Units.degreesToRadians(67);
     public static final double kAmpAngleRad = Units.degreesToRadians(60);
+    public static final double kSubwooferAngleRad = Units.degreesToRadians(63);
   }
 }

@@ -136,9 +136,9 @@ public class Vision extends SubsystemBase {
   }
 
   /** Removes a note from the simulation world */
-  public void removeNoteFromSimulation(int noteIndex) {
+  public void manageNotesInSimulation(Object param) {
     if (m_io instanceof VisionIOPhotonSim) {
-      ((VisionIOPhotonSim) m_io).removeNoteFromSimulation(noteIndex);
+      ((VisionIOPhotonSim) m_io).manageNotesInSimulation(param);
     }
   }
 }

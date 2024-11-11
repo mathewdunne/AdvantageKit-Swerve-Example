@@ -1,0 +1,43 @@
+{
+  "version": 1.0,
+  "startingPose": {
+    "position": {
+      "x": 1.3619956970214844,
+      "y": 5.574613571166992
+    },
+    "rotation": 179.90874767107852
+  },
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MiddleSide_Wing_4n.1"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MiddleSide_Wing_4n.2"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MiddleSide_Wing_4n.3"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "MiddleSide_Wing_4n.4"
+          }
+        }
+      ]
+    }
+  },
+  "folder": null,
+  "choreoAuto": true
+}

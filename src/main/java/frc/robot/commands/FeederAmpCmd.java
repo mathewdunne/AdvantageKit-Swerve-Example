@@ -5,8 +5,10 @@
 package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
+import frc.robot.Constants.ArmConstants;
 import frc.robot.Constants.FeederConstants;
-import frc.robot.Robot;
+import frc.robot.Constants.WristConstants;
 import frc.robot.subsystems.arm.Arm;
 import frc.robot.subsystems.feeder.Feeder;
 import frc.robot.subsystems.wrist.Wrist;
@@ -35,7 +37,7 @@ public class FeederAmpCmd extends Command {
     m_feeder.runAtVoltage(FeederConstants.kFeedVoltage);
 
     // Simulate a note being shot by un-breaking the beambreak after a delay
-    if (Robot.isSimulation()) {
+    if (Constants.kCurrentMode == Constants.Mode.SIM) {
       m_feeder.setBeambreakUnbrokenAfterDelay();
     }
   }
@@ -53,7 +55,8 @@ public class FeederAmpCmd extends Command {
     }
 
     // stow the arm and wrist
-    new StowArmWristCmd(m_arm, m_wrist).schedule();
+    m_arm.setAngleSetpoint(ArmConstants.kStowedAngleRad);
+    m_wrist.setAngleSetpoint(WristConstants.kStowedAngleRad);
   }
 
   // Returns true when the command should end.
