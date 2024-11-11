@@ -13,15 +13,8 @@
 
 package frc.robot;
 
-import edu.wpi.first.math.geometry.Pose3d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
-import frc.robot.Constants.FeederConstants;
-import frc.robot.Constants.IntakeConstants;
-import frc.robot.util.NoteVisualizer;
-import frc.robot.util.TargetingUtil;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -38,11 +31,6 @@ import org.littletonrobotics.junction.wpilog.WPILOGWriter;
 public class Robot extends LoggedRobot {
   private Command m_autonomousCommand;
   private RobotContainer m_robotContainer;
-
-  // timer for simulating intake in auto
-  private double m_noteIntakeStartTime = 0;
-  private double m_nearNoteTimerDuration = 0.5;
-  private int m_nearNoteIndex = -1;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -111,9 +99,6 @@ public class Robot extends LoggedRobot {
     // This must be called from the robot's periodic block in order for anything in
     // the Command-based framework to work.
     CommandScheduler.getInstance().run();
-
-    // Update NoteVisualizer
-    NoteVisualizer.showHeldNotes();
   }
 
   /** This function is called once when the robot is disabled. */
@@ -129,79 +114,15 @@ public class Robot extends LoggedRobot {
   public void autonomousInit() {
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
 
-    // set beambreak broken if in simulation
-    if (Constants.kCurrentMode == Constants.Mode.SIM) {
-      m_robotContainer.getFeeder().setBeambreakBroken();
-    }
-
     // schedule the autonomous command
     if (m_autonomousCommand != null) {
       m_autonomousCommand.schedule();
     }
-
-    // Reset NoteVisualizer
-    NoteVisualizer.resetFieldNotes();
-    NoteVisualizer.showFieldNotes();
-    NoteVisualizer.setHasNote(true);
   }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {
-    // spin shooter
-    double rpm =
-        TargetingUtil.getShooterRPM(
-            TargetingUtil.getDistanceToSpeaker(m_robotContainer.getRobotPose()));
-    m_robotContainer.getShooter().runAtVelocityRPM(rpm);
-
-    // run intake
-    if (!m_robotContainer.getFeeder().getBeambreakBroken()) {
-      m_robotContainer.getIntake().runAtVoltage(IntakeConstants.kIntakeVoltage);
-      m_robotContainer.getFeeder().runAtVoltage(FeederConstants.kIntakeVoltage);
-    } else {
-      // stop intake and feeder
-      m_robotContainer.getIntake().stop();
-      // only manually stop feeder if wrist is stowed so that it can run when shooting
-      if (m_robotContainer.getWrist().isStowed()) {
-        m_robotContainer.getFeeder().stop();
-      }
-    }
-
-    // sim intake if the robot is near a note
-    if (Constants.kCurrentMode == Constants.Mode.SIM
-        && !m_robotContainer.getFeeder().getBeambreakBroken()) {
-      Pose3d intakePose =
-          new Pose3d(m_robotContainer.getRobotPose()).transformBy(IntakeConstants.kRobotToIntake);
-      boolean nearNote = false;
-      for (int i = 0; i < NoteVisualizer.getFieldNotes().size(); i++) {
-        Translation2d notePose = NoteVisualizer.getFieldNotes().get(i);
-        if (notePose != null
-            && intakePose.getTranslation().toTranslation2d().getDistance(notePose) < 0.5) {
-          nearNote = true;
-          m_nearNoteIndex = i;
-          break;
-        }
-      }
-      Logger.recordOutput("Intake/SimNearNote", nearNote);
-
-      if (nearNote) {
-        if (m_noteIntakeStartTime == 0) {
-          m_noteIntakeStartTime = Timer.getFPGATimestamp();
-        } else if (Timer.getFPGATimestamp() - m_noteIntakeStartTime >= m_nearNoteTimerDuration) {
-          // Simulate a note being intaked by breaking the beambreak after a delay
-          m_robotContainer.getFeeder().setBeambreakBroken();
-
-          // remove the note from the field
-          NoteVisualizer.setHasNote(true);
-          NoteVisualizer.takeFieldNote(m_nearNoteIndex);
-          m_robotContainer.getVision().manageNotesInSimulation(m_nearNoteIndex);
-          m_nearNoteIndex = -1;
-        }
-      } else {
-        m_noteIntakeStartTime = 0;
-      }
-    }
-  }
+  public void autonomousPeriodic() {}
 
   /** This function is called once when teleop is enabled. */
   @Override
@@ -213,10 +134,6 @@ public class Robot extends LoggedRobot {
     if (m_autonomousCommand != null) {
       m_autonomousCommand.cancel();
     }
-
-    // Reset NoteVisualizer
-    NoteVisualizer.resetFieldNotes();
-    NoteVisualizer.showFieldNotes();
   }
 
   /** This function is called periodically during operator control. */
