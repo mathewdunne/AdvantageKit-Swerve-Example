@@ -24,7 +24,6 @@ import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -42,10 +41,8 @@ import org.littletonrobotics.junction.Logger;
 
 public class SwerveDrive extends SubsystemBase {
   private static final double m_maxLinearSpeed = DriveConstants.kMaxSpeedMetersPerSecond;
-  private static final double m_trackWidthX =
-      Units.inchesToMeters(DriveConstants.kTrackLengthInches);
-  private static final double m_trackWidthY =
-      Units.inchesToMeters(DriveConstants.kTrackWidthInches);
+  private static final double m_trackWidthX = DriveConstants.kTrackLengthMeters;
+  private static final double m_trackWidthY = DriveConstants.kTrackWidthMeters;
   private static final double m_driveBaseRadius =
       Math.hypot(m_trackWidthX / 2.0, m_trackWidthY / 2.0);
   private static final double m_maxAngularSpeed = m_maxLinearSpeed / m_driveBaseRadius;
@@ -94,7 +91,11 @@ public class SwerveDrive extends SubsystemBase {
         () -> m_kinematics.toChassisSpeeds(getModuleStates()),
         this::runVelocity,
         new HolonomicPathFollowerConfig(
-            m_maxLinearSpeed, m_driveBaseRadius, new ReplanningConfig()),
+            DriveConstants.PathPlannerConstants.kTranslationPID,
+            DriveConstants.PathPlannerConstants.kRotationPID,
+            DriveConstants.kMaxSpeedMetersPerSecond,
+            m_driveBaseRadius,
+            new ReplanningConfig()),
         () ->
             DriverStation.getAlliance().isPresent()
                 && DriverStation.getAlliance().get() == Alliance.Red,

@@ -81,18 +81,15 @@ public class SwerveDriveCmd extends Command {
     omega = Math.copySign(omega * omega, omega);
 
     // Scale the velocities to the robot's maximum speed
-    double maxLinearSpeed = m_swerveDrive.getMaxLinearSpeedMetersPerSec();
-    double maxAngularSpeed = m_swerveDrive.getMaxAngularSpeedRadPerSec();
-
-    double vx = adjustedX * maxLinearSpeed;
-    double vy = adjustedY * maxLinearSpeed;
+    double vx = adjustedX * m_swerveDrive.getMaxLinearSpeedMetersPerSec();
+    double vy = adjustedY * m_swerveDrive.getMaxLinearSpeedMetersPerSec();
 
     double omegaRadiansPerSec;
 
     // Determine omega based on aim mode
     if (m_aimDriveMode == AimDriveMode.NONE || true) {
       // Manual control of omega
-      omegaRadiansPerSec = omega * maxAngularSpeed;
+      omegaRadiansPerSec = omega * m_swerveDrive.getMaxAngularSpeedRadPerSec();
     }
 
     // Determine if the robot orientation should be flipped based on alliance color

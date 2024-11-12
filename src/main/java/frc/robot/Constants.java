@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.pathplanner.lib.util.PIDConstants;
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -51,20 +52,26 @@ public final class Constants {
   }
 
   public static final class DriveConstants {
-    public static final double kTrackWidthInches = 28.0;
-    public static final double kTrackLengthInches = 28.0;
-    public static final double kWheelDiameterInches = 4.0;
+    public static final double kTrackWidthMeters = Units.inchesToMeters(28.0);
+    public static final double kTrackLengthMeters = Units.inchesToMeters(28.0);
+    public static final double kWheelDiameterMeters = Units.inchesToMeters(4.0);
 
     public static final double kSdrive = 0.0;
     public static final double kVdrive = 0.0;
     public static final double kPdrive = 1.0;
     public static final double kIdrive = 0.0;
     public static final double kDdrive = 0.0;
+
     public static final double kPturn = 1.0;
     public static final double kIturn = 0.0;
     public static final double kDturn = 0.0;
 
     public static final double kMaxSpeedMetersPerSecond = 4.5;
+
+    public static final class PathPlannerConstants {
+      public static final PIDConstants kTranslationPID = new PIDConstants(0.1, 0.0, 0.0);
+      public static final PIDConstants kRotationPID = new PIDConstants(0.1, 0.0, 0.0);
+    }
   }
 
   public static final class SwerveModuleConstants {

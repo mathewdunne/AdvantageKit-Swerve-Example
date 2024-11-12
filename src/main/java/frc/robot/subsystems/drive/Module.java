@@ -9,15 +9,13 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.math.util.Units;
 import frc.robot.Constants;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.ModuleLocation;
 import org.littletonrobotics.junction.Logger;
 
 public class Module {
-  private static final double m_wheelRadius =
-      Units.inchesToMeters(DriveConstants.kWheelDiameterInches / 2.0);
+  private static final double m_wheelRadius = DriveConstants.kWheelDiameterMeters / 2.0;
 
   private final ModuleIO m_io;
   private final ModuleIOInputsAutoLogged m_inputs = new ModuleIOInputsAutoLogged();
