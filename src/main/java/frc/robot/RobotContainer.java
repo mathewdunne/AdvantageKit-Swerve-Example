@@ -21,10 +21,6 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOSparkMax;
 import frc.robot.subsystems.drive.SwerveDrive;
-import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.VisionIO;
-import frc.robot.subsystems.vision.VisionIOPhotonReal;
-import frc.robot.subsystems.vision.VisionIOPhotonSim;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -36,7 +32,6 @@ import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 public class RobotContainer {
   // Subsystems
   private final SwerveDrive m_swerveDrive;
-  private final Vision m_vision;
 
   // Controller
   private final CommandXboxController m_driverController =
@@ -60,7 +55,6 @@ public class RobotContainer {
                 new ModuleIOSparkMax(ModuleLocation.FRONT_RIGHT),
                 new ModuleIOSparkMax(ModuleLocation.BACK_LEFT),
                 new ModuleIOSparkMax(ModuleLocation.BACK_RIGHT));
-        m_vision = new Vision(new VisionIOPhotonReal() {}, m_swerveDrive::addVisionMeasurement);
         break;
 
       case SIM:
@@ -72,8 +66,6 @@ public class RobotContainer {
                 new ModuleIOSim(),
                 new ModuleIOSim(),
                 new ModuleIOSim());
-        m_vision = new Vision(new VisionIOPhotonSim() {}, m_swerveDrive::addVisionMeasurement);
-        m_vision.setSimTruePoseSupplier(m_swerveDrive::getSimTruePose);
         break;
 
       default:
@@ -85,7 +77,6 @@ public class RobotContainer {
                 new ModuleIO() {},
                 new ModuleIO() {},
                 new ModuleIO() {});
-        m_vision = new Vision(new VisionIO() {}, m_swerveDrive::addVisionMeasurement);
         break;
     }
 
@@ -154,10 +145,6 @@ public class RobotContainer {
   // Getters
   public Pose2d getRobotPose() {
     return m_swerveDrive.getPose();
-  }
-
-  public Vision getVision() {
-    return m_vision;
   }
 
   public CommandXboxController getController() {
