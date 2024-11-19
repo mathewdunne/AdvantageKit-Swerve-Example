@@ -21,7 +21,8 @@ import edu.wpi.first.math.util.Units;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
-  public static final Mode kCurrentMode = Mode.SIM;
+  public static final Mode kCurrentMode = Robot.isReal() ? Mode.REAL : Mode.SIM;
+  // public static final Mode kCurrentMode = Mode.REPLAY;
 
   public static enum Mode {
     /** Running on a real robot. */
