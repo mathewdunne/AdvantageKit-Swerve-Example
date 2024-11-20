@@ -53,9 +53,9 @@ public final class Constants {
   }
 
   public static final class DriveConstants {
-    public static final double kTrackWidthMeters = Units.inchesToMeters(28.0);
-    public static final double kTrackLengthMeters = Units.inchesToMeters(28.0);
-    public static final double kWheelDiameterMeters = Units.inchesToMeters(4.0);
+    public static final double kTrackWidthMeters = Units.inchesToMeters(22.35);
+    public static final double kTrackLengthMeters = Units.inchesToMeters(22.35);
+    public static final double kWheelDiameterMeters = Units.inchesToMeters(3.45);
 
     public static final double kSdrive = 0.0;
     public static final double kVdrive = 0.0;
@@ -67,7 +67,7 @@ public final class Constants {
     public static final double kIturn = 0.0;
     public static final double kDturn = 0.0;
 
-    public static final double kMaxSpeedMetersPerSecond = 4.5;
+    public static final double kMaxSpeedMetersPerSecond = 4.2;
 
     public static final class PathPlannerConstants {
       public static final PIDConstants kTranslationPID = new PIDConstants(0.1, 0.0, 0.0);
@@ -76,25 +76,28 @@ public final class Constants {
   }
 
   public static final class SwerveModuleConstants {
-    public static final int kFrontLeftDriveMotorPort = 0;
-    public static final int kFrontLeftTurningMotorPort = 1;
-    public static final int kFrontLeftEncoderPort = 0;
-    public static final double kFrontLeftEncoderOffset = 0.0;
 
-    public static final int kFrontRightDriveMotorPort = 2;
-    public static final int kFrontRightTurningMotorPort = 3;
-    public static final int kFrontRightEncoderPort = 1;
-    public static final double kFrontRightEncoderOffset = 0.0;
+    // I hope module number corresponds with encoder port
 
-    public static final int kBackLeftDriveMotorPort = 4;
-    public static final int kBackLeftTurningMotorPort = 5;
-    public static final int kBackLeftEncoderPort = 2;
-    public static final double kBackLeftEncoderOffset = 0.0;
+    public static final int kFrontLeftDriveMotorPort = 13;
+    public static final int kFrontLeftTurningMotorPort = 23;
+    public static final int kFrontLeftEncoderPort = 3;
+    public static final double kFrontLeftEncoderOffset = 2.574;
 
-    public static final int kBackRightDriveMotorPort = 6;
-    public static final int kBackRightTurningMotorPort = 7;
-    public static final int kBackRightEncoderPort = 3;
-    public static final double kBackRightEncoderOffset = 0.0;
+    public static final int kFrontRightDriveMotorPort = 12;
+    public static final int kFrontRightTurningMotorPort = 22;
+    public static final int kFrontRightEncoderPort = 2;
+    public static final double kFrontRightEncoderOffset = -0.345;
+
+    public static final int kBackLeftDriveMotorPort = 10;
+    public static final int kBackLeftTurningMotorPort = 20;
+    public static final int kBackLeftEncoderPort = 0;
+    public static final double kBackLeftEncoderOffset = -2.483;
+
+    public static final int kBackRightDriveMotorPort = 11;
+    public static final int kBackRightTurningMotorPort = 21;
+    public static final int kBackRightEncoderPort = 1;
+    public static final double kBackRightEncoderOffset = -1.296;
 
     // Gear ratios for SDS MK4i L2, adjust as necessary
     public static final double kDriveGearRatio = (50.0 / 14.0) * (17.0 / 27.0) * (45.0 / 15.0);
