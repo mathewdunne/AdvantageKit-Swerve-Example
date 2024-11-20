@@ -143,6 +143,9 @@ public class SwerveDrive extends SubsystemBase {
     if (Constants.kCurrentMode == Constants.Mode.SIM) {
       m_simTruePose = new Pose2d();
     }
+
+    // Reset pose on boot
+    resetOdometry();
   }
 
   public void periodic() {

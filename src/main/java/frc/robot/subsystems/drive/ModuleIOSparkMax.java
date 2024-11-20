@@ -122,7 +122,8 @@ public class ModuleIOSparkMax implements ModuleIO {
         new Rotation2d(
                 m_turnAbsoluteEncoder.getVoltage() / RobotController.getVoltage5V() * 2.0 * Math.PI)
             .minus(m_absoluteEncoderOffset);
-    inputs.turnPosition = inputs.turnAbsolutePosition;
+    inputs.turnPosition =
+            Rotation2d.fromRotations(m_turnRelativeEncoder.getPosition() / SwerveModuleConstants.kTurnGearRatio);
     inputs.turnVelocityRadPerSec =
         Units.rotationsPerMinuteToRadiansPerSecond(m_turnRelativeEncoder.getVelocity())
             / SwerveModuleConstants.kTurnGearRatio;
