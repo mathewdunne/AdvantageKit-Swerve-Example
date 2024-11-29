@@ -59,7 +59,7 @@ public final class Constants {
 
     public static final double kSdrive = 0.0;
     public static final double kVdrive = 0.0;
-    public static final double kPdrive = 1.0;
+    public static final double kPdrive = 0.1;
     public static final double kIdrive = 0.0;
     public static final double kDdrive = 0.0;
 
