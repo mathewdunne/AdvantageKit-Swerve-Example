@@ -16,7 +16,9 @@ public class TunablePIDController extends PIDController {
   public TunablePIDController(
       double kP, double kI, double kD, double toleranceRad, String key, boolean tuneMode) {
     super(kP, kI, kD);
-    setTolerance(toleranceRad);
+    if (toleranceRad >= 0) {
+      setTolerance(toleranceRad);
+    }
     m_key = key + "/PID";
     m_tuneMode = tuneMode;
 

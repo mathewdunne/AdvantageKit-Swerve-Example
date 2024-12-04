@@ -57,17 +57,20 @@ public final class Constants {
     public static final double kTrackLengthMeters = Units.inchesToMeters(22.35);
     public static final double kWheelDiameterMeters = Units.inchesToMeters(3.45);
 
-    public static final double kSdrive = 0.0;
-    public static final double kVdrive = 0.0;
-    public static final double kPdrive = 0.1;
+    public static final double kSdrive = 0.18089;
+    public static final double kVdrive = 158.43;
+    public static final double kAdrive = 20.297;
+    public static final double kPdrive = 1.0;
     public static final double kIdrive = 0.0;
     public static final double kDdrive = 0.0;
 
-    public static final double kPturn = 1.0;
+    public static final double kPturn = 6.0;
     public static final double kIturn = 0.0;
-    public static final double kDturn = 0.0;
+    public static final double kDturn = 0.5;
+    public static final double kTurnTolerance = Units.degreesToRadians(3.0);
 
-    public static final double kMaxSpeedMetersPerSecond = 4.2;
+    // public static final double kMaxSpeedMetersPerSecond = 4.2;
+    public static final double kMaxSpeedMetersPerSecond = 1.0;
 
     public static final class PathPlannerConstants {
       public static final PIDConstants kTranslationPID = new PIDConstants(0.1, 0.0, 0.0);
