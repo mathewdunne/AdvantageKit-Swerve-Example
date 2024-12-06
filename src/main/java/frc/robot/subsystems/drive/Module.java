@@ -6,7 +6,6 @@ package frc.robot.subsystems.drive;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.SimpleMotorFeedforward;
-import edu.wpi.first.math.filter.LinearFilter;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -27,7 +26,6 @@ public class Module {
   private final SimpleMotorFeedforward m_driveFeedforward;
   private final PIDController m_driveFeedback;
   private final PIDController m_turnFeedback;
-  private final LinearFilter m_filter = LinearFilter.singlePoleIIR(0.1, 0.02);
   private Rotation2d m_angleSetpoint = null; // Setpoint for closed loop control, null for open loop
   private Double m_speedSetpoint = null; // Setpoint for closed loop control, null for open loop
   private Rotation2d m_turnRelativeOffset = null; // Relative + Offset = Absolute
@@ -48,7 +46,7 @@ public class Module {
                 DriveConstants.kPdrive,
                 DriveConstants.kIdrive,
                 DriveConstants.kDdrive,
-                Units.degreesToRadians(3.0),
+                Units.degreesToRadians(-1.0),
                 getClass().getSimpleName() + "Drive",
                 true);
         m_turnFeedback =
@@ -94,8 +92,7 @@ public class Module {
     // Run closed loop turn control
     if (m_angleSetpoint != null) {
       m_io.setTurnVoltage(
-          m_turnFeedback.calculate(
-              m_filter.calculate(getAngle().getRadians()), m_angleSetpoint.getRadians()));
+          m_turnFeedback.calculate(getAngle().getRadians(), m_angleSetpoint.getRadians()));
 
       // Run closed loop drive control
       // Only allowed if closed loop turn control is running
