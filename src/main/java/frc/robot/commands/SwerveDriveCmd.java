@@ -5,7 +5,10 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Transform2d;
+import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
@@ -74,6 +77,14 @@ public class SwerveDriveCmd extends Command {
     // Reconstruct the adjusted x and y values based on the adjusted magnitude
     double adjustedX = adjustedMagnitude * Math.cos(direction);
     double adjustedY = adjustedMagnitude * Math.sin(direction);
+
+    // TODO May or may not fix the joystick issue, but 6328 did it this way.
+    Translation2d linearVelocity =
+        new Pose2d(new Translation2d(), new Rotation2d(xInput, yInput))
+            .transformBy(new Transform2d(adjustedMagnitude, 0.0, new Rotation2d()))
+            .getTranslation();
+    adjustedX = linearVelocity.getX();
+    adjustedY = linearVelocity.getY();
 
     // Apply deadband and square the omega input
     double omega =

@@ -64,9 +64,9 @@ public final class Constants {
     public static final double kIdrive = 0.0;
     public static final double kDdrive = 0.0;
 
-    public static final double kPturn = 6.0;
+    public static final double kPturn = 6.5;
     public static final double kIturn = 0.0;
-    public static final double kDturn = 0.5;
+    public static final double kDturn = 0.25;
     public static final double kTurnTolerance = Units.degreesToRadians(2.0);
 
     // public static final double kMaxSpeedMetersPerSecond = 4.2;
